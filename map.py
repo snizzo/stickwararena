@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from direct.showbase.DirectObject import DirectObject
+from direct.filter.CommonFilters import CommonFilters
 from panda3d.core import *
 from pandac.PandaModules import *
 from direct.showbase import *
@@ -10,11 +11,20 @@ class Map(DirectObject.DirectObject):
         pass
     def setupMap(self):
         #carico il modello e riparento
-        map = loader.loadModel("maps/data/demo.egg")
-        map.setP(90)
-        map.reparentTo(render)
+        mappa = loader.loadModel("maps/data/demo.egg")
+        mappa.setP(90)
+        mappa.reparentTo(render)
         
         #carico la skybox e riparento
         skybox = loader.loadModel("maps/data/skybox.egg")
-        skybox.setScale(5)
+        skybox.setScale(512)
         skybox.reparentTo(render)
+        
+        
+    def setupShaders(self):
+        render.setShaderAuto()
+        #setupfilters and shaders
+        self.filters = CommonFilters(base.win, base.cam)
+        self.filters.setCartoonInk(separation=1.5)
+        self.filters.setBloom(size="small")
+        #render.setAttrib(LightRampAttrib.makeHdr0())
