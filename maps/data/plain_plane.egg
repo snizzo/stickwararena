@@ -1,0 +1,35 @@
+<CoordinateSystem> { Z-up }
+
+<Comment> { "Egg laid by Chicken for Blender, version R91" }
+
+<Material> Material.001 {
+  <Scalar> diffr {1.0}
+  <Scalar> diffg {1.0}
+  <Scalar> diffb {1.0}
+  <Scalar> specr {0.25}
+  <Scalar> specg {0.25}
+  <Scalar> specb {0.25}
+  <Scalar> shininess {12.5}
+}
+<Group> Plane {
+  <VertexPool> Plane {
+    <Vertex> 0 {
+      1.0 0.999999940395 0.0
+    }
+    <Vertex> 1 {
+      -0.999999642372 1.00000035763 0.0
+    }
+    <Vertex> 2 {
+      -1.00000011921 -0.999999821186 0.0
+    }
+    <Vertex> 3 {
+      1.0 -1.0 0.0
+    }
+  }
+  <Polygon> {
+    <MRef> { Material.001 }
+    <Normal> { 0.000000 -0.000000 1.000000
+    }
+    <VertexRef> { 0 1 2 3 <Ref> { Plane } }
+  }
+}
