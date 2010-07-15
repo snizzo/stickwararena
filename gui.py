@@ -26,8 +26,40 @@ class Gui():
         self.spButton['relief'] = None
         self.spButton['command'] = messenger.send
         self.spButton['extraArgs'] = (['startSPDemo'])
-        self.spButton.setX(-0.64)
+        self.spButton.setX(-0.68)
         self.spButton.setZ(0.21)
+        
+        #configuration button (animated)
+        self.cfgButtonGeom = loader.loadModel("images/configure.egg")
+        
+        self.cfgButton = DirectButton(geom = (
+        self.cfgButtonGeom.find('**/configure_ready'),
+        self.cfgButtonGeom.find('**/configure_click'),
+        self.cfgButtonGeom.find('**/configure_rollover'),
+        self.cfgButtonGeom.find('**/configure_disabled')))
+        self.cfgButton.resetFrameSize()
+        
+        self.cfgButton['relief'] = None
+        self.cfgButton['command'] = messenger.send
+        self.cfgButton['extraArgs'] = (['startCFGScreen'])
+        self.cfgButton.setX(0.68)
+        self.cfgButton.setZ(0.21)
+        
+        #multi player button (animated)
+        self.mpButtonGeom = loader.loadModel("images/worldwidewar.egg")
+        
+        self.mpButton = DirectButton(geom = (
+        self.mpButtonGeom.find('**/worldwidewar_ready'),
+        self.mpButtonGeom.find('**/worldwidewar_click'),
+        self.mpButtonGeom.find('**/worldwidewar_rollover'),
+        self.mpButtonGeom.find('**/worldwidewar_disabled')))
+        self.mpButton.resetFrameSize()
+        
+        self.mpButton['relief'] = None
+        self.mpButton['command'] = messenger.send
+        self.mpButton['extraArgs'] = (['startMPDemo'])
+        self.mpButton.setX(-0.64)
+        self.mpButton.setZ(-0.55)
         
         #exit button (animated)
         self.exitButtonGeom = loader.loadModel("images/surrender.egg")
@@ -49,6 +81,10 @@ class Gui():
         self.background.remove()
         self.spButton.remove()
         self.spButtonGeom.remove()
+        self.cfgButton.remove()
+        self.cfgButtonGeom.remove()
+        self.mpButton.remove()
+        self.mpButtonGeom.remove()
         self.exitButton.remove()
         self.exitButtonGeom.remove()
         

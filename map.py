@@ -22,9 +22,9 @@ class Map(DirectObject.DirectObject):
         
         
     def setupShaders(self):
-        render.setShaderAuto()
+        #render.setShaderAuto()
         #setupfilters and shaders
         self.filters = CommonFilters(base.win, base.cam)
         self.filters.setCartoonInk(separation=1.5)
-        self.filters.setBloom(size="small")
+        #self.filters.setBloom(size="small")
         #render.setAttrib(LightRampAttrib.makeHdr0())
