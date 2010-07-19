@@ -9,8 +9,8 @@ class Camera(DirectObject.DirectObject):
     def __init__(self):
         self.scrollingSpeed = 25
         base.disableMouse()
-        camera.setY(-25)
-        camera.setP(15)
+        camera.setP(-90)
+        camera.setZ(30)
         self.accept('wheel_up',self.cameraZoomIn)
         self.accept('wheel_down',self.cameraZoomOut)
         taskMgr.add(self.cameraMovements,"cameraMovements")
@@ -21,25 +21,25 @@ class Camera(DirectObject.DirectObject):
         render.setLight(self.cameraLight)
         
     def cameraZoomIn(self):
-        camera.setY(camera, 1)
+        camera.setY(camera, 2)
     def cameraZoomOut(self):
-        camera.setY(camera, -1)
+        camera.setY(camera, -2)
     def cameraMovements(self, task):
         if base.mouseWatcherNode.hasMouse():
             x = base.mouseWatcherNode.getMouseX()
             y = base.mouseWatcherNode.getMouseY()
             self.dt = globalClock.getDt() * self.scrollingSpeed
-        if x < -0.97:
-            camera.setX(camera, -self.dt)
-        if x > 0.97:
-            camera.setX(camera, self.dt)
-        if y > 0.97:
-            camera.setZ(camera, self.dt)
-        if y < -0.97:
-            camera.setZ(camera, -self.dt)
-        
-        self.cameraLight.setX(camera.getX())
-        self.cameraLight.setY(camera.getY())
-        self.cameraLight.setZ(camera.getZ())
+            if x < -0.97:
+                camera.setX(camera, -self.dt)
+            if x > 0.97:
+                camera.setX(camera, self.dt)
+            if y > 0.97:
+                camera.setZ(camera, self.dt)
+            if y < -0.97:
+                camera.setZ(camera, -self.dt)
+            
+            self.cameraLight.setX(camera.getX())
+            self.cameraLight.setY(camera.getY())
+            self.cameraLight.setZ(camera.getZ())
         
         return task.cont

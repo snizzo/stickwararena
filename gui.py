@@ -88,4 +88,12 @@ class Gui():
         self.exitButton.remove()
         self.exitButtonGeom.remove()
         
+    def createCommander(self):
+        self.mainCmd = loader.loadModel("images/stick_commander/commander.egg")
+        self.mainCmd.setZ(-0.74)
+        self.mainCmd.reparentTo(aspect2d)
+        
+    def destroyCommander(self):
+        self.mainCmd.remove()
+        
         

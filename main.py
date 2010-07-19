@@ -15,7 +15,8 @@ import eventsManager
 
 #fullscreen e grandezza finestra
 loadPrcFileData("", """fullscreen 1
-win-size 1024 768""")
+win-size 1024 768
+text-encoding utf8""")
 
 class StickWarArena(ShowBase):
     
@@ -25,20 +26,33 @@ class StickWarArena(ShowBase):
         #base event handling
         self.accept("exitGame", self.exitGame)
         self.accept("startSPDemo", self.startSPDemo)
+        self.accept("escape", self.mainMenu)
         ###impostazioni iniziali
         
         #event management
         self.myEventMgr = eventsManager.EventsManager()
-        #gui management
+        #gui, map, camera and other managements
         self.myGui = gui.Gui()
+        self.myMap = map.Map()
+        self.myCamera = camera.Camera()
+        
+        #start point
         self.myGui.createMainMenu()
+        self.myMap.setupShaders()
+    
+    def mainMenu(self):
+        self.myMap.destroyMap()
+        self.myGui.destroyCommander()
+        self.myGui.createMainMenu()
+        
+        print "exiting... start log ----------------------------------------------"
+        self.myMap.army.ls()
+        render.ls()
     
     def startSPDemo(self):
         self.myGui.destroyMainMenu()
-        self.myCamera = camera.Camera()        
-        self.myMap = map.Map()
         self.myMap.setupMap()
-        self.myMap.setupShaders()
+        self.myGui.createCommander()
 
     def exitGame(self):
         sys.exit()
