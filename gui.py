@@ -5,7 +5,7 @@ from direct.gui.DirectGui import *
 
 class Gui():
     def __init__(self):
-        pass
+        self.pirulen = loader.loadFont("fonts/pirulen.ttf")
     
     def createMainMenu(self):
         
@@ -92,8 +92,19 @@ class Gui():
         self.mainCmd = loader.loadModel("images/stick_commander/commander.egg")
         self.mainCmd.setZ(-0.74)
         self.mainCmd.reparentTo(aspect2d)
-        
+        self.dTL = TextNode("debugTextLine")
+        self.dTL.setText("waiting for orders")
+        self.dTL.setFont(self.pirulen)
+        self.dTL_np = aspect2d.attachNewNode(self.dTL)
+        self.dTL_np.setScale(0.05)
+        self.dTL_np.setPos(-0.65,0,-0.75)
+    
+    def changeText(self, text):
+        self.dTL.setText(text)
+        print "text changed to: ", text
+    
     def destroyCommander(self):
         self.mainCmd.remove()
+        self.dTL_np.remove()
         
         

@@ -12,6 +12,7 @@ class Army(DirectObject.DirectObject):
     def __init__(self):
         #creating main list
         self.unitList = []
+        self.pickList = []
     
     def setupStartUnits(self, start1):
         self.addUnit("base", start1.getX(),start1.getY(),start1.getZ())
@@ -19,8 +20,10 @@ class Army(DirectObject.DirectObject):
     def addUnit(self, model, x, y, z):
         thisunit = unit.Unit(model, x, y, z)
         self.unitList.append(thisunit)
+        self.pickList.append(thisunit.node)
     
     def removeUnit(self, np):
+        self.pickList.remove(np.node)
         np.node.remove()
         self.unitList.remove(np)
     
@@ -30,5 +33,6 @@ class Army(DirectObject.DirectObject):
     #function that i use to remove all my RTS's units from the main units list.
     def removeAll(self):
         for unit in self.unitList[:]:
+            self.pickList.remove(unit.node)
             unit.node.remove()
             self.unitList.remove(unit)
