@@ -53,7 +53,6 @@ class StickWarArena(ShowBase):
         self.myGui.destroyMainMenu()
         self.myMap.setupMap()
         self.myGui.createCommander()
-        self.myCamera = Camera()
         objSelectionTool.listConsideration = self.myMap.army.pickList
 
     def exitGame(self):

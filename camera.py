@@ -16,11 +16,6 @@ import math
 class Camera(DirectObject.DirectObject):
     def __init__(self):
         
-        self.accept("arrow_up", self.moveUp)
-        self.accept("arrow_down", self.moveDown)
-        self.accept("arrow_left", self.moveLeft)
-        self.accept("arrow_right", self.moveRight)
-        
         self.scrollingSpeed = 25
         base.disableMouse()
         camera.setP(-90)
@@ -42,6 +37,7 @@ class Camera(DirectObject.DirectObject):
         if base.mouseWatcherNode.hasMouse():
             x = base.mouseWatcherNode.getMouseX()
             y = base.mouseWatcherNode.getMouseY()
+            print x, " - ", y
             self.dt = globalClock.getDt() * self.scrollingSpeed
             if x < -0.97:
                 camera.setX(camera, -self.dt)
@@ -58,18 +54,9 @@ class Camera(DirectObject.DirectObject):
         
         return task.cont
         
-    def moveUp(self):
-        camera.setX(camera, self.dt)
-    def moveDown(self):
-        camera.setX(camera, -self.dt)
-    def moveLeft(self):
-        camera.setZ(camera, -self.dt)
-    def moveRight(self):
-        camera.setZ(camera, self.dt)
 
 class clKeyBoardModifiers(DirectObject.DirectObject): 
     def __init__(self): 
-        print "clkeyboardmodifiers object initialized"
         self.booAlt = False 
         self.booControl = False 
         self.booShift = False 
@@ -100,17 +87,17 @@ class clKeyBoardModifiers(DirectObject.DirectObject):
          
 class clSelectionTool(DirectObject.DirectObject): 
     def __init__(self, listConsideration=[]): 
-        print "clselectiontool object initialized"
         #Create a selection window using cardmaker 
         #We will use the setScale function to dynamically scale the quad to the appropriate size in UpdateSelRect 
         temp = CardMaker('') 
         temp.setFrame(0, 1, 0, 1) 
         #self.npSelRect is the actual selection rectangle that we dynamically hide/unhide and change size 
         self.npSelRect = render2d.attachNewNode(temp.generate()) 
-        self.npSelRect.setColor(1,1,0,.2) 
+        self.npSelRect.setColor(0.5,1,0,.3) 
         self.npSelRect.setTransparency(1) 
         self.npSelRect.hide() 
         LS = LineSegs() 
+        LS.setColor(0.5,1,0,1)
         LS.moveTo(0,0,0) 
         LS.drawTo(1,0,0) 
         LS.drawTo(1,0,1) 
@@ -139,7 +126,7 @@ class clSelectionTool(DirectObject.DirectObject):
         self.accept("control-mouse1", self.OnStartSelect) 
         self.accept("mouse1-up", self.OnStopSelect) 
         self.taskUpdateSelRect = 0 
-
+        
     def TTest(self): 
         print "hello control-mouse1" 
     def funcSelectActionOnObject(self, obj): 
@@ -194,7 +181,7 @@ class clSelectionTool(DirectObject.DirectObject):
                                     if dist < fTempObjDist: 
                                         fTempObjDist = dist 
                                         objTempSelected = i 
-
+            
             if objTempSelected != 0: 
                 if objKeyBoardModifiers.booControl: 
                     self.listSelected.append(objTempSelected) 
@@ -203,7 +190,7 @@ class clSelectionTool(DirectObject.DirectObject):
                         self.funcDeselectActionOnObject(i) 
                     self.listSelected = [objTempSelected] 
                 self.funcSelectActionOnObject(objTempSelected) 
-
+    
     def UpdateSelRect(self, task): 
         #Make sure we hae the mouse 
         if not base.mouseWatcherNode.hasMouse(): 
@@ -221,7 +208,7 @@ class clSelectionTool(DirectObject.DirectObject):
                 #Update the selection rectange graphically 
                 d = self.pt2LastMousePos - self.pt2InitialMousePos 
                 self.npSelRect.setScale(d[0] if d[0] else 1e-3, 1, d[1] if d[1] else 1e-3) 
-
+                
         if (abs(self.pt2InitialMousePos[0] - self.pt2LastMousePos[0]) > .01) & (abs(self.pt2InitialMousePos[1] - self.pt2LastMousePos[1]) > .01): 
             if (t - self.fTimeLastUpdateSelected) > self.UpdateTimeSelected: 
                 #A better way to handle a large number of objects is to first transform the 2-d selection rect into 
@@ -256,14 +243,10 @@ class clSelectionTool(DirectObject.DirectObject):
                             self.funcDeselectActionOnObject(i) 
                     else: 
                         self.listSelected.append(i) 
-
+        
         return Task.cont 
-
-__builtin__.objSelectionTool = clSelectionTool() 
+        
+__builtin__.myCamera = Camera()
 __builtin__.objKeyBoardModifiers = clKeyBoardModifiers()
+__builtin__.objSelectionTool = clSelectionTool() 
 
-if __name__ == "__main__": 
-    a = clCameraHandler(booDebug=True) 
-    a.fLastMouseX = 0 
-    a.fLastMouseY = 0 
-    a.DoDragPan(0, .5)
