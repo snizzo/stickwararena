@@ -4,6 +4,7 @@ from direct.showbase.DirectObject import DirectObject
 from panda3d.core import *
 from pandac.PandaModules import *
 from direct.showbase import *
+from direct.task import Task
 import sys,os
 
 import unit
@@ -13,6 +14,12 @@ class Army(DirectObject.DirectObject):
         #creating main list
         self.unitList = []
         self.pickList = []
+        self.selectedUnitList = []
+        taskMgr.add(self.setPointersTask,"sPT")
+        
+    def setPointersTask(self, task):
+        objSelectionTool.listConsideration = self.pickList
+        return Task.done
     
     def setupStartUnits(self, start1):
         self.addUnit("base", start1.getX(),start1.getY(),start1.getZ())

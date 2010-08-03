@@ -98,10 +98,16 @@ class Gui():
         self.dTL_np = aspect2d.attachNewNode(self.dTL)
         self.dTL_np.setScale(0.05)
         self.dTL_np.setPos(-0.65,0,-0.75)
+        
+    def updateCommanderSelection(self):
+        gText = "Selected "
+        for unit in objSelectionTool.listSelected:
+            type = unit.getNetTag('type')
+            gText = gText + type + " "
+        self.changeText(gText)
     
     def changeText(self, text):
         self.dTL.setText(text)
-        print "text changed to: ", text
     
     def destroyCommander(self):
         self.mainCmd.remove()

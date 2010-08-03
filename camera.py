@@ -37,7 +37,6 @@ class Camera(DirectObject.DirectObject):
         if base.mouseWatcherNode.hasMouse():
             x = base.mouseWatcherNode.getMouseX()
             y = base.mouseWatcherNode.getMouseY()
-            print x, " - ", y
             self.dt = globalClock.getDt() * self.scrollingSpeed
             if x < -0.97:
                 camera.setX(camera, -self.dt)
@@ -130,7 +129,7 @@ class clSelectionTool(DirectObject.DirectObject):
     def TTest(self): 
         print "hello control-mouse1" 
     def funcSelectActionOnObject(self, obj): 
-        obj.showBounds() 
+        obj.showBounds()
          
     def funcDeselectActionOnObject(self, obj): 
         obj.hideBounds() 
@@ -162,7 +161,7 @@ class clSelectionTool(DirectObject.DirectObject):
             for i in self.listConsideration: 
                 if type(i) != libpanda.NodePath: 
                     raise 'Unknown objtype in selection' 
-                else: 
+                else:
                     sphBounds = i.getBounds() 
                     #p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
                     p3 = base.cam.getRelativePoint(i.getParent(), sphBounds.getCenter()) 
@@ -175,7 +174,7 @@ class clSelectionTool(DirectObject.DirectObject):
                     if (self.pt2InitialMousePos[0] >= (p2[0] - screen_width/2)): 
                         if (self.pt2InitialMousePos[0] <= (p2[0] + screen_width/2)): 
                             if (self.pt2InitialMousePos[1] >= (p2[1] - screen_height/2)): 
-                                if (self.pt2InitialMousePos[1] <= (p2[1] + screen_height/2)): 
+                                if (self.pt2InitialMousePos[1] <= (p2[1] + screen_height/2)):
                                     #We check the obj's distance to the camera and choose the closest one 
                                     dist = p3[0]**2+p3[1]**2+p3[2]**2 - r**2 
                                     if dist < fTempObjDist: 
@@ -190,6 +189,7 @@ class clSelectionTool(DirectObject.DirectObject):
                         self.funcDeselectActionOnObject(i) 
                     self.listSelected = [objTempSelected] 
                 self.funcSelectActionOnObject(objTempSelected) 
+        messenger.send("mouse-selection")
     
     def UpdateSelRect(self, task): 
         #Make sure we hae the mouse 

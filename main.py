@@ -5,11 +5,11 @@ import direct.directbase.DirectStart
 from direct.showbase.ShowBase import ShowBase
 from pandac.PandaModules import loadPrcFileData
 from direct.gui.DirectGui import *
+from direct.task import Task
 import sys,os
 
 import map
 import gui
-import eventsManager
 
 from direct.showbase.DirectObject import DirectObject
 
@@ -24,8 +24,6 @@ class StickWarArena(ShowBase):
         ShowBase.__init__(self)
         ###impostazioni iniziali
         
-        #event management
-        self.myEventMgr = eventsManager.EventsManager()
         #gui, map, camera and other managements
         self.myGui = gui.Gui()
         self.myMap = map.Map()
@@ -38,10 +36,15 @@ class StickWarArena(ShowBase):
         self.accept("exitGame", self.exitGame)
         self.accept("startSPDemo", self.startSPDemo)
         self.accept("escape", self.mainMenu)
+        self.accept("mouse-selection", self.myGui.updateCommanderSelection)
         
         self.accept("p", self.myGui.changeText,["Pufff!"])
         self.accept("p-repeat", self.myGui.changeText,["Pefff!"])
         self.accept("p-up", self.myGui.changeText,["Pafff!"])
+    
+    def ciao(self):
+        #print objSelectionTool.listSelected
+        print self.myMap.army.selectedUnitList
     
     def mainMenu(self):
         self.myMap.destroyMap()
@@ -53,7 +56,7 @@ class StickWarArena(ShowBase):
         self.myGui.destroyMainMenu()
         self.myMap.setupMap()
         self.myGui.createCommander()
-        objSelectionTool.listConsideration = self.myMap.army.pickList
+            
 
     def exitGame(self):
         sys.exit()

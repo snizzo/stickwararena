@@ -12,5 +12,6 @@ class Unit(DirectObject.DirectObject):
         self.node = loader.loadModel("models/" + model + ".egg")
         self.node.setPos(x,y,z)
         self.node.reparentTo(render)
+        self.node.setTag("type", model)
         pass
     
