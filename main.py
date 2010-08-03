@@ -14,7 +14,7 @@ import gui
 from direct.showbase.DirectObject import DirectObject
 
 #fullscreen e grandezza finestra
-loadPrcFileData("", """fullscreen 1
+loadPrcFileData("", """fullscreen 0
 win-size 1024 768
 text-encoding utf8""")
 
