@@ -18,7 +18,7 @@ class Camera(DirectObject.DirectObject):
         
         self.scrollingSpeed = 25
         base.disableMouse()
-        camera.setP(-90)
+        camera.setP(-70)
         camera.setZ(30)
         self.accept('wheel_up',self.cameraZoomIn)
         self.accept('wheel_down',self.cameraZoomOut)
@@ -34,18 +34,18 @@ class Camera(DirectObject.DirectObject):
     def cameraZoomOut(self):
         camera.setY(camera, -2)
     def cameraMovements(self, task):
-        if base.mouseWatcherNode.hasMouse():
+        if base.mouseWatcherNode.hasMouse() and not objSelectionTool.booSelecting:
             x = base.mouseWatcherNode.getMouseX()
             y = base.mouseWatcherNode.getMouseY()
             self.dt = globalClock.getDt() * self.scrollingSpeed
-            if x < -0.97:
-                camera.setX(camera, -self.dt)
-            if x > 0.97:
-                camera.setX(camera, self.dt)
-            if y > 0.97:
-                camera.setZ(camera, self.dt)
-            if y < -0.97:
-                camera.setZ(camera, -self.dt)
+            if x < -0.99:
+                camera.setX(camera.getX()-self.dt)
+            if x > 0.99:
+                camera.setX(camera.getX()+self.dt)
+            if y > 0.99:
+                camera.setY(camera.getY()+self.dt)
+            if y < -0.99:
+                camera.setY(camera.getY()-self.dt)
             
             self.cameraLight.setX(camera.getX())
             self.cameraLight.setY(camera.getY())
@@ -126,14 +126,19 @@ class clSelectionTool(DirectObject.DirectObject):
         self.accept("mouse1-up", self.OnStopSelect) 
         self.taskUpdateSelRect = 0 
         
+        ####------otherThings
+        self.booSelecting = False
+        
     def TTest(self): 
         print "hello control-mouse1" 
     def funcSelectActionOnObject(self, obj): 
-        #obj.showBounds()
+        children = obj.find("**/otherThings")
+        children.show()
         pass
          
     def funcDeselectActionOnObject(self, obj): 
-        #obj.hideBounds() 
+        children = obj.find("**/otherThings")
+        children.hide()
         pass
          
     def OnStartSelect(self): 
@@ -243,6 +248,7 @@ class clSelectionTool(DirectObject.DirectObject):
                     if not objKeyBoardModifiers.booControl: 
                         if i not in self.listSelected: 
                             self.funcDeselectActionOnObject(i) 
+                            pass
                     else: 
                         self.listSelected.append(i) 
         

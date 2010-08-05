@@ -14,7 +14,7 @@ import gui
 from direct.showbase.DirectObject import DirectObject
 
 #fullscreen e grandezza finestra
-loadPrcFileData("", """fullscreen 0
+loadPrcFileData("", """fullscreen 1
 win-size 1024 768
 text-encoding utf8""")
 
@@ -37,10 +37,6 @@ class StickWarArena(ShowBase):
         self.accept("startSPDemo", self.startSPDemo)
         self.accept("escape", self.mainMenu)
         self.accept("mouse-selection", self.myGui.updateCommanderSelection)
-        
-        self.accept("p", self.myGui.changeText,["Pufff!"])
-        self.accept("p-repeat", self.myGui.changeText,["Pefff!"])
-        self.accept("p-up", self.myGui.changeText,["Pafff!"])
     
     def ciao(self):
         #print objSelectionTool.listSelected

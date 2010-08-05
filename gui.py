@@ -102,17 +102,7 @@ class Gui():
     def updateCommanderSelection(self):
         gText = "Selected "
         for unit in objSelectionTool.listSelected:
-            bradius = unit.getBounds().getRadius()
-            selector = loader.loadModel("images/selector.egg")
-            selector.setLightOff()
-            selector.reparentTo(unit)
-            selector.setZ(0.1)
-            selector.setP(270)
-            selector.setScale(bradius)
-            
-            type = unit.getNetTag('type')
-            gText = gText + type + " "
-        self.changeText(gText)
+            pass
     
     def changeText(self, text):
         self.dTL.setText(text)
