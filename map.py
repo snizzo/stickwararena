@@ -24,6 +24,8 @@ class Map(DirectObject.DirectObject):
         
         self.start1 = self.mappa.find("**/Player1_start")
         self.army.setupStartUnits(self.start1)
+        camera.setX(self.start1.getX())
+        camera.setY(self.start1.getY()-7)
         
     def destroyMap(self):
         self.army.removeAll()

@@ -19,7 +19,7 @@ class Camera(DirectObject.DirectObject):
         self.scrollingSpeed = 25
         base.disableMouse()
         camera.setP(-70)
-        camera.setZ(30)
+        camera.setZ(15)
         self.accept('wheel_up',self.cameraZoomIn)
         self.accept('wheel_down',self.cameraZoomOut)
         taskMgr.add(self.cameraMovements,"cameraMovements")
@@ -187,7 +187,7 @@ class clSelectionTool(DirectObject.DirectObject):
                                     if dist < fTempObjDist: 
                                         fTempObjDist = dist 
                                         objTempSelected = i 
-            
+            #if something is click-selected
             if objTempSelected != 0: 
                 if objKeyBoardModifiers.booControl: 
                     self.listSelected.append(objTempSelected) 
@@ -196,6 +196,11 @@ class clSelectionTool(DirectObject.DirectObject):
                         self.funcDeselectActionOnObject(i) 
                     self.listSelected = [objTempSelected] 
                 self.funcSelectActionOnObject(objTempSelected) 
+            #if nothing is selected just deselect all, a normal behaviour in RTS's game
+            if objTempSelected == 0:
+                for i in self.listSelected:
+                    self.funcDeselectActionOnObject(i)
+                    self.listSelected = []
         messenger.send("mouse-selection")
     
     def UpdateSelRect(self, task): 

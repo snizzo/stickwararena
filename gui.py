@@ -2,10 +2,12 @@
 from direct.showbase import DirectObject
 from pandac.PandaModules import *
 from direct.gui.DirectGui import *
+from direct.interval.LerpInterval import LerpHprInterval
 
 class Gui():
     def __init__(self):
         self.pirulen = loader.loadFont("fonts/pirulen.ttf")
+        self.miniImage = False
     
     def createMainMenu(self):
         
@@ -92,16 +94,36 @@ class Gui():
         self.mainCmd = loader.loadModel("images/stick_commander/commander.egg")
         self.mainCmd.setZ(-0.74)
         self.mainCmd.reparentTo(aspect2d)
+        self.displayInfo = aspect2d.attachNewNode("displayInfo")
         self.dTL = TextNode("debugTextLine")
-        self.dTL.setText("waiting for orders")
+        self.dTL.setText("nothing selected")
         self.dTL.setFont(self.pirulen)
-        self.dTL_np = aspect2d.attachNewNode(self.dTL)
+        self.dTL.setAlign(TextNode.ACenter)
+        self.dTL_np = self.displayInfo.attachNewNode(self.dTL)
         self.dTL_np.setScale(0.05)
-        self.dTL_np.setPos(-0.65,0,-0.75)
+        self.dTL_np.setPos(-0.15,0,-0.55)
         
-    def updateCommanderSelection(self):
-        gText = "Selected "
-        for unit in objSelectionTool.listSelected:
+    def updateCommanderSelection(self):        
+        if len(objSelectionTool.listSelected) == 0:
+            self.changeText("nothing selected")
+            if self.miniImage != False:
+                self.miniImage.remove()
+                self.miniImage = False
+        if len(objSelectionTool.listSelected) == 1:
+            unit = objSelectionTool.listSelected[0]
+            type = unit.getTag("type")
+            if type == "base":
+                if self.miniImage != False:
+                    self.miniImage.remove()
+                    self.miniImage = False
+                self.changeText("base")
+                self.miniImage = loader.loadModel("models/base.egg")
+                self.miniImage.setRenderModeWireframe()
+                self.miniImage.setPos(-0.55,0,-0.82)
+                self.miniImage.setP(16)
+                self.miniImage.setScale(0.2)
+                self.miniImage.reparentTo(self.displayInfo)
+                self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
             pass
     
     def changeText(self, text):
@@ -109,6 +131,6 @@ class Gui():
     
     def destroyCommander(self):
         self.mainCmd.remove()
-        self.dTL_np.remove()
+        self.displayInfo.remove()
         
         
