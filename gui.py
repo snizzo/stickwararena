@@ -8,6 +8,10 @@ class Gui():
     def __init__(self):
         self.pirulen = loader.loadFont("fonts/pirulen.ttf")
         self.miniImage = False
+        #small list of meshdrawer objects... stored only in order not to end my life in a mental clinic
+        #with some very very very hardcore mental problems... yay...
+        self.lifeBarsLastSelected = []
+    
     
     def createMainMenu(self):
         
@@ -103,7 +107,7 @@ class Gui():
         self.dTL_np.setScale(0.05)
         self.dTL_np.setPos(-0.15,0,-0.55)
         
-    def updateCommanderSelection(self):        
+    def updateCommanderSelection(self):
         if len(objSelectionTool.listSelected) == 0:
             self.changeText("nothing selected")
             if self.miniImage != False:
@@ -113,7 +117,7 @@ class Gui():
             unit = objSelectionTool.listSelected[0]
             type = unit.getTag("type")
             if type == "base":
-                if self.miniImage != False:
+                if self.miniImage != False:                                                                                                                     
                     self.miniImage.remove()
                     self.miniImage = False
                 self.changeText("base")

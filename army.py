@@ -31,7 +31,6 @@ class Army(DirectObject.DirectObject):
     
     def removeUnit(self, np):
         self.pickList.remove(np.node)
-        np.node.remove()
         self.unitList.remove(np)
     
     def ls(self):

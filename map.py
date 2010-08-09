@@ -38,6 +38,6 @@ class Map(DirectObject.DirectObject):
         render.setShaderAuto()
         #setupfilters and shaders
         self.filters = CommonFilters(base.win, base.cam)
-        self.filters.setCartoonInk(separation=1.2)
-        #self.filters.setBloom(size="small")
-        #render.setAttrib(LightRampAttrib.makeHdr0())
+        #self.filters.setCartoonInk(separation=1.2)
+        self.filters.setBloom(size="small")
+        render.setAttrib(LightRampAttrib.makeHdr0())

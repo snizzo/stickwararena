@@ -132,14 +132,12 @@ class clSelectionTool(DirectObject.DirectObject):
     def TTest(self): 
         print "hello control-mouse1" 
     def funcSelectActionOnObject(self, obj): 
-        children = obj.find("**/otherThings")
-        children.show()
-        pass
+        otherThings = obj.find("**/otherThings")
+        otherThings.show()
          
     def funcDeselectActionOnObject(self, obj): 
-        children = obj.find("**/otherThings")
-        children.hide()
-        pass
+        otherThings = obj.find("**/otherThings")
+        otherThings.hide()
          
     def OnStartSelect(self): 
         if not base.mouseWatcherNode.hasMouse(): 
