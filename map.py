@@ -19,8 +19,9 @@ class Map(DirectObject.DirectObject):
         self.skybox.reparentTo(render)
         
         #carico il modello e riparento
+        self.mapHolder = render.attachNewNode("absMap")
         self.mappa = loader.loadModel("maps/data/demo.egg")
-        self.mappa.reparentTo(render)
+        self.mappa.reparentTo(self.mapHolder)
         
         self.start1 = self.mappa.find("**/Player1_start")
         self.army.setupStartUnits(self.start1)
@@ -38,6 +39,6 @@ class Map(DirectObject.DirectObject):
         render.setShaderAuto()
         #setupfilters and shaders
         self.filters = CommonFilters(base.win, base.cam)
-        #self.filters.setCartoonInk(separation=1.2)
-        self.filters.setBloom(size="small")
-        render.setAttrib(LightRampAttrib.makeHdr0())
+        self.filters.setCartoonInk(separation=1.2)
+        #self.filters.setBloom(size="small")
+        #render.setAttrib(LightRampAttrib.makeHdr0())

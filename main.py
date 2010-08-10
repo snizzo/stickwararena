@@ -51,6 +51,7 @@ class StickWarArena(ShowBase):
     def startSPDemo(self):
         self.myGui.destroyMainMenu()
         self.myMap.setupMap()
+        myCamera.cameraSetup()
         self.myGui.createCommander()
             
 

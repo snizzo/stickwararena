@@ -30,21 +30,30 @@ class Camera(DirectObject.DirectObject):
         render.setLight(self.cameraLight)
         
     def cameraZoomIn(self):
-        camera.setY(camera, 2)
+        if camera.getZ() > 10:
+            camera.setY(camera, 1)
     def cameraZoomOut(self):
-        camera.setY(camera, -2)
+        if camera.getZ() < 20:
+            camera.setY(camera, -1)
+    def cameraSetup(self):
+        absMapPointer = render.find("**/absMap")
+        self.mapLimit = absMapPointer.getBounds().getRadius()
     def cameraMovements(self, task):
         if base.mouseWatcherNode.hasMouse() and not objSelectionTool.booSelecting:
             x = base.mouseWatcherNode.getMouseX()
             y = base.mouseWatcherNode.getMouseY()
+            
             self.dt = globalClock.getDt() * self.scrollingSpeed
-            if x < -0.99:
+            if x < -0.99 and camera.getX() > math.cos(45)*self.mapLimit*-1:
                 camera.setX(camera.getX()-self.dt)
-            if x > 0.99:
+                
+            if x > 0.99 and camera.getX() < math.cos(45)*self.mapLimit:
                 camera.setX(camera.getX()+self.dt)
-            if y > 0.99:
+                
+            if y > 0.99 and camera.getY() < math.sin(45)*self.mapLimit:
                 camera.setY(camera.getY()+self.dt)
-            if y < -0.99:
+                
+            if y < -0.99 and camera.getY() > math.sin(45)*self.mapLimit*-1:
                 camera.setY(camera.getY()-self.dt)
             
             self.cameraLight.setX(camera.getX())
