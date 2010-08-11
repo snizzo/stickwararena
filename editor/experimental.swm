@@ -4,17 +4,32 @@
         <row>
             <square>
                 <terrain type="plain_terrain"></terrain>
-                <element type="tree"></element>
+                <element type="column"></element>
             </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
-                <element type="player1_start"></element>
+                <element type="column"></element>
             </square>
         </row>
         <row>
             <square>
                 <terrain type="plain_terrain"></terrain>
-                <element type="resource"></element>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
             </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
