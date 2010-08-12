@@ -2,24 +2,64 @@
 
 <Comment> { "Egg laid by Chicken for Blender, version R91" }
 
-<Group> Plane {
-  <VertexPool> Plane {
+<Material> Material.002 {
+  <Scalar> diffr {1.0}
+  <Scalar> diffg {1.0}
+  <Scalar> diffb {1.0}
+  <Scalar> specr {0.25}
+  <Scalar> specg {0.25}
+  <Scalar> specb {0.25}
+  <Scalar> shininess {12.5}
+}
+<Texture> main_material.png {
+  "./main_material.png"
+  <Scalar> saved-result { 1 }
+  <Scalar> envtype { MODULATE }
+  <Scalar> minfilter { LINEAR }
+  <Scalar> magfilter { LINEAR }
+  <Scalar> wrap { REPEAT }
+}
+<Group> Plane.001 {
+  <VertexPool> Plane.001 {
     <Vertex> 0 {
       1.0 0.999999940395 0.0
+      <UV>  {
+        0.003059 0.000000
+        <Tangent> { 0.999995 -0.003068 0.000000 }
+        <Binormal> { -0.003068 -0.999995 -0.000000 }
+      }
     }
     <Vertex> 1 {
       -0.999999642372 1.00000035763 0.0
+      <UV>  {
+        1.000000 0.003058
+        <Tangent> { 0.999995 -0.003068 0.000000 }
+        <Binormal> { -0.003068 -0.999995 -0.000000 }
+      }
     }
     <Vertex> 2 {
       -1.00000011921 -0.999999821186 0.0
+      <UV>  {
+        0.996942 1.000000
+        <Tangent> { 0.999995 -0.003068 0.000000 }
+        <Binormal> { -0.003068 -0.999995 -0.000000 }
+      }
     }
     <Vertex> 3 {
       1.0 -1.0 0.0
+      <UV>  {
+        0.000000 0.996941
+        <Tangent> { 0.999995 -0.003068 0.000000 }
+        <Binormal> { -0.003068 -0.999995 -0.000000 }
+      }
     }
   }
   <Polygon> {
+    <TRef> { main_material.png }
+    <MRef> { Material.002 }
     <Normal> { 0.000000 -0.000000 1.000000
     }
-    <VertexRef> { 0 1 2 3 <Ref> { Plane } }
+    <Scalar> alpha { OFF }
+    <VertexRef> { 0 1 2 3 <Ref> { Plane.001 } }
   }
 }

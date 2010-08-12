@@ -25,6 +25,7 @@
             </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
+                <element type="pStart"></element>
             </square>
         </row>
         <row>

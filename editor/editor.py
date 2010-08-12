@@ -21,7 +21,6 @@ class MapEditor(ShowBase):
     def __init__(self):
         ShowBase.__init__(self)
         ###impostazioni iniziali
-        camera.setZ(100)
         self.elementList = []
         #gui, map, camera and other managements
         #self.myGui = gui.Gui()
@@ -65,13 +64,17 @@ class MapEditor(ShowBase):
                                         for e in e.childNodes:
                                             if e.nodeType == e.ELEMENT_NODE:
                                                 eType = e.getAttribute("type")
-                                                envElem = loader.loadModel(self.mapEnv + "/" + eType + ".egg")
-                                                print "element loaded!", self.mapEnv + "/" + eType + ".egg"
-                                                print "x=",self.x,"|y=",self.y
-                                                envElem.setX(self.x)
-                                                envElem.setY(self.y)
-                                                envElem.reparentTo(render)
-                                                self.elementList.append(envElem)
+                                                if eType != "pStart":
+                                                    envElem = loader.loadModel(self.mapEnv + "/" + eType + ".egg")
+                                                    envElem.setX(self.x)
+                                                    envElem.setY(self.y)
+                                                    envElem.reparentTo(render)
+                                                    self.elementList.append(envElem)
+                                                else:
+                                                    envElem = render.attachNewNode("pStart")
+                                                    envElem.setX(self.x)
+                                                    envElem.setY(self.y)
+                                                    self.elementList.append(envElem)
                                                 #moving for next square
                                         self.x += 2
                                 self.y += 2
