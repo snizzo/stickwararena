@@ -16,7 +16,7 @@ import math
 class Camera(DirectObject.DirectObject):
     def __init__(self):
         
-        self.scrollingSpeed = 25
+        self.scrollingSpeed = 15
         base.disableMouse()
         camera.setP(-70)
         camera.setZ(15)
@@ -140,9 +140,11 @@ class clSelectionTool(DirectObject.DirectObject):
         
     def TTest(self): 
         print "hello control-mouse1" 
-    def funcSelectActionOnObject(self, obj): 
+    def funcSelectActionOnObject(self, obj):
         otherThings = obj.find("**/otherThings")
         otherThings.show()
+        uobj = obj.getPythonTag("unitobj")
+        uobj.updateBarLife()
          
     def funcDeselectActionOnObject(self, obj): 
         otherThings = obj.find("**/otherThings")

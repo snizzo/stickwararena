@@ -4,14 +4,24 @@
         <row>
             <square>
                 <terrain type="plain_terrain"></terrain>
-                <element type="column"></element>
             </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
-                <element type="column"></element>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
             </square>
         </row>
         <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
             </square>
@@ -27,8 +37,20 @@
                 <terrain type="plain_terrain"></terrain>
                 <element type="pStart"></element>
             </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
         </row>
         <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
             <square>
                 <terrain type="plain_terrain"></terrain>
             </square>

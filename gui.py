@@ -10,9 +10,9 @@ class Gui():
         self.miniImage = False
         #small list of meshdrawer objects... stored only in order not to end my life in a mental clinic
         #with some very very very hardcore mental problems... yay...
-        self.lifeBarsLastSelected = []
-    
-    
+        
+        base.accept("d", self.damageUnit)
+        
     def createMainMenu(self):
         
         #background button
@@ -113,6 +113,7 @@ class Gui():
             if self.miniImage != False:
                 self.miniImage.remove()
                 self.miniImage = False
+                
         if len(objSelectionTool.listSelected) == 1:
             unit = objSelectionTool.listSelected[0]
             type = unit.getTag("type")
@@ -128,7 +129,15 @@ class Gui():
                 self.miniImage.setScale(0.2)
                 self.miniImage.reparentTo(self.displayInfo)
                 self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-            pass
+                #base button order :)
+                #TODO
+        if len(objSelectionTool.listSelected) > 1:
+            self.changeText(len(objSelectionTool.listSelected) + " selected units")
+    
+    def damageUnit(self):
+        unitNode = objSelectionTool.listSelected[0]
+        uobj = unitNode.getPythonTag("unitobj")
+        uobj.giveDamage(10)
     
     def changeText(self, text):
         self.dTL.setText(text)
