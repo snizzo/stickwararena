@@ -38,6 +38,7 @@ class BlackMatter():
 		self.node.setH(randint(0, 359))
 		self.node.reparentTo(owner)
 		#set amount of black matter
+		self.node.setPythonTag("amountT", 18000)
 		self.node.setPythonTag("amount", 18000)
 		#adding to selectable unit list
 		mySelection.listConsideration.append(self)
@@ -47,7 +48,7 @@ class BlackMatter():
 		n = amount - 5
 		if n > 0:
 			self.node.setPythonTag("amount", n)
-			messenger.send("commanderUpdate", ['resources'])
+			messenger.send("commander-update", ['resources', res])
 		else:
 			self.remove()
 	

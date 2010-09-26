@@ -38,14 +38,13 @@ class Navigator(ShowBase):
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
 		
-		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
-		#introVideo.play()
-		self.mainMenu("intro")
+		introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
+		introVideo.play()
+		#self.mainMenu("intro")
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
 		myShader.setBloomed()
-		base.enableParticles()
 		
 	def startSingle(self):
 		#hide normalgui
@@ -60,6 +59,7 @@ class Navigator(ShowBase):
 		
 		#phase specific event handling
 		base.accept("escape", myPopupBuilder.show)
+		base.accept("d", self.damage)
 	
 	#FIXME: delete and implement in objects class
 	def damage(self):
@@ -68,8 +68,10 @@ class Navigator(ShowBase):
 	
 	# used to remove all exiting and rejoining...
 	def mainMenu(self,f):
+		mySelection.setIdle()
 		base.ignore("escape")
 		if(f=="game"):
+			mySelection.setIdle()
 			myMap.unloadMap()
 			myHudBuilder.hide()
 			for legion in myLegion:

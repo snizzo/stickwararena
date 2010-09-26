@@ -8,15 +8,17 @@ import __builtin__, sys
 
 class ShaderManager():
 	def __init__(self):
-		pass
+		base.enableParticles()
+		render.setShaderAuto()
 	
 	def setBloomed(self):
-		render.setShaderAuto()
 		#setupfilters and shaders
 		self.filters = CommonFilters(base.win, base.cam)
 		#self.filters.setCartoonInk(separation=1.0)
 		self.filters.setBloom(size="small")
+		#self.filters.setVolumetricLighting(myCamera.cameraLightNode)
 		render.setAttrib(LightRampAttrib.makeHdr0())
+		
 
 class VideoClip():
 	def __init__(self,videourl,addsound=""):

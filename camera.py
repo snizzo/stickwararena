@@ -170,6 +170,9 @@ class clSelectionTool():
 			pass
 		 
 	def OnStartSelect(self):
+		y = base.mouseWatcherNode.getMouseY()
+		if y < -0.5:
+			return
 		if not self.active:
 			return
 		if not base.mouseWatcherNode.hasMouse(): 
@@ -238,7 +241,7 @@ class clSelectionTool():
 	def UpdateSelRect(self, task): 
 		if not self.active:
 			return
-		#Make sure we hae the mouse 
+		#Make sure we have the mouse 
 		if not base.mouseWatcherNode.hasMouse(): 
 			return Task.cont 
 		mpos = base.mouseWatcherNode.getMouse() 
@@ -268,6 +271,16 @@ class clSelectionTool():
 				fMouse_Ly = max(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
 				fMouse_Rx = max(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
 				fMouse_Ry = min(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
+				'''
+				if fMouse_Lx < -0.5:
+					fMouse_Lx = -0.5
+				if fMouse_Ly < -0.5:
+					fMouse_Ly = -0.5
+				if fMouse_Rx < -0.5:
+					fMouse_Rx = -0.5
+				if fMouse_Ry < -0.5:
+					fMouse_Ry = -0.5
+				'''
 				for i in self.listConsideration: 
 					if type(i.node) != libpanda.NodePath: 
 						raise 'Unknown objtype in selection' 

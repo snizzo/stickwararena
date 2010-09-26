@@ -15,7 +15,7 @@ class PopupBuilder():
 		self.dialog.remove()
 		
 	def show(self):
-		self.dialog = YesNoDialog(dialogName="exitPopup", text="Are you sure?", command=self.sendResponse)
+		self.dialog = YesNoDialog(dialogName="exitPopup", text="Are you sure?", command=self.sendResponse, fadeScreen = True)
 		
 	def hide(self):
 		self.dialog.remove()
@@ -28,8 +28,11 @@ class MenuBuilder():
 		if type == "main":
 			self.mapNode = aspect2d.attachNewNode("mapNodeG")
 			#background button
-			self.background = loader.loadModel("images/background_main.egg")
-			self.background.reparentTo(self.mapNode)
+			self.background = DirectFrame(frameColor=(1, 1, 1, 1),frameSize=(-1, 1, -1, 1),)
+			self.background['geom'] = loader.loadModel("images/background_main.egg")
+			self.background['geom_scale'] = 2
+			self.background.resetFrameSize()
+			self.background.reparentTo(render2d)
 			
 			#single player button (animated)
 			self.spButtonGeom = loader.loadModel("images/beyourhero.egg")
@@ -97,6 +100,7 @@ class MenuBuilder():
 			self.exitButton.reparentTo(self.mapNode)
 	
 	def hide(self):
+		self.background.remove()
 		self.mapNode.remove()
 
 class HudBuilder():
@@ -105,13 +109,13 @@ class HudBuilder():
 		self.miniImage = False
 		
 		base.accept("mouse-selection", self.updateCommanderSelection)
+		base.accept("commander-update", self.update)
 	
 	def show(self):
 		self.hudNode = aspect2d.attachNewNode("hudNode")
-		self.bgImage = self.hudNode.attachNewNode("bgImage")
+		self.bgImage = render2d.attachNewNode("bgImage")
 		
-		self.mainCmd = loader.loadModel("images/stick_commander/commander.egg")
-		self.mainCmd.setZ(-0.74)
+		self.mainCmd = DirectFrame(frameColor=(0, 0, 0, .9),frameSize=(-1, 1, -1, -0.5))
 		self.mainCmd.reparentTo(self.bgImage)
 		
 		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
@@ -122,19 +126,56 @@ class HudBuilder():
 		self.dTL_np = self.displayInfo.attachNewNode(self.dTL)
 		self.dTL_np.setScale(0.05)
 		self.dTL_np.setPos(-0.15,0,-0.55)
+		
+		self.attTL = TextNode("attackTextLine")
+		self.attTL.setFont(self.pirulen)
+		self.attTL.setText("ccc")
+		self.attTL_np = self.displayInfo.attachNewNode(self.attTL)
+		self.attTL_np.setScale(0.04)
+		self.attTL_np.setPos(-0.14,0,-0.81)
+		self.attTL_np.hide()
+		
+		self.defTL = TextNode("defenceTextLine")
+		self.defTL.setFont(self.pirulen)
+		self.defTL.setText("defTL")
+		self.defTL_np = self.displayInfo.attachNewNode(self.defTL)
+		self.defTL_np.setScale(0.04)
+		self.defTL_np.setPos(-0.14,0,-0.73)
+		self.defTL_np.hide()
+		
+		self.hpTL = TextNode("healthTextLine")
+		self.hpTL.setFont(self.pirulen)
+		self.hpTL.setText("hpTL")
+		self.hpTL_np = self.displayInfo.attachNewNode(self.hpTL)
+		self.hpTL_np.setScale(0.04)
+		self.hpTL_np.setPos(-0.14,0,-0.65)
+		self.hpTL_np.hide()
 	
 	def setText(self, title):
 		self.dTL.setText(title)
 	
 	def hide(self):
+		if(self.bgImage):
+			self.bgImage.remove()
 		if(self.hudNode):
 			self.hudNode.remove()
 		
+	def clear(self):
+		self.setText("SCommander 1.0")
+		self.hpTL_np.hide()
+		self.attTL_np.hide()
+		self.defTL_np.hide()
+		if self.miniImage != False:
+			self.miniImage.remove()
+			self.miniImage = False
 	
 	def updateCommanderSelection(self):
 		#nothing selected
 		if len(mySelection.listSelected) == 0:
 			self.setText("SCommander 1.0")
+			self.hpTL_np.hide()
+			self.attTL_np.hide()
+			self.defTL_np.hide()
 			if self.miniImage != False:
 				self.miniImage.remove()
 				self.miniImage = False
@@ -143,20 +184,45 @@ class HudBuilder():
 		if len(mySelection.listSelected) == 1:
 			obj = mySelection.listSelected[0]
 			if obj.type == "GameUnit":
-				if self.miniImage != False:																													 
+				
+				#loading miniImage Hud
+				if self.miniImage != False:
 					self.miniImage.remove()
 					self.miniImage = False
-				self.setText(obj.name)
-				self.miniImage = loader.loadModel("models/base.egg")
+				self.miniImage = loader.loadModel(obj.model)
 				self.miniImage.setRenderModeWireframe()
 				self.miniImage.setPos(-0.55,0,-0.82)
 				self.miniImage.setP(16)
 				self.miniImage.setScale(0.2)
 				self.miniImage.reparentTo(self.displayInfo)
 				self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+				
+				#organizing other hud stuff
+				self.setText(obj.name)
+				#gathering information about current selected unit
+				tLife = obj.totalLife
+				cLife = obj.node.getPythonTag("hp")
+				attack = obj.node.getPythonTag("att")
+				defence = obj.node.getPythonTag("def")
+				
+				self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
+				self.hpTL_np.show()
+				self.attTL.setText("damage: "+str(attack))
+				self.attTL_np.show()
+				self.defTL.setText("armor: "+str(defence))
+				self.defTL_np.show()
+				
 				#base button order :)
 				#TODO
 			if obj.type == "BlackMatter":
+				#updating amount infos
+				later = obj.node.getPythonTag("amountT")
+				now = obj.node.getPythonTag("amount")
+				self.hpTL.setText("Res: "+str(now)+"/"+str(later))
+				self.hpTL_np.show()
+				self.attTL_np.hide()
+				self.defTL_np.hide()
+				#miniImage
 				if self.miniImage != False:																													 
 					self.miniImage.remove()
 					self.miniImage = False
@@ -171,17 +237,20 @@ class HudBuilder():
 				
 		if len(mySelection.listSelected) > 1:
 			self.setText(str(len(mySelection.listSelected)) + " selected units")
-	
-	'''
-	def damageUnit(self):
-		unitNode = objSelectionTool.listSelected[0]
-		uobj = unitNode.getPythonTag("unitobj")
-		uobj.giveDamage(10)
-	
-	def changeText(self, text):
-		self.dTL.setText(text)
-	
-	def destroyCommander(self):
-		self.mainCmd.remove()
-		self.displayInfo.remove()
-	'''
+			
+		
+	def update(self, what, obj):
+		#base matter
+		if what == "base":
+			if len(mySelection.listSelected) > 0:
+				if mySelection.listSelected[0] == obj:
+					later = obj.totalLife
+					now = obj.node.getPythonTag("hp")
+					self.hpTL.setText("life: "+str(now)+"/"+str(later))
+					
+		if what == "resources":
+			if len(mySelection.listSelected) > 0:
+				if mySelection.listSelected[0] == obj:
+					later = obj.node.getPythonTag("amountT")
+					now = obj.node.getPythonTag("amount")
+					self.hpTL.setText("Res: "+str(now)+"/"+str(later))

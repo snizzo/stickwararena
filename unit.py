@@ -23,6 +23,8 @@ class Unit():
 	def __init__(self, model, x, y, z,color,owner):
 		self.type = "GameUnit"
 		if model == "base":
+			self.model = "models/mainbase/base.egg"
+			self.uname = model
 			self.name = "Main Base"
 			#meshdrawer lifebar
 			self.lifebar = False
@@ -31,7 +33,7 @@ class Unit():
 			self.main = owner.attachNewNode("unit")
 			self.main.setPos(x,y,z)
 			
-			self.node = loader.loadModel("models/base.egg")
+			self.node = loader.loadModel(self.model)
 			self.node.reparentTo(self.main)
 			self.node.setTag("type", model)
 			
@@ -56,6 +58,10 @@ class Unit():
 			#life
 			self.totalLife = 400
 			self.node.setPythonTag("hp", 400)
+			self.node.setPythonTag("att", 0)
+			self.node.setPythonTag("def", 1)
+			
+			#FIXME: deprecated. Remove it.
 			self.node.setPythonTag("unitobj", self)
 			
 		#building lifebar
@@ -79,7 +85,7 @@ class Unit():
 		currentLife = self.node.getPythonTag("hp")
 		lifeColor = currentLife*100/self.totalLife
 		#draw red life because unit is near death
-		if lifeColor <= 25:
+		if lifeColor <= 33:
 			self.myLifeBar.begin(base.cam,render)
 			for i in range(currentLife/10):
 				self.myLifeBar.billboard(Vec3(i*0.07,0,+0.15),Vec4(0.5,0,0.5,0.5),0.035,Vec4(1,1,1,1))
@@ -88,7 +94,7 @@ class Unit():
 				self.myLifeBar.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0.5,0.5,0.5),0.035,Vec4(1,1,1,1))
 			self.myLifeBar.end()
 			
-		if lifeColor > 25 and lifeColor < 50 :
+		if lifeColor > 33 and lifeColor < 66 :
 			self.myLifeBar.begin(base.cam,render)
 			for i in range(currentLife/10):
 				self.myLifeBar.billboard(Vec3(i*0.07,0,+0.15),Vec4(0.5,0.5,0.5,0.5),0.035,Vec4(1,1,1,1))
@@ -96,7 +102,7 @@ class Unit():
 				i += 1;
 				self.myLifeBar.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0.5,0.5,0.5),0.035,Vec4(1,1,1,1))
 			self.myLifeBar.end()
-		if lifeColor >= 50:
+		if lifeColor >= 66:
 			self.myLifeBar.begin(base.cam,render)
 			for i in range(currentLife/10):
 				self.myLifeBar.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0,0.5,0.5),0.035,Vec4(1,1,1,1))
@@ -116,6 +122,7 @@ class Unit():
 			seq1.start()
 		else:
 			self.node.setPythonTag("hp", newlife)
+			messenger.send("commander-update", [self.uname, self])
 			self.updateBarLife()
 	
 	def giveHeal(self,amount):
@@ -128,7 +135,11 @@ class Unit():
 	
 	def animDeath(self):
 		#avoiding crashes when clearing scene and something is selected/not removed
+		if self in mySelection.listConsideration:
+			mySelection.listConsideration.remove(self)
 		if(self in mySelection.listSelected):
+			if len(mySelection.listSelected) == 1:
+				myHudBuilder.clear()
 			mySelection.listSelected.remove(self)
 		if(self in mySelection.listLastSelected):
 			mySelection.listLastSelected.remove(self)
@@ -146,7 +157,10 @@ class Unit():
 		if self in mySelection.listConsideration:
 			mySelection.listConsideration.remove(self)
 		if self in mySelection.listSelected:
+			if len(mySelection.listSelected) == 1:
+				myHudBuilder.clear()
 			mySelection.listSelected.remove(self)
+			
 		if self in mySelection.listLastSelected:
 			mySelection.listLastSelected.remove(self)
 		self.main.remove()
