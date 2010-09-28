@@ -11,15 +11,28 @@ class Legion():
 		#creating main list
 		self.unitList = []
 		self.color = color
+		self.blackMatter = 0
 		self.legNode = render.attachNewNode("legions")
 		
 		self.setupStartUnits(pos)
+	
+	def buildUnit(self, what):
+		if len(mySelection.listSelected)==1:
+			if mySelection.listSelected[0].uname == "base":
+				obj = mySelection.listSelected[0]
+				#TODO: finish build chain
+	
+	def addBM(self, amount):
+		self.blackMatter += amount
+		if self.you == True:
+			messenger.send("res-updated")
 	
 	def setupStartUnits(self, start1):
 		self.addUnit("base", start1.getX(),start1.getY(),start1.getZ())
 	
 	def addUnit(self, model, x, y, z):
-		unit = Unit(model, x, y, z,self.color,self.legNode)
+		if model == "base":
+			unit = MainBase(x, y, z,self.color,self.legNode)
 		if self.you == True:
 			mySelection.listConsideration.append(unit)
 		self.unitList.append(unit)

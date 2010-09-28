@@ -232,6 +232,9 @@ class clSelectionTool():
 					self.listSelected = [objTempSelected] 
 				self.funcSelectActionOnObject(objTempSelected) 
 			#if nothing is selected just deselect all, a normal behaviour in RTS's game
+			y = base.mouseWatcherNode.getMouseY()
+			if y < -0.5:
+				return
 			if objTempSelected == 0:
 				for i in self.listSelected:
 					self.funcDeselectActionOnObject(i)
@@ -271,16 +274,6 @@ class clSelectionTool():
 				fMouse_Ly = max(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
 				fMouse_Rx = max(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
 				fMouse_Ry = min(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
-				'''
-				if fMouse_Lx < -0.5:
-					fMouse_Lx = -0.5
-				if fMouse_Ly < -0.5:
-					fMouse_Ly = -0.5
-				if fMouse_Rx < -0.5:
-					fMouse_Rx = -0.5
-				if fMouse_Ry < -0.5:
-					fMouse_Ry = -0.5
-				'''
 				for i in self.listConsideration: 
 					if type(i.node) != libpanda.NodePath: 
 						raise 'Unknown objtype in selection' 

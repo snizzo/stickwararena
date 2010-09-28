@@ -19,50 +19,52 @@ from direct.particles.ForceGroup import ForceGroup
 from direct.gui.OnscreenText import OnscreenText
 import sys,os,string
 
-class Unit():
-	def __init__(self, model, x, y, z,color,owner):
+class MainBase():
+	def __init__(self, x, y, z,color,owner):
+		
+		#reaching MY legion
+		for legion in myLegion:
+			if legion.you == True:
+				self.myLegion = legion
+		
 		self.type = "GameUnit"
-		if model == "base":
-			self.model = "models/mainbase/base.egg"
-			self.uname = model
-			self.name = "Main Base"
-			#meshdrawer lifebar
-			self.lifebar = False
-			self.lifebarnode = False
-			
-			self.main = owner.attachNewNode("unit")
-			self.main.setPos(x,y,z)
-			
-			self.node = loader.loadModel(self.model)
-			self.node.reparentTo(self.main)
-			self.node.setTag("type", model)
-			
-			self.colorFlag = self.node.find("**/colorFlagObj")
-			self.materialFlag = Material("materialFlag")
-			self.materialFlag.setDiffuse(color)
-			self.colorFlag.setMaterial(self.materialFlag,1)
-			self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
-			
-			self.bradius = bradius = self.node.getBounds().getRadius()
-			
-			self.otherN = self.node.attachNewNode("otherThings")
-			self.selector = loader.loadModel("images/selector.egg")
-			self.selector.setLightOff()
-			self.selector.reparentTo(self.otherN)
-			self.selector.setZ(0.1)
-			self.selector.setP(270)
-			self.selector.setScale(bradius)
-			self.otherN.hide()
-			
-			##unit properties
-			#life
-			self.totalLife = 400
-			self.node.setPythonTag("hp", 400)
-			self.node.setPythonTag("att", 0)
-			self.node.setPythonTag("def", 1)
-			
-			#FIXME: deprecated. Remove it.
-			self.node.setPythonTag("unitobj", self)
+		self.model = "models/mainbase/base.egg"
+		self.uname = "base"
+		self.name = "Main Base"
+		#meshdrawer lifebar
+		self.lifebar = False
+		self.lifebarnode = False
+		
+		self.main = owner.attachNewNode("unit")
+		self.main.setPos(x,y,z)
+		
+		self.node = loader.loadModel(self.model)
+		self.node.reparentTo(self.main)
+		self.node.setTag("type", self.uname)
+		
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(color)
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		self.bradius = bradius = self.node.getBounds().getRadius()
+		
+		self.otherN = self.node.attachNewNode("otherThings")
+		self.selector = loader.loadModel("images/selector.egg")
+		self.selector.setLightOff()
+		self.selector.reparentTo(self.otherN)
+		self.selector.setZ(0.1)
+		self.selector.setP(270)
+		self.selector.setScale(bradius)
+		self.otherN.hide()
+		
+		##unit properties
+		#life
+		self.totalLife = 400
+		self.node.setPythonTag("hp", 400)
+		self.node.setPythonTag("att", 0)
+		self.node.setPythonTag("def", 1)
 			
 		#building lifebar
 		amount = self.node.getPythonTag("hp")
@@ -80,7 +82,23 @@ class Unit():
 		self.myLifeBarNode.setY(-bradius/2-0.35)
 		self.myLifeBar.end()
 		#end building lifebar
-			
+		
+		#specific lists of unit build
+		self.buildList = []
+	
+	def buildUnit(self, unit):
+		if unit == "worker":
+			#try to build a worker unit
+			if self.myLegion.blackMatter >= 50:
+				self.myLegion.addBM(-50)
+				task = taskMgr.doMethodLater(20, self.myLegion.addUnit("worker",x,y,z))
+				self.buildList.append(task)
+				#TODO:finish build chain
+	
+	def getNearFreeSpace(self):
+		#TODO: finish for build chain
+		pass
+	
 	def updateBarLife(self):
 		currentLife = self.node.getPythonTag("hp")
 		lifeColor = currentLife*100/self.totalLife

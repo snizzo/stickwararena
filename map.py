@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pandac.PandaModules import *
-import sys,os
+import sys,os,__builtin__
 
 from legion import *
 
@@ -26,8 +26,7 @@ class Map():
 			if i==3:
 				color = Vec4(1,1,0,1)
 				you = False
-			legion = Legion(pos,color,you)
-			myLegion.append(legion)
+			myLegion.append(Legion(pos,color,you))
 			i = i+1
 		resPosNode = self.mapNode.findAllMatches("**/r**")
 		for pos in resPosNode:

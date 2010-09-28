@@ -108,17 +108,49 @@ class HudBuilder():
 		self.pirulen = loader.loadFont("fonts/pirulen.ttf")
 		self.miniImage = False
 		
-		base.accept("mouse-selection", self.updateCommanderSelection)
-		base.accept("commander-update", self.update)
-	
-	def show(self):
 		self.hudNode = aspect2d.attachNewNode("hudNode")
 		self.bgImage = render2d.attachNewNode("bgImage")
+		
+		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		
+		self.resTL = TextNode("resTextLine")
+		self.resTL.setText("nothing selected")
+		self.resTL.setFont(self.pirulen)
+		self.resTL.setAlign(TextNode.ALeft)
+		self.resTL_np = self.displayInfo.attachNewNode(self.resTL)
+		self.resTL_np.setScale(0.037)
+		self.resTL_np.setPos(-0.25,0,0.965)
+		self.resTL_np.hide()
+	
+	def show(self):
+		#looking for who you are
+		
+		for legion in myLegion:
+			if legion.you == True:
+				self.myLegion = legion
+		
+		base.accept("mouse-selection", self.updateCommanderSelection)
+		base.accept("commander-update", self.update)
+		base.accept("res-updated", self.updateRes)
 		
 		self.mainCmd = DirectFrame(frameColor=(0, 0, 0, .9),frameSize=(-1, 1, -1, -0.5))
 		self.mainCmd.reparentTo(self.bgImage)
 		
-		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		self.topBar = DirectFrame(frameColor=(0, 0, 0, .9),frameSize=(-1, 1, 0.95, 1))
+		self.topBar.reparentTo(self.bgImage)
+		
+		#resources
+		self.resourceIcon = loader.loadModel("images/stick_commander/blackmatter.egg")
+		self.resourceIcon.setScale(0.04)
+		self.resourceIcon.setX(-0.3)
+		self.resourceIcon.setZ(0.975)
+		self.resourceIcon.reparentTo(self.hudNode)
+		
+		self.myLegion.addBM(100)
+		
+		#res text line should be present just before :)
+		self.resTL_np.show()
+		
 		self.dTL = TextNode("debugTextLine")
 		self.dTL.setText("nothing selected")
 		self.dTL.setFont(self.pirulen)
@@ -150,6 +182,17 @@ class HudBuilder():
 		self.hpTL_np.setScale(0.04)
 		self.hpTL_np.setPos(-0.14,0,-0.65)
 		self.hpTL_np.hide()
+		
+		#hud buttons
+		self.OneButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
+		
+		self.OneButton = DirectButton(geom = (
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker')))
+		self.OneButton.resetFrameSize()
+		self.OneButton.hide()
 	
 	def setText(self, title):
 		self.dTL.setText(title)
@@ -161,6 +204,7 @@ class HudBuilder():
 			self.hudNode.remove()
 		
 	def clear(self):
+		self.OneButton.hide()
 		self.setText("SCommander 1.0")
 		self.hpTL_np.hide()
 		self.attTL_np.hide()
@@ -170,58 +214,74 @@ class HudBuilder():
 			self.miniImage = False
 	
 	def updateCommanderSelection(self):
+		y = base.mouseWatcherNode.getMouseY()
+		if y < -0.5:
+			return
 		#nothing selected
 		if len(mySelection.listSelected) == 0:
-			self.setText("SCommander 1.0")
-			self.hpTL_np.hide()
-			self.attTL_np.hide()
-			self.defTL_np.hide()
-			if self.miniImage != False:
-				self.miniImage.remove()
-				self.miniImage = False
+			self.clear()
 				
 		#single element selected
 		if len(mySelection.listSelected) == 1:
 			obj = mySelection.listSelected[0]
 			if obj.type == "GameUnit":
+				#base hud
+				if obj.uname == "base":
+					self.clear()
+					
+					#loading miniImage Hud
+					if self.miniImage != False:
+						self.miniImage.remove()
+						self.miniImage = False
+					self.miniImage = loader.loadModel(obj.model)
+					self.miniImage.setRenderModeWireframe()
+					self.miniImage.setPos(-0.55,0,-0.82)
+					self.miniImage.setP(16)
+					self.miniImage.setScale(0.2)
+					self.miniImage.reparentTo(self.displayInfo)
+					self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+					
+					#organizing other hud stuff
+					self.setText(obj.name)
+					#gathering information about current selected unit
+					tLife = obj.totalLife
+					cLife = obj.node.getPythonTag("hp")
+					attack = obj.node.getPythonTag("att")
+					defence = obj.node.getPythonTag("def")
+					
+					self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
+					self.hpTL_np.show()
+					self.attTL.setText("damage: "+str(attack))
+					self.attTL_np.show()
+					self.defTL.setText("armor: "+str(defence))
+					self.defTL_np.show()
+					
+					#base button order :)
+					self.OneButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
+					
+					self.OneButton = DirectButton(geom = (
+					self.OneButtonGeom.find('**/worker'),
+					self.OneButtonGeom.find('**/worker'),
+					self.OneButtonGeom.find('**/worker'),
+					self.OneButtonGeom.find('**/worker')))
+					self.OneButton.resetFrameSize()
+					self.OneButton.setScale(0.1)
+					self.OneButton.setX(0.75)
+					self.OneButton.setZ(-0.57)
+					self.OneButton.show()
+					
+					self.OneButton['relief'] = None
+					self.OneButton['command'] = self.myLegion.buildUnit
+					self.OneButton['extraArgs'] = (['worker'])
+					self.OneButton.reparentTo(self.hudNode)
 				
-				#loading miniImage Hud
-				if self.miniImage != False:
-					self.miniImage.remove()
-					self.miniImage = False
-				self.miniImage = loader.loadModel(obj.model)
-				self.miniImage.setRenderModeWireframe()
-				self.miniImage.setPos(-0.55,0,-0.82)
-				self.miniImage.setP(16)
-				self.miniImage.setScale(0.2)
-				self.miniImage.reparentTo(self.displayInfo)
-				self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-				
-				#organizing other hud stuff
-				self.setText(obj.name)
-				#gathering information about current selected unit
-				tLife = obj.totalLife
-				cLife = obj.node.getPythonTag("hp")
-				attack = obj.node.getPythonTag("att")
-				defence = obj.node.getPythonTag("def")
-				
-				self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
-				self.hpTL_np.show()
-				self.attTL.setText("damage: "+str(attack))
-				self.attTL_np.show()
-				self.defTL.setText("armor: "+str(defence))
-				self.defTL_np.show()
-				
-				#base button order :)
-				#TODO
 			if obj.type == "BlackMatter":
 				#updating amount infos
+				self.clear()
 				later = obj.node.getPythonTag("amountT")
 				now = obj.node.getPythonTag("amount")
 				self.hpTL.setText("Res: "+str(now)+"/"+str(later))
 				self.hpTL_np.show()
-				self.attTL_np.hide()
-				self.defTL_np.hide()
 				#miniImage
 				if self.miniImage != False:																													 
 					self.miniImage.remove()
@@ -238,7 +298,10 @@ class HudBuilder():
 		if len(mySelection.listSelected) > 1:
 			self.setText(str(len(mySelection.listSelected)) + " selected units")
 			
-		
+	
+	def updateRes(self):
+			self.resTL.setText(str(self.myLegion.blackMatter))
+	
 	def update(self, what, obj):
 		#base matter
 		if what == "base":

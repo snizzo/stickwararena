@@ -38,9 +38,9 @@ class Navigator(ShowBase):
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
 		
-		introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
-		introVideo.play()
-		#self.mainMenu("intro")
+		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
+		#introVideo.play()
+		self.mainMenu("intro")
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
@@ -51,20 +51,14 @@ class Navigator(ShowBase):
 		myMenuBuilder.hide()
 		myMap.loadMap("maps/burning_sun/burning_sun.egg")
 		#build hud
-		myHudBuilder.show()
 		myMap.setupInitMap()
+		myHudBuilder.show()
 		mySelection.setActive()
 		
 		#TODO: add event class handler
 		
 		#phase specific event handling
 		base.accept("escape", myPopupBuilder.show)
-		base.accept("d", self.damage)
-	
-	#FIXME: delete and implement in objects class
-	def damage(self):
-		if len(mySelection.listSelected) > 0:
-			mySelection.listSelected[0].giveDamage(10)
 	
 	# used to remove all exiting and rejoining...
 	def mainMenu(self,f):
