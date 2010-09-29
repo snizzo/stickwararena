@@ -17,15 +17,13 @@ from direct.particles.Particles import Particles
 from direct.particles.ParticleEffect import ParticleEffect
 from direct.particles.ForceGroup import ForceGroup
 from direct.gui.OnscreenText import OnscreenText
+from direct.task import Task
 import sys,os,string
 
 class MainBase():
-	def __init__(self, x, y, z,color,owner):
+	def __init__(self, x, y, z,color,owner,parentLegion):
 		
-		#reaching MY legion
-		for legion in myLegion:
-			if legion.you == True:
-				self.myLegion = legion
+		self.myLegion = parentLegion
 		
 		self.type = "GameUnit"
 		self.model = "models/mainbase/base.egg"
@@ -84,20 +82,45 @@ class MainBase():
 		#end building lifebar
 		
 		#specific lists of unit build
+		self.buildingUnit = False
+		self.buildCurrent = False
 		self.buildList = []
-	
+		
+		print "__init__:"
+		print self.buildingUnit
+		
+		self.costList = {
+		"worker" : 50
+		}
+		
+		self.timeList = {
+		"worker" : 5
+		}
+		
 	def buildUnit(self, unit):
-		if unit == "worker":
-			#try to build a worker unit
-			if self.myLegion.blackMatter >= 50:
-				self.myLegion.addBM(-50)
-				task = taskMgr.doMethodLater(20, self.myLegion.addUnit("worker",x,y,z))
-				self.buildList.append(task)
-				#TODO:finish build chain
+		print "buildUnit:"
+		print self.buildingUnit
+		#try to build a worker unit
+		if self.myLegion.blackMatter >= self.costList[unit]:
+			if self.buildingUnit == True:
+				print unit+" ordered in sublist!"
+				self.myLegion.addBM(self.costList[unit]*-1)
+				self.buildList.append(unit)
+			if self.buildingUnit == False:
+				print unit+" ordered!"
+				self.myLegion.addBM(self.costList[unit]*-1)
+				task = taskMgr.doMethodLater(self.timeList[unit], self.createUnit, "ct", extraArgs = [unit])
+				self.buildingUnit = True
 	
-	def getNearFreeSpace(self):
-		#TODO: finish for build chain
-		pass
+	def createUnit(self, what):
+		self.myLegion.addUnit(what)
+		#self.myLegion.addUnit(what,x,y,z)
+		if len(self.buildList)>=1:
+			what = self.buildList.pop(0)
+			task = taskMgr.doMethodLater(self.timeList[what], self.createUnit, "ct", extraArgs=[what])
+		if len(self.buildList)<1:
+			self.buildingUnit = False
+			self.buildCurrent = False
 	
 	def updateBarLife(self):
 		currentLife = self.node.getPythonTag("hp")

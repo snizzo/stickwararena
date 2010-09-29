@@ -11,7 +11,7 @@ class Legion():
 		#creating main list
 		self.unitList = []
 		self.color = color
-		self.blackMatter = 0
+		self.blackMatter = 100
 		self.legNode = render.attachNewNode("legions")
 		
 		self.setupStartUnits(pos)
@@ -20,7 +20,7 @@ class Legion():
 		if len(mySelection.listSelected)==1:
 			if mySelection.listSelected[0].uname == "base":
 				obj = mySelection.listSelected[0]
-				#TODO: finish build chain
+				obj.buildUnit(what)
 	
 	def addBM(self, amount):
 		self.blackMatter += amount
@@ -30,9 +30,13 @@ class Legion():
 	def setupStartUnits(self, start1):
 		self.addUnit("base", start1.getX(),start1.getY(),start1.getZ())
 	
-	def addUnit(self, model, x, y, z):
+	def addUnit(self, model, x=0, y=0, z=0):
 		if model == "base":
-			unit = MainBase(x, y, z,self.color,self.legNode)
+			unit = MainBase(x, y, z, self.color, self.legNode, self)
+		if model == "worker":
+			#unit = Worker(x,y,z, self.color, self.legNode)
+			unit = MainBase(x, y, z, self.color, self.legNode, self)
+			print "Worker created!"
 		if self.you == True:
 			mySelection.listConsideration.append(unit)
 		self.unitList.append(unit)

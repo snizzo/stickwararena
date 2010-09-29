@@ -146,7 +146,8 @@ class HudBuilder():
 		self.resourceIcon.setZ(0.975)
 		self.resourceIcon.reparentTo(self.hudNode)
 		
-		self.myLegion.addBM(100)
+		#initial res
+		self.updateRes()
 		
 		#res text line should be present just before :)
 		self.resTL_np.show()

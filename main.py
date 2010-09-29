@@ -15,8 +15,8 @@ from camera import *
 
 #fullscreen e grandezza finestra
 loadPrcFileData("","""
-fullscreen 1
-win-size 1280 800
+fullscreen 0
+win-size 800 600
 text-encoding utf8
 show-frame-rate-meter 1
 """)
