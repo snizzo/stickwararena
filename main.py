@@ -3,6 +3,7 @@
 #dichiarazioni di panda3d
 from direct.showbase.ShowBase import ShowBase
 from pandac.PandaModules import *
+from panda3d.ai import *
 import sys,os,__builtin__
 #my import
 from gui import *
@@ -15,10 +16,11 @@ from camera import *
 
 #fullscreen e grandezza finestra
 loadPrcFileData("","""
-fullscreen 0
-win-size 800 600
+fullscreen 1
+win-size 1280 800
 text-encoding utf8
 show-frame-rate-meter 1
+sync-video #f
 """)
 
 class Navigator(ShowBase):
@@ -37,6 +39,8 @@ class Navigator(ShowBase):
 		__builtin__.myPopupBuilder = PopupBuilder()
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
+		__builtin__.aiWorld = AIWorld(render)
+		__builtin__.myEventManager = BaseEvents()
 		
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
 		#introVideo.play()
@@ -44,8 +48,15 @@ class Navigator(ShowBase):
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
-		myShader.setBloomed()
+		#myShader.setBloomed()
 		
+		#ai update setting
+		taskMgr.add(self.aiUpdate,"AIUpdate")
+	
+	def aiUpdate(self,task):
+		aiWorld.update()
+		return Task.cont
+	
 	def startSingle(self):
 		#hide normalgui
 		myMenuBuilder.hide()
@@ -59,6 +70,8 @@ class Navigator(ShowBase):
 		
 		#phase specific event handling
 		base.accept("escape", myPopupBuilder.show)
+	
+	#def givedamage(self,
 	
 	# used to remove all exiting and rejoining...
 	def mainMenu(self,f):

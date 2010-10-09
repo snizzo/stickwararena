@@ -7,7 +7,6 @@ import __builtin__
 #from direct.showbase import DirectObject
 from direct.task import Task
 import libpanda
-from pandac.PandaModules import Vec4, CardMaker, LineSegs, Point2, Point3, PointLight
 
 import math
 
@@ -27,6 +26,29 @@ class Camera():
 		self.cameraLight = render.attachNewNode(self.cameraLightNode)
 		render.setLight(self.cameraLight)
 		
+		self.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, -0.01)) 
+		cm = CardMaker("blah") 
+		cm.setFrame(-100, 100, -100, 100) 
+		cmnode = render.attachNewNode(cm.generate())
+		cmnode.setZ(-0.05)
+		cmnode.lookAt(0, 0, -1)
+		
+		blackMat = Material("materialFlag")
+		blackMat.setDiffuse(Vec4(0,0,0,1))
+		cmnode.setMaterial(blackMat,1)
+	
+	def getMousePos(self): 
+		if base.mouseWatcherNode.hasMouse(): 
+			mpos = base.mouseWatcherNode.getMouse() 
+			pos3d = Point3() 
+			nearPoint = Point3() 
+			farPoint = Point3() 
+			base.camLens.extrude(mpos, nearPoint, farPoint) 
+			if self.plane.intersectsLine(pos3d, 
+				render.getRelativePoint(camera, nearPoint), 
+				render.getRelativePoint(camera, farPoint)): 
+				return pos3d
+	
 	def cameraZoomIn(self):
 		if camera.getZ() > 10:
 			camera.setY(camera, 1)
@@ -201,27 +223,24 @@ class clSelectionTool():
 			objTempSelected = 0 
 			fTempObjDist = 2*(base.camLens.getFar())**2 
 			for i in self.listConsideration: 
-				if type(i.node) != libpanda.NodePath: 
-					raise 'Unknown objtype in selection' 
-				else:
-					sphBounds = i.node.getBounds() 
-					#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
-					p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
-					r = sphBounds.getRadius() 
-					screen_width = r/(p3[1]*math.tan(math.radians(self.fFovh/2))) 
-					screen_height = r/(p3[1]*math.tan(math.radians(self.fFovv/2))) 
-					p2 = Point2() 
-					base.camLens.project(p3, p2) 
-					#If the mouse pointer is in the "roughly" screen-projected bounding volume 
-					if (self.pt2InitialMousePos[0] >= (p2[0] - screen_width/2)): 
-						if (self.pt2InitialMousePos[0] <= (p2[0] + screen_width/2)): 
-							if (self.pt2InitialMousePos[1] >= (p2[1] - screen_height/2)): 
-								if (self.pt2InitialMousePos[1] <= (p2[1] + screen_height/2)):
-									#We check the obj's distance to the camera and choose the closest one 
-									dist = p3[0]**2+p3[1]**2+p3[2]**2 - r**2 
-									if dist < fTempObjDist: 
-										fTempObjDist = dist 
-										objTempSelected = i
+				sphBounds = i.node.getBounds() 
+				#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+				p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
+				r = sphBounds.getRadius() 
+				screen_width = r/(p3[1]*math.tan(math.radians(self.fFovh/2))) 
+				screen_height = r/(p3[1]*math.tan(math.radians(self.fFovv/2))) 
+				p2 = Point2() 
+				base.camLens.project(p3, p2) 
+				#If the mouse pointer is in the "roughly" screen-projected bounding volume 
+				if (self.pt2InitialMousePos[0] >= (p2[0] - screen_width/2)): 
+					if (self.pt2InitialMousePos[0] <= (p2[0] + screen_width/2)): 
+						if (self.pt2InitialMousePos[1] >= (p2[1] - screen_height/2)): 
+							if (self.pt2InitialMousePos[1] <= (p2[1] + screen_height/2)):
+								#We check the obj's distance to the camera and choose the closest one 
+								dist = p3[0]**2+p3[1]**2+p3[2]**2 - r**2 
+								if dist < fTempObjDist: 
+									fTempObjDist = dist 
+									objTempSelected = i
 			#if something is click-selected
 			if objTempSelected != 0: 
 				if objKeyBoardModifiers.booControl: 
@@ -275,20 +294,17 @@ class clSelectionTool():
 				fMouse_Rx = max(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
 				fMouse_Ry = min(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
 				for i in self.listConsideration: 
-					if type(i.node) != libpanda.NodePath: 
-						raise 'Unknown objtype in selection' 
-					else: 
-						#Get the loosebounds of the nodepath 
-						sphBounds = i.node.getBounds() 
-						#Put the center of the sphere into the camera coordinate system 
-						#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
-						p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
-						#Check if p3 is in the view fustrum 
-						p2 = Point2() 
-						if base.camLens.project(p3, p2): 
-							if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
-								self.listSelected.append(i) 
-								self.funcSelectActionOnObject(i) 
+					#Get the loosebounds of the nodepath 
+					sphBounds = i.node.getBounds() 
+					#Put the center of the sphere into the camera coordinate system 
+					#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+					p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
+					#Check if p3 is in the view fustrum 
+					p2 = Point2() 
+					if base.camLens.project(p3, p2): 
+						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
+							self.listSelected.append(i) 
+							self.funcSelectActionOnObject(i) 
 				for i in self.listLastSelected: 
 					if not objKeyBoardModifiers.booControl: 
 						if i not in self.listSelected: 

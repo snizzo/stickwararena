@@ -34,8 +34,7 @@ class Legion():
 		if model == "base":
 			unit = MainBase(x, y, z, self.color, self.legNode, self)
 		if model == "worker":
-			#unit = Worker(x,y,z, self.color, self.legNode)
-			unit = MainBase(x, y, z, self.color, self.legNode, self)
+			unit = StickWorker(x,y,z, self.color, self.legNode, self)
 			print "Worker created!"
 		if self.you == True:
 			mySelection.listConsideration.append(unit)

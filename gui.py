@@ -107,6 +107,13 @@ class HudBuilder():
 	def __init__(self):
 		self.pirulen = loader.loadFont("fonts/pirulen.ttf")
 		self.miniImage = False
+	
+	def show(self):
+		#looking for who you are
+		
+		for legion in myLegion:
+			if legion.you == True:
+				self.myLegion = legion
 		
 		self.hudNode = aspect2d.attachNewNode("hudNode")
 		self.bgImage = render2d.attachNewNode("bgImage")
@@ -121,13 +128,6 @@ class HudBuilder():
 		self.resTL_np.setScale(0.037)
 		self.resTL_np.setPos(-0.25,0,0.965)
 		self.resTL_np.hide()
-	
-	def show(self):
-		#looking for who you are
-		
-		for legion in myLegion:
-			if legion.you == True:
-				self.myLegion = legion
 		
 		base.accept("mouse-selection", self.updateCommanderSelection)
 		base.accept("commander-update", self.update)
@@ -199,9 +199,7 @@ class HudBuilder():
 		self.dTL.setText(title)
 	
 	def hide(self):
-		if(self.bgImage):
 			self.bgImage.remove()
-		if(self.hudNode):
 			self.hudNode.remove()
 		
 	def clear(self):
@@ -275,6 +273,36 @@ class HudBuilder():
 					self.OneButton['command'] = self.myLegion.buildUnit
 					self.OneButton['extraArgs'] = (['worker'])
 					self.OneButton.reparentTo(self.hudNode)
+					
+				if obj.uname == "worker":
+					self.clear()
+					
+					#loading miniImage Hud
+					if self.miniImage != False:
+						self.miniImage.remove()
+						self.miniImage = False
+					self.miniImage = loader.loadModel(obj.model)
+					self.miniImage.setRenderModeWireframe()
+					self.miniImage.setPos(-0.55,0,-0.82)
+					self.miniImage.setP(16)
+					self.miniImage.setScale(0.2)
+					self.miniImage.reparentTo(self.displayInfo)
+					self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+					
+					#organizing other hud stuff
+					self.setText(obj.name)
+					#gathering information about current selected unit
+					tLife = obj.totalLife
+					cLife = obj.node.getPythonTag("hp")
+					attack = obj.node.getPythonTag("att")
+					defence = obj.node.getPythonTag("def")
+					
+					self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
+					self.hpTL_np.show()
+					self.attTL.setText("damage: "+str(attack))
+					self.attTL_np.show()
+					self.defTL.setText("armor: "+str(defence))
+					self.defTL_np.show()
 				
 			if obj.type == "BlackMatter":
 				#updating amount infos
