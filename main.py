@@ -52,6 +52,8 @@ class Navigator(ShowBase):
 		base.accept("d", self.debug)
 		myShader.setBloomed()
 		
+		#
+		self.full = False
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")
 	
@@ -101,14 +103,16 @@ class Navigator(ShowBase):
 	def toggleFullscreen(self):
 		print "called fullscreen toggle "
 		wp = WindowProperties()
-		if (wp.getFullscreen):
+		if self.full == False:
 			wp.setFullscreen(False)
 			wp.setSize(800, 600)
 			base.win.requestProperties(wp)
+			self.full = True
 		else:
 			wp.setFullscreen(True)
 			wp.setSize(1280, 800)
 			base.win.requestProperties(wp)
+			self.full = False
 
 n = Navigator()
 
