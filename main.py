@@ -45,6 +45,9 @@ class Navigator(ShowBase):
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
 		#introVideo.play()
 		self.mainMenu("intro")
+		self.full = False
+		self.displayModes = []
+		self.getSupportedDisplayRes()
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
@@ -52,8 +55,6 @@ class Navigator(ShowBase):
 		base.accept("d", self.debug)
 		myShader.setBloomed()
 		
-		#
-		self.full = False
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")
 	
@@ -100,19 +101,25 @@ class Navigator(ShowBase):
 	def exitGame(self):
 		sys.exit()
 		
-	def toggleFullscreen(self):
-		print "called fullscreen toggle "
+	def getSupportedDisplayRes(self):
+		di = base.pipe.getDisplayInformation()
 		wp = WindowProperties()
-		if self.full == False:
+		for index in range(di.getTotalDisplayModes()):
+			if abs(float(di.getDisplayModeWidth(index)) / float(di.getDisplayModeHeight(index)) - (16. / 9.)) < 0.001:
+				self.displayModes.append([di.getDisplayModeWidth(index), di.getDisplayModeHeight(index)]) 
+		
+	def toggleFullscreen(self):
+		print "called fullscreen toggle"
+		wp = WindowProperties()
+		if self.full == True:
+			wp.setSize(self.displayModes[0][0], self.displayModes[0][1])
 			wp.setFullscreen(False)
-			wp.setSize(800, 600)
-			base.win.requestProperties(wp)
-			self.full = True
-		else:
-			wp.setFullscreen(True)
-			wp.setSize(1280, 800)
-			base.win.requestProperties(wp)
 			self.full = False
+		else:
+			wp.setSize(self.displayModes[len(self.displayModes) - 1][0], self.displayModes[len(self.displayModes) - 1][1])
+			wp.setFullscreen(True)
+			self.full = True
+		base.win.requestProperties(wp)
 
 n = Navigator()
 
