@@ -31,6 +31,7 @@ class Map():
 		resPosNode = self.mapNode.findAllMatches("**/r**")
 		for pos in resPosNode:
 			myResources.addResource(pos)
+		myLegion[0].cameraOnFirstBuilding()
 	
 	def loadMap(self, url):
 		self.mapNode = render.attachNewNode("mapNode")

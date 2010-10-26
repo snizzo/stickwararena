@@ -16,6 +16,9 @@ class Legion():
 		
 		self.setupStartUnits(pos)
 	
+	def cameraOnFirstBuilding(self):
+		myCamera.placeOnUnit(self.unitList[0])
+	
 	def buildUnit(self, what):
 		if len(mySelection.listSelected)==1:
 			if mySelection.listSelected[0].uname == "base":
