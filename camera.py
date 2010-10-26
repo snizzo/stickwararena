@@ -25,29 +25,6 @@ class Camera():
 		self.cameraLightNode.setColor(Vec4(1,1,1,1))
 		self.cameraLight = render.attachNewNode(self.cameraLightNode)
 		render.setLight(self.cameraLight)
-		
-		self.plane = Plane(Vec3(0, 0, 1), Point3(0, 0, -0.01)) 
-		cm = CardMaker("blah") 
-		cm.setFrame(-100, 100, -100, 100) 
-		cmnode = render.attachNewNode(cm.generate())
-		cmnode.setZ(-0.05)
-		cmnode.lookAt(0, 0, -1)
-		
-		blackMat = Material("materialFlag")
-		blackMat.setDiffuse(Vec4(0,0,0,1))
-		cmnode.setMaterial(blackMat,1)
-	
-	def getMousePos(self): 
-		if base.mouseWatcherNode.hasMouse(): 
-			mpos = base.mouseWatcherNode.getMouse() 
-			pos3d = Point3() 
-			nearPoint = Point3() 
-			farPoint = Point3() 
-			base.camLens.extrude(mpos, nearPoint, farPoint) 
-			if self.plane.intersectsLine(pos3d, 
-				render.getRelativePoint(camera, nearPoint), 
-				render.getRelativePoint(camera, farPoint)): 
-				return pos3d
 	
 	def cameraZoomIn(self):
 		if camera.getZ() > 10:
@@ -136,6 +113,8 @@ class clSelectionTool():
 		self.listConsideration = listConsideration 
 		self.listSelected = [] 
 		self.listLastSelected = [] 
+		#right click selection
+		self.underMouse = []
 		 
 		self.pt2InitialMousePos = (-12, -12) 
 		self.pt2LastMousePos = (-12, -12) 
@@ -154,6 +133,10 @@ class clSelectionTool():
 		base.accept("mouse1", self.OnStartSelect) 
 		base.accept("control-mouse1", self.OnStartSelect) 
 		base.accept("mouse1-up", self.OnStopSelect) 
+		
+		base.accept("mouse3", self.OnStartSelect)
+		base.accept("mouse3-up", self.OnRightStopSelect) 
+		
 		self.taskUpdateSelRect = 0 
 		
 		####------otherThings
@@ -259,6 +242,54 @@ class clSelectionTool():
 					self.funcDeselectActionOnObject(i)
 					self.listSelected = []
 		messenger.send("mouse-selection")
+	
+	def OnRightStopSelect(self):
+		if not self.active:
+			return
+		if not base.mouseWatcherNode.hasMouse(): 
+			return 
+		if self.taskUpdateSelRect != 0: 
+			taskMgr.remove(self.taskUpdateSelRect) 
+		self.npSelRect.hide() 
+		self.booSelecting = False 
+		#clearing list
+		self.underMouse = []
+		#If the mouse hasn't moved, it's a point selection 
+		if (abs(self.pt2InitialMousePos[0] - self.pt2LastMousePos[0]) <= .01) & (abs(self.pt2InitialMousePos[1] - self.pt2LastMousePos[1]) <= .01): 
+			objTempSelected = 0 
+			fTempObjDist = 2*(base.camLens.getFar())**2 
+			for i in self.listConsideration: 
+				sphBounds = i.node.getBounds() 
+				#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+				p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
+				r = sphBounds.getRadius() 
+				screen_width = r/(p3[1]*math.tan(math.radians(self.fFovh/2))) 
+				screen_height = r/(p3[1]*math.tan(math.radians(self.fFovv/2))) 
+				p2 = Point2() 
+				base.camLens.project(p3, p2) 
+				#If the mouse pointer is in the "roughly" screen-projected bounding volume 
+				if (self.pt2InitialMousePos[0] >= (p2[0] - screen_width/2)): 
+					if (self.pt2InitialMousePos[0] <= (p2[0] + screen_width/2)): 
+						if (self.pt2InitialMousePos[1] >= (p2[1] - screen_height/2)): 
+							if (self.pt2InitialMousePos[1] <= (p2[1] + screen_height/2)):
+								#We check the obj's distance to the camera and choose the closest one 
+								dist = p3[0]**2+p3[1]**2+p3[2]**2 - r**2 
+								if dist < fTempObjDist: 
+									fTempObjDist = dist 
+									objTempSelected = i
+			#if something is click-selected
+			if objTempSelected != 0: 
+				if objKeyBoardModifiers.booControl: 
+					self.underMouse.append(objTempSelected) 
+				else:
+					self.underMouse = [objTempSelected] 
+			#avoid pressing mouse in HUD
+			y = base.mouseWatcherNode.getMouseY()
+			if y < -0.5:
+				return
+			#returning object under mouse
+		messenger.send("mouse-order")
+		
 	
 	def UpdateSelRect(self, task): 
 		if not self.active:

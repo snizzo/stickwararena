@@ -20,18 +20,29 @@ from direct.gui.OnscreenText import OnscreenText
 from direct.task import Task
 from direct.actor.Actor import Actor
 from panda3d.ai import *
-import sys,os,string
+from PathFind import *
+import sys,os,string,math
 
 class BaseEvents():
 	def __init__(self):
-		base.accept("mouse3", self.go)
+		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
+		base.accept("mouse-order", self.go)
 	
 	def go(self):
 		if len(mySelection.listSelected) == 1:
-			p = myCamera.getMousePos()
-			p3d = Vec3(p[0],p[1],p[2])
 			obj = mySelection.listSelected[0]
-			obj.aiBe.pathFindTo(p3d, "addPath")
+			if len(mySelection.underMouse) == 1:
+				toobj = mySelection.underMouse[0]
+				if toobj.type == "BlackMatter":
+					obj.gather(toobj.node)
+				else:
+					obj.go(toobj.node)
+			else:
+				path = self.finder.pathFindToMouse()
+				obj.go(path)
+	
+	def stop(self, obj):
+		obj.stop()
 
 class MainBase():
 	def __init__(self, x, y, z,color,owner,parentLegion):
@@ -52,9 +63,12 @@ class MainBase():
 		self.origx = x
 		self.origy = y
 		
+		self.n = self.main.attachNewNode("np")
+		
 		self.node = loader.loadModel(self.model)
-		self.node.reparentTo(self.main)
+		self.node.reparentTo(self.n)
 		self.node.setTag("type", self.uname)
+		
 		
 		self.colorFlag = self.node.find("**/colorFlagObj")
 		self.materialFlag = Material("materialFlag")
@@ -79,7 +93,7 @@ class MainBase():
 		self.node.setPythonTag("hp", 400)
 		self.node.setPythonTag("att", 0)
 		self.node.setPythonTag("def", 1)
-			
+		
 		#building lifebar
 		amount = self.node.getPythonTag("hp")
 		self.myLifeBar = MeshDrawer()
@@ -107,8 +121,11 @@ class MainBase():
 		}
 		
 		self.timeList = {
-		"worker" : 5
+		"worker" : 2
 		}
+		
+		#AI object avoidance
+		#aiWorld.addObstacle(self.main)
 		
 	def buildUnit(self, unit):
 		#try to build a worker unit
@@ -216,6 +233,7 @@ class MainBase():
 			
 		if self in mySelection.listLastSelected:
 			mySelection.listLastSelected.remove(self)
+		#aiWorld.removeObstacle(self.node)
 		self.main.remove()
 		
 class StickWorker():
@@ -235,7 +253,8 @@ class StickWorker():
 		self.main.setPos(x,y,z)
 		
 		self.node = Actor (self.model, {
-			'idle':'models/ometto/ometto-idle.egg'
+			'idle':'models/ometto/ometto-idle.egg',
+			'run':'models/ometto/ometto-run.egg'
 		})
 		self.node.reparentTo(self.main)
 		self.node.setTag("type", self.uname)
@@ -289,11 +308,42 @@ class StickWorker():
 		self.node.play('idle')
 		
 		#AI setting
-		self.aiChar = AICharacter("aiunit"+str(self.node.getKey()), self.node, 100, 1, 4)
+		self.aiChar = AICharacter("aiunit"+str(self.node.getKey()), self.main, 50, 2, 4)
 		aiWorld.addAiChar(self.aiChar)
 		self.aiBe = self.aiChar.getAiBehaviors()
-		self.aiBe.initPathFind("maps/burning_sun/navmesh.csv")
-	
+		
+		self.waylist = []
+		self.isFollowing = False
+		
+		self.isWalking = False
+		self.isGathering = False
+		self.isGatheringToBm = False
+		self.isGatheringToBase = False
+		self.hasRes = False
+		self.bm = False
+		self.nb = False
+		
+		taskMgr.add(self.update, "unitupdate")
+		
+	def debug(self):
+		print "Unit debug info:"
+		print "isWalking = " + str(self.isWalking)
+		print "isGathering = " + str(self.isGathering)
+		print "isGatheringToBm = " + str(self.isGatheringToBm)
+		print "isGatheringToBase = " + str(self.isGatheringToBase)
+		print "hasRes = " + str(self.hasRes)
+		print "path state = " + self.aiBe.behaviorStatus("seek")
+		
+	def getNearestBase(self):
+		ulist = self.myLegion.selectNameUnits("base")
+		for unit in ulist:
+			dist = math.sqrt(math.pow(unit.node.getX()+self.bm.getX(),2)+math.pow(unit.node.getY()+self.bm.getY(),2))
+			if self.nb == False:
+				self.nb = unit
+			else:
+				if dist < self.nb:
+					self.nb = unit
+		
 	def updateBarLife(self):
 		currentLife = self.node.getPythonTag("hp")
 		lifeColor = currentLife*100/self.totalLife
@@ -359,7 +409,79 @@ class StickWorker():
 		self.node.remove()
 		
 		#TODO: death effect
+	
+	def gather(self, bm):
+		self.bm = bm
+		self.getNearestBase()
+		self.go(bm)
+		print "status: " + self.aiBe.behaviorStatus("pathfollow")
+		self.isGathering = True
+		self.isGatheringToBm = True
 		
+	def go(self,waylist):
+		self.waylist = waylist
+		print str(self.waylist)
+		if len(waylist)==2:
+			self.aiBe.removeAi("seek")
+			self.aiBe.seek(self.waylist.pop(1))
+		if len(waylist)>2:
+			self.aiBe.removeAi("seek")
+			self.aiBe.seek(self.waylist.pop(1))
+			self.isFollowing = True
+		if self.isWalking != True:
+			self.node.loop("run")
+		self.isWalking = True
+	
+	def move(self,way):
+		self.aiBe.removeAi("seek")
+		self.aiBe.seek(way)
+		self.node.loop("run")
+	
+	def stop(self):
+		self.node.pose("idle", 1)
+	
+	def update(self, task):
+		action = False
+		
+		if self.isGathering == True:
+			if self.aiBe.behaviorStatus("seek") == "done" or self.aiBe.behaviorStatus("seek") == "paused":
+				if self.isGatheringToBm == True:
+					if self.hasRes == False:
+						if self.aiBe.behaviorStatus("seek") == "paused":
+							self.aiBe.resumeAi("seek")
+						self.hasRes = True
+						self.isGatheringToBm = False
+						self.isGatheringToBase = True
+						self.go(self.nb.node)
+						#just performed an action - do not do more
+						action = True
+				if self.isGatheringToBase == True and action == False:
+					if self.hasRes == True:
+						if self.aiBe.behaviorStatus("seek") == "paused":
+							self.aiBe.resumeAi("seek")
+						self.myLegion.addBM(5)
+						self.hasRes = False
+						self.isGatheringToBm = True
+						self.isGatheringToBase = False
+						self.go(self.bm)
+		
+		if self.isFollowing == True:
+			if self.aiBe.behaviorStatus("seek") == "done":
+				if len(self.waylist) >= 2:
+					self.move(self.waylist.pop(1))
+				if len(self.waylist) <= 1:
+					self.waylist = []
+					self.isFollowing = False
+		
+		if self.isWalking == True:
+			if self.aiBe.behaviorStatus("seek") == "done":
+				myEventManager.stop(self)
+				self.isWalking = False
+		if self.isWalking == False:
+			if self.aiBe.behaviorStatus("seek") == "active":
+				self.node.loop("run")
+				self.isWalking = True
+		return Task.cont
 		
 	def remove(self):
 		if self in mySelection.listConsideration:

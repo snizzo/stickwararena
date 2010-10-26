@@ -40,6 +40,13 @@ class Legion():
 			mySelection.listConsideration.append(unit)
 		self.unitList.append(unit)
 	
+	def selectNameUnits(self, uname):
+		ulist = []
+		for unit in self.unitList:
+			if unit.uname == uname:
+				ulist.append(unit)
+		return ulist
+	
 	def removeUnit(self, unit):
 		self.unitList.remove(unit)
 		unit.remove()

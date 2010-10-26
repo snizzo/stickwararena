@@ -16,8 +16,8 @@ from camera import *
 
 #fullscreen e grandezza finestra
 loadPrcFileData("","""
-fullscreen 1
-win-size 1280 800
+fullscreen 0
+win-size 800 600
 text-encoding utf8
 show-frame-rate-meter 1
 sync-video #f
@@ -48,10 +48,16 @@ class Navigator(ShowBase):
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
-		#myShader.setBloomed()
+		base.accept("d", self.debug)
+		myShader.setBloomed()
 		
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")
+	
+	def debug(self):
+		if len(mySelection.listSelected) == 1:
+			obj = mySelection.listSelected[0]
+			obj.debug()
 	
 	def aiUpdate(self,task):
 		aiWorld.update()
