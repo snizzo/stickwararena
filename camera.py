@@ -60,8 +60,12 @@ class Camera():
 		
 		return task.cont
 		
-	def toggleFullscreen(self): 
-		pass
+	def placeOnUnit(self,unit): 
+		x = unit.node.getX(render)
+		y = unit.node.getY(render)
+		
+		base.camera.setX(x)
+		base.camera.setY(y-6)
 
 class clKeyBoardModifiers(): 
 	def __init__(self): 

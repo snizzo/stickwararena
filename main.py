@@ -52,6 +52,7 @@ class Navigator(ShowBase):
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
 		base.accept("f", self.toggleFullscreen)
+		base.accept("p", self.place)
 		base.accept("d", self.debug)
 		myShader.setBloomed()
 		
@@ -101,6 +102,11 @@ class Navigator(ShowBase):
 	def exitGame(self):
 		sys.exit()
 		
+	
+	def place(self):
+		if len(mySelection.listSelected)==1:
+			myCamera.placeOnUnit(mySelection.listSelected[0])
+	
 	def getSupportedDisplayRes(self):
 		di = base.pipe.getDisplayInformation()
 		wp = WindowProperties()
