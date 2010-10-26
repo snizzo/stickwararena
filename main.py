@@ -96,6 +96,17 @@ class Navigator(ShowBase):
 	
 	def exitGame(self):
 		sys.exit()
+		
+	def toggleFullscreen():
+		wp = WindowProperties()
+		if(wp.getFullscreen):
+			wp.setFullscreen(False)
+			wp.setSize(800, 600)
+			base.win.requestProperties(wp)
+		else:
+			wp.setFullscreen(True)
+			wp.setSize(1280, 720)
+			base.win.requestProperties(wp)
 
 n = Navigator()
 
