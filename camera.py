@@ -13,6 +13,8 @@ import math
 class Camera():
 	def __init__(self):
 		
+		self.full = 0
+		
 		self.scrollingSpeed = 22
 		base.disableMouse()
 		camera.setP(-70)
@@ -58,6 +60,8 @@ class Camera():
 		
 		return task.cont
 		
+	def toggleFullscreen(self): 
+		pass
 
 class clKeyBoardModifiers(): 
 	def __init__(self): 

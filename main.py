@@ -48,6 +48,7 @@ class Navigator(ShowBase):
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
+		base.accept("f", self.toggleFullscreen)
 		base.accept("d", self.debug)
 		myShader.setBloomed()
 		
@@ -97,15 +98,16 @@ class Navigator(ShowBase):
 	def exitGame(self):
 		sys.exit()
 		
-	def toggleFullscreen():
+	def toggleFullscreen(self):
+		print "called fullscreen toggle "
 		wp = WindowProperties()
-		if(wp.getFullscreen):
+		if (wp.getFullscreen):
 			wp.setFullscreen(False)
 			wp.setSize(800, 600)
 			base.win.requestProperties(wp)
 		else:
 			wp.setFullscreen(True)
-			wp.setSize(1280, 720)
+			wp.setSize(1280, 800)
 			base.win.requestProperties(wp)
 
 n = Navigator()
