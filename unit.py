@@ -504,3 +504,61 @@ class StickWorker():
 		aiWorld.removeAiChar("aiunit"+str(self.node.getKey()))
 		self.main.remove()
 
+		
+		
+#fuckin' OOP
+#basic game entity class, not for Instantiation
+class GameObject():
+	def __init__ (self):
+		self.position = 0., 0., 0.
+		
+	def debug(self):
+		pass
+		
+	def updateHealthBar(self):
+		pass
+		
+	def damage(self, amount):
+		pass
+		
+	def heal(self, amount):
+		pass
+		
+	def destroy(self):
+		pass
+		
+#basic structure class, not for Instantiation
+class Structure(GameObject):
+	def __init__(self):
+		self.spawnPoint = base.position
+		GameObject.__init__(self)
+		
+	def createUnit(self, unitType):
+		pass
+		
+	def setSpawnPoint(self, x, y):
+		self.spawnPoint = x, y, self.spawnPoint[2]
+		
+#basic unit class, not for Instantiation
+class Unit(GameObject):
+	def __init__(self):
+		GameObject.__init__(self)
+		
+	def go(self, wayList):
+		pass
+		
+	def stop(self):
+		pass
+
+#specialized structure class
+class Base(Structure):
+	def __init__(self):
+		Structure.__init__(self)
+
+#specialized unit class	
+class Worker(Unit):
+	def __init__(self):
+		Unit.__init__(self)
+		
+	def gather(self, blackMatter, wayList):
+		pass

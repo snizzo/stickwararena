@@ -62,3 +62,42 @@ class Legion():
 			self.unitList.remove(unit)
 		self.legNode.remove()
 
+
+#fuckin' OOP
+class Army():
+	def __init__(self, _color):
+		self.unitList = []
+		self.structureList = []
+		self.blackMatter = 0
+		self.color = _color
+		
+	def addUnit(self, unit):
+		self.unitList.append(unit)
+		
+	def removeUnitAt(self, i):
+		self.unitList.pop(i)
+		
+	def removeUnit(self, unit):
+		self.unitList.remove(unit)
+		
+	def addStructure(self, structure):
+		self.structureList.append(structure)
+		
+	def removeStructureAt(self, i):
+		self.structureList.pop(i)
+		
+	def removeStructure(self, structure):
+		self.structureList.remove(structure)
+		
+	def addBlackMatter(self, amount):
+		self.blackMatter += amount
+		
+	
+class Group():
+	def __init__(self, _unitList):
+		self.unitList = _unitList
+		
+	def go(self, wayList):
+		for unit in self.unitList:
+			unit.go(wayList)
+			
