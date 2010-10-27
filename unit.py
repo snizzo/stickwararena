@@ -509,8 +509,13 @@ class StickWorker():
 #fuckin' OOP
 #basic game entity class, not for Instantiation
 class GameObject():
-	def __init__ (self):
+	def __init__ (self, _army):
+		self.army = _army
 		self.position = 0., 0., 0.
+		
+		#basic value, to be overwritten by subclass
+		self.maxLife = 50
+		self.currentLife = 50
 		
 	def debug(self):
 		pass
@@ -519,13 +524,20 @@ class GameObject():
 		pass
 		
 	def damage(self, amount):
-		pass
+		self.currentLife -= amount
+		if self.currentLife < 0:
+			self.destroy()
+		else:
+			self.updateHealthBar()
 		
 	def heal(self, amount):
-		pass
+		self.currentLife += amount
+		if self.currentLife > self.maxLife:
+			self.currentLife = self.maxLife
+		self.updateHealthBar()
 		
 	def destroy(self):
-		pass
+		self.army.removeUnit(self)
 		
 #basic structure class, not for Instantiation
 class Structure(GameObject):
@@ -548,17 +560,23 @@ class Unit(GameObject):
 		pass
 		
 	def stop(self):
-		pass
-
+		passself.node.pose("idle", 1)
+		
 #specialized structure class
 class Base(Structure):
 	def __init__(self):
 		Structure.__init__(self)
+		
+		base.maxLife = 400
+		base.currentLife = 400
 
 #specialized unit class	
 class Worker(Unit):
 	def __init__(self):
 		Unit.__init__(self)
+		
+		base.maxLife = 50
+		base.currentLife = 50
 		
 	def gather(self, blackMatter, wayList):
 		pass
