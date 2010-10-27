@@ -25,7 +25,10 @@ sync-video #f
 
 class Navigator(ShowBase):
 	def __init__(self):
-		ShowBase.__init__(self)
+		#ShowBase.__init__(self)
+		self.appRunner = base.appRunner
+		self.taskMgr = base.taskMgr
+		base.setFrameRateMeter(True)
 		
 		#declaration on built-in objects
 		#that can be called nearly everywhere

@@ -29,14 +29,20 @@ class BaseEvents():
 		base.accept("mouse-order", self.go)
 	
 	def go(self):
+		#if a unit is selected
 		if len(mySelection.listSelected) == 1:
+			#get the unit
 			obj = mySelection.listSelected[0]
+			#if currently under the mouse is there something like a NodePath (right-click selection)
 			if len(mySelection.underMouse) == 1:
-				toobj = mySelection.underMouse[0]
-				if toobj.type == "BlackMatter":
-					obj.gather(toobj.node)
+				to = mySelection.underMouse[0]
+				#if the target is a blackmatter and the unit is a worker
+				if to.type == "BlackMatter" and obj.uname == "worker":
+					path = self.finder.pathFindToNode(to)
+					obj.gather(to,path)
 				else:
-					obj.go(toobj.node)
+					path = self.finder.pathFindToNode(to)
+					obj.go(path)
 			else:
 				path = self.finder.pathFindToMouse()
 				obj.go(path)
@@ -410,17 +416,15 @@ class StickWorker():
 		
 		#TODO: death effect
 	
-	def gather(self, bm):
+	def gather(self, bm, waylist):
 		self.bm = bm
 		self.getNearestBase()
-		self.go(bm)
-		print "status: " + self.aiBe.behaviorStatus("pathfollow")
+		self.go(waylist)
 		self.isGathering = True
 		self.isGatheringToBm = True
 		
 	def go(self,waylist):
 		self.waylist = waylist
-		print str(self.waylist)
 		if len(waylist)==2:
 			self.aiBe.removeAi("seek")
 			self.aiBe.seek(self.waylist.pop(1))
@@ -452,7 +456,8 @@ class StickWorker():
 						self.hasRes = True
 						self.isGatheringToBm = False
 						self.isGatheringToBase = True
-						self.go(self.nb.node)
+						path = myEventManager.finder.pathFindBake(self,self.nb)
+						self.go(path)
 						#just performed an action - do not do more
 						action = True
 				if self.isGatheringToBase == True and action == False:
@@ -463,7 +468,8 @@ class StickWorker():
 						self.hasRes = False
 						self.isGatheringToBm = True
 						self.isGatheringToBase = False
-						self.go(self.bm)
+						path = myEventManager.finder.pathFindBake(self,self.bm)
+						self.go(path)
 		
 		if self.isFollowing == True:
 			if self.aiBe.behaviorStatus("seek") == "done":

@@ -43,6 +43,15 @@ class BlackMatter():
 		#adding to selectable unit list
 		mySelection.listConsideration.append(self)
 	
+	def getX(self):
+		return self.node.getX()
+	
+	def getY(self):
+		return self.node.getY()
+	
+	def getZ(self):
+		return self.node.getZ()
+	
 	def subResource(self, res):
 		amount = self.node.getPythonTag("amount")
 		n = amount - 5
