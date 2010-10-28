@@ -509,13 +509,20 @@ class StickWorker():
 #fuckin' OOP
 #health bar class
 class HealthBar():
+
+	fullLifeFrame = Vec4(0,0,0.5,0.5)
+	halfLifeFrame = Vec4(0.5,0.5,0.5,0.5)
+	lowLifeFrame = Vec4(0.5,0,0.5,0.5)
+	noLifeFrame = Vec4(0,0.5,0.5,0.5)
+
 	def __init__(self, health, _owner):
 		self.totalHealth = health
 		self.currentHealth = health
 		self.owner = _owner
 		self.mesh = MeshDrawer()
 		self.mesh.setBudget(self.totalHealth / 5)
-		self.node = self.owner.attachNewNode("healthbar")
+		self.node = self.mesh.getRoot()
+		self.node.reparentTo(self.owner)
 		self.node.setTexture(loader.loadTexture("images/stick_commander/lifebar.png"))
 		self.node.setLightOff(True)
 		self.node.setCompass()
@@ -523,17 +530,21 @@ class HealthBar():
 		self.material.setDiffuse(Vec4(1,1,1,1))
 		self.node.setMaterial(self.material,1)
 		
-		self.mesh.begin(base.cam, render)
-		for i in range(self.totalHealth / 10):
-			self.mesh.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0,0.5,0.5),0.035,Vec4(1,1,1,1))
-		#barBound = self.node.getBounds().getRadius()
-		#self.node.setX(-barBound+0.06)
-		self.node.setX(2)
-		#self.node.setY(-self.owner.getBounds().getRadius() / 2)
-		self.node.setY(2)
-		self.mesh.end()
+		self.draw(HealthBar.fullLifeFrame)
 		self.show()
 		
+	def draw(self, frame):
+		self.mesh.begin(base.cam, render)
+		for i in range(self.currentHealth / 10):
+			self.mesh.billboard(Vec3(i*0.07,0,+0.15),frame,0.035,Vec4(1,1,1,1))
+		for e in range(self.totalHealth / 10 - self.currentHealth / 10):
+			i += 1
+			self.mesh.billboard(Vec3(i*0.07,0,+0.15), HealthBar.noLifeFrame, 0.035, Vec4(1,1,1,1))
+		barBound = self.node.getBounds().getRadius()
+		self.node.setX(-barBound+0.06)
+		self.node.setY(-self.owner.getBounds().getRadius() / 2)
+		self.mesh.end()
+				
 	def show(self):
 		self.node.show()
 	
@@ -542,14 +553,24 @@ class HealthBar():
 		
 	def update(self, amount):
 		self.currentHealth += amount
+		print str(self.currentHealth)
 		if self.currentHealth > self.totalHealth:
 			self.currentHealth = self.totalHealth
 		if self.currentHealth < 0:
 			self.owner.destroy()
+		percHealth = self.currentHealth * 100 / self.totalHealth
+		if percHealth < 33:
+			frame = HealthBar.lowLifeFrame
+		elif percHealth < 66:
+			frame = HealthBar.halfLifeFrame
+		else:
+			frame = HealthBar.fullLifeFrame
+		self.draw(frame)
 			
 	def setHealth(self, amount):
 		self.totalHealth = amount
 		self.currentHealth = amount
+		self.draw(HealthBar.fullLifeFrame)
 
 #basic game entity class, not for Instantiation
 class GameObject():
@@ -558,7 +579,7 @@ class GameObject():
 		self.position = x, y, z
 		self.node = self.army.attachNewNode("gameobject")
 		self.node.setPos(self.position[0], self.position[1], self.position[2])
-		self.healthBar = HealthBar(50, self.node)
+		self.isSelected = False
 	
 	def setHealth(self, amount):
 		self.healthBar.setHealth(amount)
@@ -570,17 +591,10 @@ class GameObject():
 		return self.node
 		
 	def damage(self, amount):
-		self.currentLife -= amount
-		if self.currentLife < 0:
-			self.destroy()
-		else:
-			self.healthBar.update()
+		self.healthBar.update(-amount)
 		
 	def heal(self, amount):
-		self.currentLife += amount
-		if self.currentLife > self.maxLife:
-			self.currentLife = self.maxLife
-		self.healthBar.update()
+		self.healthBar.update(amount)
 		
 	def update(self, task):
 		pass
@@ -604,7 +618,6 @@ class Structure(GameObject):
 class Unit(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
-		taskMgr.add(self.update, "unitupdate")
 	
 	def go(self, wayList):
 		pass
@@ -624,6 +637,7 @@ class Base(Structure):
 class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
+		
 		self.meshPath = "models/ometto/ometto.egg"
 		self.model = Actor (self.meshPath, {
 			'idle':'models/ometto/ometto-idle.egg',
@@ -632,14 +646,23 @@ class Worker(Unit):
 		self.model.reparentTo(self.node)
 		
 		self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(color)
+		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
 		self.model.setMaterial(self.materialFlag,1)
+		
+		self.healthBar = HealthBar(50, self.model)
 		
 		self.model.play('idle')
 		self.healthBar.setHealth(60)
+		self.damage(45)
+		
+		taskMgr.add(self.update, "unitupdate")
 		
 	def stop(self):
-		self.model.play('idle')
+		self.model.stop()
 		
 	def gather(self, blackMatter, wayList):
 		pass
+		
+	def update(self, task):
+		return task.cont
+		
