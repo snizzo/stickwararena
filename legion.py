@@ -70,6 +70,10 @@ class Army():
 		self.structureList = []
 		self.blackMatter = 0
 		self.color = _color
+		self.node = render.attachNewNode("army")
+		
+	def getNode(self):
+		return self.node
 		
 	def addUnit(self, unit):
 		self.unitList.append(unit)

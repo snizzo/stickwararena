@@ -507,34 +507,73 @@ class StickWorker():
 		
 		
 #fuckin' OOP
+#health bar class
+class HealthBar():
+	def __init__(self, health, _owner):
+		self.totalHealth = health
+		self.currentHealth = health
+		self.owner = _owner
+		self.mesh = MeshDrawer()
+		self.mesh.setBudget(self.totalHealth / 5)
+		self.node = self.owner.getNode().attachNewNode("healthbar")
+		self.node.setTexture(loader.loadTexture("images/stick_commander/lifebar.png"))
+		self.node.setLightOff(True)
+		self.node.setCompass()
+		self.material = Material("normalFlag")
+		self.material.setDiffuse(Vec4(1,1,1,1))
+		self.node.setMaterial(self.material,1)
+		
+		self.mesh.begin(base.cam, render)
+		for i in range(self.totalHealth / 10):
+			self.mesh.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0,0.5,0.5),0.035,Vec4(1,1,1,1))
+		barBound = self.node.getBounds().getRadius()
+		self.node.setX(-barBound+0.06)
+		self.node.setY(-self.owner.getNode().getBounds().getRadius() / 2)
+		self.mesh.end()
+		
+	def show(self):
+		self.node.show()
+	
+	def hide(self):
+		self.node.hide()
+		
+	def update(self, amount):
+		self.currentHealth += amount
+		if self.currentHealth > self.totalHealth:
+			self.currentHealth = self.totalHealth
+		if self.currentHealth < 0:
+			self.owner.destroy()
+			
+	def setHealth(self, amount):
+		self.totalHealth = amount
+		self.currentHealth = amount
+
 #basic game entity class, not for Instantiation
 class GameObject():
 	def __init__ (self, _army):
 		self.army = _army
 		self.position = 0., 0., 0.
-		
-		#basic value, to be overwritten by subclass
-		self.maxLife = 50
-		self.currentLife = 50
+		self.healthBar = HealthBar(50, self)
+		self.node = self.army.getNode().attachNewNode("gameobject")
 		
 	def debug(self):
 		pass
 		
-	def updateHealthBar(self):
-		pass
+	def getNode(self):
+		return self.node
 		
 	def damage(self, amount):
 		self.currentLife -= amount
 		if self.currentLife < 0:
 			self.destroy()
 		else:
-			self.updateHealthBar()
+			self.healthBar.update()
 		
 	def heal(self, amount):
 		self.currentLife += amount
 		if self.currentLife > self.maxLife:
 			self.currentLife = self.maxLife
-		self.updateHealthBar()
+		self.healthBar.update()
 		
 	def destroy(self):
 		self.army.removeUnit(self)
@@ -566,17 +605,13 @@ class Unit(GameObject):
 class Base(Structure):
 	def __init__(self):
 		Structure.__init__(self)
-		
-		base.maxLife = 400
-		base.currentLife = 400
+		self.healthBar.setHealth = 400
 
 #specialized unit class	
 class Worker(Unit):
 	def __init__(self):
 		Unit.__init__(self)
-		
-		base.maxLife = 50
-		base.currentLife = 50
+		self.healthBar.setHealth = 60
 		
 	def gather(self, blackMatter, wayList):
 		pass
