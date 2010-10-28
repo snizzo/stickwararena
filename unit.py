@@ -528,10 +528,11 @@ class HealthBar():
 			self.mesh.billboard(Vec3(i*0.07,0,+0.15),Vec4(0,0,0.5,0.5),0.035,Vec4(1,1,1,1))
 		#barBound = self.node.getBounds().getRadius()
 		#self.node.setX(-barBound+0.06)
-		self.node.setX(500)
+		self.node.setX(2)
 		#self.node.setY(-self.owner.getBounds().getRadius() / 2)
-		self.node.setY(500)
+		self.node.setY(2)
 		self.mesh.end()
+		self.show()
 		
 	def show(self):
 		self.node.show()
@@ -555,9 +556,12 @@ class GameObject():
 	def __init__ (self, x, y, z, _army):
 		self.army = _army
 		self.position = x, y, z
-		
-	def getHealthBar(self):
-		return self.healthBar
+		self.node = self.army.attachNewNode("gameobject")
+		self.node.setPos(self.position[0], self.position[1], self.position[2])
+		self.healthBar = HealthBar(50, self.node)
+	
+	def setHealth(self, amount):
+		self.healthBar.setHealth(amount)
 		
 	def debug(self):
 		pass
@@ -590,9 +594,6 @@ class Structure(GameObject):
 		self.spawnPoint = base.position
 		GameObject.__init__(self, x, y, z, _army)
 		
-	def init(self):
-		pass
-		
 	def createUnit(self, unitType):
 		pass
 		
@@ -603,11 +604,26 @@ class Structure(GameObject):
 class Unit(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
+		taskMgr.add(self.update, "unitupdate")
+	
+	def go(self, wayList):
+		pass
 		
-	def init(self):
-		self.node = self.army.attachNewNode("gameobject")
-		self.node.setPos(self.position[0], self.position[1], self.position[2])
-		self.healthBar = HealthBar(50, self.node)
+	def stop(self):
+		pass
+		
+	def update(self, task):
+		pass
+		
+#specialized structure class
+class Base(Structure):
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+
+#specialized unit class	
+class Worker(Unit):
+	def __init__(self, x, y, z, _army):
+		Unit.__init__(self, x, y, z, _army)
 		self.meshPath = "models/ometto/ometto.egg"
 		self.model = Actor (self.meshPath, {
 			'idle':'models/ometto/ometto-idle.egg',
@@ -619,30 +635,11 @@ class Unit(GameObject):
 		#self.materialFlag.setDiffuse(color)
 		self.model.setMaterial(self.materialFlag,1)
 		
-		self.model.loop('run')
-		taskMgr.add(self.update, "unitupdate")
-	
-	def go(self, wayList):
-		pass
+		self.model.play('idle')
+		self.healthBar.setHealth(60)
 		
 	def stop(self):
 		self.model.play('idle')
-		
-	def update(self, task):
-		self.model.loop('run')
-		
-#specialized structure class
-class Base(Structure):
-	def __init__(self, x, y, z, _army):
-		Structure.__init__(self, x, y, z, _army)
-		self.getHealthBar().setHealth = 400
-
-#specialized unit class	
-class Worker(Unit):
-	def __init__(self, x, y, z, _army):
-		Unit.__init__(self, x, y, z, _army)
-		self.getHealthBar().setHealth = 60
-		self.init()
 		
 	def gather(self, blackMatter, wayList):
 		pass

@@ -42,6 +42,7 @@ class Legion():
 		if self.you == True:
 			mySelection.listConsideration.append(unit)
 		self.unitList.append(unit)
+		unit = Worker(x+5, y, z, self.legNode)
 	
 	def selectNameUnits(self, uname):
 		ulist = []
