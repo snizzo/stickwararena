@@ -425,6 +425,7 @@ class StickWorker():
 		
 	def go(self,waylist):
 		self.waylist = waylist
+		
 		if len(waylist)==2:
 			self.aiBe.removeAi("seek")
 			self.aiBe.seek(self.waylist.pop(1))
@@ -585,7 +586,7 @@ class GameObject():
 		self.healthBar.setHealth(amount)
 		
 	def debug(self):
-		pass
+		print "position:  x = " + str(self.position[0]) + "    y = " + str(self.position[1]) + "     z = " + str(self.position[2])
 		
 	def getNode(self):
 		return self.node
@@ -597,10 +598,11 @@ class GameObject():
 		self.healthBar.update(amount)
 		
 	def update(self, task):
-		pass
+		return task.cont
 		
 	def destroy(self):
 		self.army.removeUnit(self)
+		self.node.remove()
 		
 #basic structure class, not for Instantiation
 class Structure(GameObject):
@@ -623,10 +625,7 @@ class Unit(GameObject):
 		pass
 		
 	def stop(self):
-		pass
-		
-	def update(self, task):
-		pass
+		self.model.stop()
 		
 #specialized structure class
 class Base(Structure):
@@ -649,20 +648,12 @@ class Worker(Unit):
 		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
 		self.model.setMaterial(self.materialFlag,1)
 		
-		self.healthBar = HealthBar(50, self.model)
+		self.healthBar = HealthBar(60, self.model)
 		
 		self.model.play('idle')
-		self.healthBar.setHealth(60)
-		self.damage(45)
 		
 		taskMgr.add(self.update, "unitupdate")
 		
-	def stop(self):
-		self.model.stop()
-		
 	def gather(self, blackMatter, wayList):
 		pass
-		
-	def update(self, task):
-		return task.cont
 		

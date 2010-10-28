@@ -69,7 +69,7 @@ class Army():
 	def __init__(self, _color):
 		self.unitList = []
 		self.structureList = []
-		self.blackMatter = 0
+		self.blackMatter = 200
 		self.color = _color
 		self.node = render.attachNewNode("army")
 		
