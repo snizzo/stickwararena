@@ -23,81 +23,41 @@ class PopupBuilder():
 class MenuBuilder():
 	def __init__(self):
 		pass
+	
+	#function used to fast make a button from a predrawn set of images
+	def makeBigButton(self, name, message, x,z,parent):
+		buttonGeom = loader.loadModel("images/"+name+".egg")
 		
-	def show(self, type):
-		if type == "main":
-			self.mapNode = aspect2d.attachNewNode("mapNodeG")
-			#background button
-			self.background = DirectFrame(frameColor=(1, 1, 1, 1),frameSize=(-1, 1, -1, 1),)
-			self.background['geom'] = loader.loadModel("images/background_main.egg")
-			self.background['geom_scale'] = 2
-			self.background.resetFrameSize()
-			self.background.reparentTo(render2d)
-			
-			#single player button (animated)
-			self.spButtonGeom = loader.loadModel("images/beyourhero.egg")
-			
-			self.spButton = DirectButton(geom = (
-			self.spButtonGeom.find('**/beyourhero_ready'),
-			self.spButtonGeom.find('**/beyourhero_click'),
-			self.spButtonGeom.find('**/beyourhero_rollover'),
-			self.spButtonGeom.find('**/beyourhero_disabled')))
-			self.spButton.resetFrameSize()
-			
-			self.spButton['relief'] = None
-			self.spButton['command'] = messenger.send
-			self.spButton['extraArgs'] = (['startSingle'])
-			self.spButton.setX(-0.68)
-			self.spButton.setZ(0.21)
-			self.spButton.reparentTo(self.mapNode)
-			
-			#configuration button (animated)
-			self.cfgButtonGeom = loader.loadModel("images/configure.egg")
-			
-			self.cfgButton = DirectButton(geom = (
-			self.cfgButtonGeom.find('**/configure_ready'),
-			self.cfgButtonGeom.find('**/configure_click'),
-			self.cfgButtonGeom.find('**/configure_rollover'),
-			self.cfgButtonGeom.find('**/configure_disabled')))
-			self.cfgButton.resetFrameSize()
-			
-			self.cfgButton['relief'] = None
-			self.cfgButton['command'] = sys.exit
-			self.cfgButton.setX(0.68)
-			self.cfgButton.setZ(0.21)
-			self.cfgButton.reparentTo(self.mapNode)
-			
-			#multi player button (animated)
-			self.mpButtonGeom = loader.loadModel("images/worldwidewar.egg")
-			
-			self.mpButton = DirectButton(geom = (
-			self.mpButtonGeom.find('**/worldwidewar_ready'),
-			self.mpButtonGeom.find('**/worldwidewar_click'),
-			self.mpButtonGeom.find('**/worldwidewar_rollover'),
-			self.mpButtonGeom.find('**/worldwidewar_disabled')))
-			self.mpButton.resetFrameSize()
-			
-			self.mpButton['relief'] = None
-			self.mpButton['command'] = sys.exit
-			self.mpButton.setX(-0.64)
-			self.mpButton.setZ(-0.55)
-			self.mpButton.reparentTo(self.mapNode)
-			
-			#exit button (animated)
-			self.exitButtonGeom = loader.loadModel("images/surrender.egg")
-			
-			self.exitButton = DirectButton(geom = (
-			self.exitButtonGeom.find('**/surrender_ready'),
-			self.exitButtonGeom.find('**/surrender_click'),
-			self.exitButtonGeom.find('**/surrender_rollover'),
-			self.exitButtonGeom.find('**/surrender_disabled')))
-			self.exitButton.resetFrameSize()
-			
-			self.exitButton['relief'] = None
-			self.exitButton['command'] = sys.exit
-			self.exitButton.setX(0.64)
-			self.exitButton.setZ(-0.55)
-			self.exitButton.reparentTo(self.mapNode)
+		button = DirectButton(geom = (
+		buttonGeom.find('**/'+name+'_ready'),
+		buttonGeom.find('**/'+name+'_click'),
+		buttonGeom.find('**/'+name+'_rollover'),
+		buttonGeom.find('**/'+name+'_disabled')))
+		button.resetFrameSize()
+		
+		button['relief'] = None
+		#command executed when pressed the button
+		button['command'] = messenger.send
+		button['extraArgs'] = ([message])
+		button.setX(x)
+		button.setZ(z)
+		button.reparentTo(parent)
+	
+	def showMainMenu(self):
+		self.mapNode = aspect2d.attachNewNode("mapNodeG")
+		#background button
+		self.background = DirectFrame(frameColor=(1, 1, 1, 1),frameSize=(-1, 1, -1, 1),)
+		self.background['geom'] = loader.loadModel("images/background_main.egg")
+		self.background['geom_scale'] = 2
+		self.background.resetFrameSize()
+		self.background.reparentTo(render2d)
+		
+		#building buttons
+		# (name, event sent via messenger, x, z, parent node)
+		self.makeBigButton("beyourhero", "startSingle", -0.68, 0.21, self.mapNode)
+		self.makeBigButton("configure", "exitGame", 0.68, 0.21, self.mapNode)
+		self.makeBigButton("worldwidewar", "exitGame", -0.64, -0.55, self.mapNode)
+		self.makeBigButton("beyourhero", "exitGame", 0.64, -0.55, self.mapNode)
 	
 	def hide(self):
 		self.background.remove()
@@ -105,7 +65,9 @@ class MenuBuilder():
 
 class HudBuilder():
 	def __init__(self):
-		self.pirulen = loader.loadFont("fonts/pirulen.ttf")
+		#loading HUD specific font
+		self.font = loader.loadFont("fonts/pirulen.ttf")
+		#image used to show what you have selected
 		self.miniImage = False
 	
 	def show(self):
@@ -122,7 +84,7 @@ class HudBuilder():
 		
 		self.resTL = TextNode("resTextLine")
 		self.resTL.setText("nothing selected")
-		self.resTL.setFont(self.pirulen)
+		self.resTL.setFont(self.font)
 		self.resTL.setAlign(TextNode.ALeft)
 		self.resTL_np = self.displayInfo.attachNewNode(self.resTL)
 		self.resTL_np.setScale(0.037)
@@ -146,7 +108,7 @@ class HudBuilder():
 		self.resourceIcon.setZ(0.975)
 		self.resourceIcon.reparentTo(self.hudNode)
 		
-		#initial res
+		#update initial resources
 		self.updateRes()
 		
 		#res text line should be present just before :)
@@ -154,14 +116,14 @@ class HudBuilder():
 		
 		self.dTL = TextNode("debugTextLine")
 		self.dTL.setText("nothing selected")
-		self.dTL.setFont(self.pirulen)
+		self.dTL.setFont(self.font)
 		self.dTL.setAlign(TextNode.ACenter)
 		self.dTL_np = self.displayInfo.attachNewNode(self.dTL)
 		self.dTL_np.setScale(0.05)
 		self.dTL_np.setPos(-0.15,0,-0.55)
 		
 		self.attTL = TextNode("attackTextLine")
-		self.attTL.setFont(self.pirulen)
+		self.attTL.setFont(self.font)
 		self.attTL.setText("ccc")
 		self.attTL_np = self.displayInfo.attachNewNode(self.attTL)
 		self.attTL_np.setScale(0.04)
@@ -169,7 +131,7 @@ class HudBuilder():
 		self.attTL_np.hide()
 		
 		self.defTL = TextNode("defenceTextLine")
-		self.defTL.setFont(self.pirulen)
+		self.defTL.setFont(self.font)
 		self.defTL.setText("defTL")
 		self.defTL_np = self.displayInfo.attachNewNode(self.defTL)
 		self.defTL_np.setScale(0.04)
@@ -177,7 +139,7 @@ class HudBuilder():
 		self.defTL_np.hide()
 		
 		self.hpTL = TextNode("healthTextLine")
-		self.hpTL.setFont(self.pirulen)
+		self.hpTL.setFont(self.font)
 		self.hpTL.setText("hpTL")
 		self.hpTL_np = self.displayInfo.attachNewNode(self.hpTL)
 		self.hpTL_np.setScale(0.04)
@@ -213,120 +175,135 @@ class HudBuilder():
 			self.miniImage = False
 	
 	def updateCommanderSelection(self):
+		#getting 2D coordinate
 		y = base.mouseWatcherNode.getMouseY()
+		#if mouse is in the HUD don't selected and load selection
 		if y < -0.5:
 			return
-		#nothing selected
+		
+		#if nothing selected clear HUD
 		if len(mySelection.listSelected) == 0:
 			self.clear()
 				
-		#single element selected
+		#if one single element selected
 		if len(mySelection.listSelected) == 1:
-			obj = mySelection.listSelected[0]
+			obj = mySelection.getSingleSelected()
+			#if it's game unit
 			if obj.type == "GameUnit":
-				#base hud
+				#build base specific HUD
 				if obj.uname == "base":
-					self.clear()
-					
-					#loading miniImage Hud
-					if self.miniImage != False:
-						self.miniImage.remove()
-						self.miniImage = False
-					self.miniImage = loader.loadModel(obj.model)
-					self.miniImage.setRenderModeWireframe()
-					self.miniImage.setPos(-0.55,0,-0.82)
-					self.miniImage.setP(16)
-					self.miniImage.setScale(0.2)
-					self.miniImage.reparentTo(self.displayInfo)
-					self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-					
-					#organizing other hud stuff
-					self.setText(obj.name)
-					#gathering information about current selected unit
-					tLife = obj.totalLife
-					cLife = obj.node.getPythonTag("hp")
-					attack = obj.node.getPythonTag("att")
-					defence = obj.node.getPythonTag("def")
-					
-					self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
-					self.hpTL_np.show()
-					self.attTL.setText("damage: "+str(attack))
-					self.attTL_np.show()
-					self.defTL.setText("armor: "+str(defence))
-					self.defTL_np.show()
-					
-					#base button order :)
-					self.OneButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
-					
-					self.OneButton = DirectButton(geom = (
-					self.OneButtonGeom.find('**/worker'),
-					self.OneButtonGeom.find('**/worker'),
-					self.OneButtonGeom.find('**/worker'),
-					self.OneButtonGeom.find('**/worker')))
-					self.OneButton.resetFrameSize()
-					self.OneButton.setScale(0.1)
-					self.OneButton.setX(0.75)
-					self.OneButton.setZ(-0.57)
-					self.OneButton.show()
-					
-					self.OneButton['relief'] = None
-					self.OneButton['command'] = self.myLegion.buildUnit
-					self.OneButton['extraArgs'] = (['worker'])
-					self.OneButton.reparentTo(self.hudNode)
+					self.makeBaseHud()
 					
 				if obj.uname == "worker":
-					self.clear()
-					
-					#loading miniImage Hud
-					if self.miniImage != False:
-						self.miniImage.remove()
-						self.miniImage = False
-					self.miniImage = loader.loadModel(obj.model)
-					self.miniImage.setRenderModeWireframe()
-					self.miniImage.setPos(-0.55,0,-0.82)
-					self.miniImage.setP(16)
-					self.miniImage.setScale(0.2)
-					self.miniImage.reparentTo(self.displayInfo)
-					self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-					
-					#organizing other hud stuff
-					self.setText(obj.name)
-					#gathering information about current selected unit
-					tLife = obj.totalLife
-					cLife = obj.node.getPythonTag("hp")
-					attack = obj.node.getPythonTag("att")
-					defence = obj.node.getPythonTag("def")
-					
-					self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
-					self.hpTL_np.show()
-					self.attTL.setText("damage: "+str(attack))
-					self.attTL_np.show()
-					self.defTL.setText("armor: "+str(defence))
-					self.defTL_np.show()
+					self.makeWorkerHud()
 				
 			if obj.type == "BlackMatter":
-				#updating amount infos
-				self.clear()
-				later = obj.node.getPythonTag("amountT")
-				now = obj.node.getPythonTag("amount")
-				self.hpTL.setText("Res: "+str(now)+"/"+str(later))
-				self.hpTL_np.show()
-				#miniImage
-				if self.miniImage != False:																													 
-					self.miniImage.remove()
-					self.miniImage = False
-				self.setText(obj.name)
-				self.miniImage = loader.loadModel("models/blob/blob.egg")
-				self.miniImage.setRenderModeWireframe()
-				self.miniImage.setPos(-0.55,0,-0.82)
-				self.miniImage.setP(16)
-				self.miniImage.setScale(0.09)
-				self.miniImage.reparentTo(self.displayInfo)
-				self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-				
+				self.makeResourceHud()
+		
+		#if more than one is selected
 		if len(mySelection.listSelected) > 1:
 			self.setText(str(len(mySelection.listSelected)) + " selected units")
-			
+	
+	def makeResourceHud(self):
+		obj = mySelection.getSingleSelected()
+		#updating amount infos
+		self.clear()
+		later = obj.node.getPythonTag("amountT")
+		now = obj.node.getPythonTag("amount")
+		self.hpTL.setText("Res: "+str(now)+"/"+str(later))
+		self.hpTL_np.show()
+		#miniImage
+		if self.miniImage != False:																													 
+			self.miniImage.remove()
+			self.miniImage = False
+		self.setText(obj.name)
+		self.miniImage = loader.loadModel("models/blob/blob.egg")
+		self.miniImage.setRenderModeWireframe()
+		self.miniImage.setPos(-0.55,0,-0.82)
+		self.miniImage.setP(16)
+		self.miniImage.setScale(0.09)
+		self.miniImage.reparentTo(self.displayInfo)
+		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+	
+	def makeWorkerHud(self):
+		obj = mySelection.getSingleSelected()
+		self.clear()
+		#loading miniImage Hud
+		if self.miniImage != False:
+			self.miniImage.remove()
+			self.miniImage = False
+		self.miniImage = loader.loadModel(obj.model)
+		self.miniImage.setRenderModeWireframe()
+		self.miniImage.setPos(-0.55,0,-0.82)
+		self.miniImage.setP(16)
+		self.miniImage.setScale(0.2)
+		self.miniImage.reparentTo(self.displayInfo)
+		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		
+		#organizing other hud stuff
+		self.setText(obj.name)
+		#gathering information about current selected unit
+		tLife = obj.totalLife
+		cLife = obj.node.getPythonTag("hp")
+		attack = obj.node.getPythonTag("att")
+		defence = obj.node.getPythonTag("def")
+		
+		self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
+		self.hpTL_np.show()
+		self.attTL.setText("damage: "+str(attack))
+		self.attTL_np.show()
+		self.defTL.setText("armor: "+str(defence))
+		self.defTL_np.show()
+	
+	def makeBaseHud(self):
+		obj = mySelection.getSingleSelected()
+		#clear all
+		self.clear()
+		#loading miniImage Hud
+		if self.miniImage != False:
+			self.miniImage.remove()
+			self.miniImage = False
+		self.miniImage = loader.loadModel(obj.model)
+		self.miniImage.setRenderModeWireframe()
+		self.miniImage.setPos(-0.55,0,-0.82)
+		self.miniImage.setP(16)
+		self.miniImage.setScale(0.2)
+		self.miniImage.reparentTo(self.displayInfo)
+		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		
+		#organizing other hud stuff
+		self.setText(obj.name)
+		#gathering information about current selected unit
+		tLife = obj.totalLife
+		cLife = obj.node.getPythonTag("hp")
+		attack = obj.node.getPythonTag("att")
+		defence = obj.node.getPythonTag("def")
+		
+		self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
+		self.hpTL_np.show()
+		self.attTL.setText("damage: "+str(attack))
+		self.attTL_np.show()
+		self.defTL.setText("armor: "+str(defence))
+		self.defTL_np.show()
+		
+		#base button order :)
+		self.OneButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
+		
+		self.OneButton = DirectButton(geom = (
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker'),
+		self.OneButtonGeom.find('**/worker')))
+		self.OneButton.resetFrameSize()
+		self.OneButton.setScale(0.1)
+		self.OneButton.setX(0.75)
+		self.OneButton.setZ(-0.57)
+		self.OneButton.show()
+		
+		self.OneButton['relief'] = None
+		self.OneButton['command'] = self.myLegion.buildUnit
+		self.OneButton['extraArgs'] = (['worker'])
+		self.OneButton.reparentTo(self.hudNode)
 	
 	def updateRes(self):
 			self.resTL.setText(str(self.myLegion.blackMatter))

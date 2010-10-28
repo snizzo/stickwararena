@@ -45,90 +45,65 @@ class Navigator(ShowBase):
 		__builtin__.aiWorld = AIWorld(render)
 		__builtin__.myEventManager = BaseEvents()
 		
+		#uncomment following line to see intro
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
 		#introVideo.play()
 		self.mainMenu("intro")
-		self.full = False
-		self.displayModes = []
-		self.getSupportedDisplayRes()
 		
 		base.accept("startSingle", self.startSingle)
 		base.accept("goToMainMenu", self.mainMenu)
-		base.accept("f", self.toggleFullscreen)
-		base.accept("p", self.place)
-		base.accept("d", self.debug)
+		base.accept("exitGame", self.exitGame)
+		
+		#shader and effects function
 		myShader.setBloomed()
 		
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")
 	
-	def debug(self):
-		if len(mySelection.listSelected) == 1:
-			obj = mySelection.listSelected[0]
-			obj.debug()
-	
+	#AI update every frame task
 	def aiUpdate(self,task):
 		aiWorld.update()
 		return Task.cont
 	
+	#function called when creating a new single player game
 	def startSingle(self):
-		#hide normalgui
+		#hide every gui present in the screen
 		myMenuBuilder.hide()
+		#load pre-baked map
 		myMap.loadMap("maps/burning_sun/burning_sun.egg")
-		#build hud
+		#setup players, starting structures and resources
 		myMap.setupInitMap()
+		#show game hud
 		myHudBuilder.show()
+		#make mouse selection tool active
 		mySelection.setActive()
 		
-		#TODO: add event class handler
-		
 		#phase specific event handling
+		#used to show a popup if you want to exit
 		base.accept("escape", myPopupBuilder.show)
 	
-	#def givedamage(self,
-	
-	# used to remove all exiting and rejoining...
+	#function called for showing main Menu
+	# args: f = from where are you returning (eg. game, just started..)
 	def mainMenu(self,f):
+		#set mouse selection tool inactive
 		mySelection.setIdle()
+		#avoid showing the popup to return to main menu
 		base.ignore("escape")
+		#if you're seeing main menu once closed a game unload map and remove everything from scene
 		if(f=="game"):
-			mySelection.setIdle()
 			myMap.unloadMap()
 			myHudBuilder.hide()
 			for legion in myLegion:
 				legion.remove()
 			myResources.remove()
 		
-		#build main menu
-		myMenuBuilder.show("main")
+		#show main menu
+		myMenuBuilder.showMainMenu()
 	
+	#function called to exit the application in any time
+	#called from event "exitApp"
 	def exitGame(self):
 		sys.exit()
-		
-	
-	def place(self):
-		if len(mySelection.listSelected)==1:
-			myCamera.placeOnUnit(mySelection.listSelected[0])
-	
-	def getSupportedDisplayRes(self):
-		di = base.pipe.getDisplayInformation()
-		wp = WindowProperties()
-		for index in range(di.getTotalDisplayModes()):
-			if abs(float(di.getDisplayModeWidth(index)) / float(di.getDisplayModeHeight(index)) - (16. / 9.)) < 0.001:
-				self.displayModes.append([di.getDisplayModeWidth(index), di.getDisplayModeHeight(index)]) 
-		
-	def toggleFullscreen(self):
-		print "called fullscreen toggle"
-		wp = WindowProperties()
-		if self.full == True:
-			wp.setSize(self.displayModes[0][0], self.displayModes[0][1])
-			wp.setFullscreen(False)
-			self.full = False
-		else:
-			wp.setSize(self.displayModes[len(self.displayModes) - 1][0], self.displayModes[len(self.displayModes) - 1][1])
-			wp.setFullscreen(True)
-			self.full = True
-		base.win.requestProperties(wp)
 
 n = Navigator()
 

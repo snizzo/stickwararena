@@ -13,8 +13,6 @@ import math
 class Camera():
 	def __init__(self):
 		
-		self.full = 0
-		
 		self.scrollingSpeed = 22
 		base.disableMouse()
 		camera.setP(-70)
@@ -27,6 +25,33 @@ class Camera():
 		self.cameraLightNode.setColor(Vec4(1,1,1,1))
 		self.cameraLight = render.attachNewNode(self.cameraLightNode)
 		render.setLight(self.cameraLight)
+		
+		#fullscreen toggle
+		self.full = False
+		self.displayModes = []
+		self.getSupportedDisplayRes()
+		
+		base.accept("f", self.toggleFullscreen)
+	
+	def getSupportedDisplayRes(self):
+		di = base.pipe.getDisplayInformation()
+		wp = WindowProperties()
+		for index in range(di.getTotalDisplayModes()):
+			if abs(float(di.getDisplayModeWidth(index)) / float(di.getDisplayModeHeight(index)) - (16. / 9.)) < 0.001:
+				self.displayModes.append([di.getDisplayModeWidth(index), di.getDisplayModeHeight(index)]) 
+		
+	def toggleFullscreen(self):
+		print "called fullscreen toggle"
+		wp = WindowProperties()
+		if self.full == True:
+			wp.setSize(self.displayModes[0][0], self.displayModes[0][1])
+			wp.setFullscreen(False)
+			self.full = False
+		else:
+			wp.setSize(self.displayModes[len(self.displayModes) - 1][0], self.displayModes[len(self.displayModes) - 1][1])
+			wp.setFullscreen(True)
+			self.full = True
+		base.win.requestProperties(wp)
 	
 	def cameraZoomIn(self):
 		if camera.getZ() > 10:
@@ -59,7 +84,7 @@ class Camera():
 			self.cameraLight.setZ(camera.getZ())
 		
 		return task.cont
-		
+	
 	def placeOnUnit(self,unit): 
 		x = unit.node.getX(render)
 		y = unit.node.getY(render)
@@ -149,6 +174,15 @@ class clSelectionTool():
 		
 		####------otherThings
 		self.booSelecting = False
+	
+	def getSelected(self):
+		return self.listSelected
+	
+	def getSingleSelected(self):
+		return self.listSelected[0]
+	
+	def getUnitUnderMouse(self):
+		return self.underMouse[0]
 	
 	def clear(self):
 		self.listConsideration = []
