@@ -163,11 +163,11 @@ class clSelectionTool():
 		self.UpdateTimeSelected = 0.015 
 		 
 		####------Register the left-mouse-button to start selecting 
-		base.accept("mouse1", self.OnStartSelect) 
+		base.accept("mouse1", self.OnStartSelect, extraArgs=["mouse1"]) 
 		base.accept("control-mouse1", self.OnStartSelect) 
 		base.accept("mouse1-up", self.OnStopSelect) 
 		
-		base.accept("mouse3", self.OnStartSelect)
+		base.accept("mouse3", self.OnStartSelect, extraArgs=["mouse3"])
 		base.accept("mouse3-up", self.OnRightStopSelect) 
 		
 		self.taskUpdateSelRect = 0 
@@ -216,7 +216,7 @@ class clSelectionTool():
 			#do nothing
 			pass
 		 
-	def OnStartSelect(self):
+	def OnStartSelect(self, pressed="mouse1"):
 		y = base.mouseWatcherNode.getMouseY()
 		if y < -0.5:
 			return
@@ -228,11 +228,12 @@ class clSelectionTool():
 		self.booSelecting = True 
 		self.pt2InitialMousePos = Point2(base.mouseWatcherNode.getMouse()) 
 		self.pt2LastMousePos = Point2(self.pt2InitialMousePos) 
-		self.npSelRect.setPos(self.pt2InitialMousePos[0], 1, self.pt2InitialMousePos[1]) 
-		self.npSelRect.setScale(1e-3, 1, 1e-3) 
-		self.npSelRect.show() 
-		self.taskUpdateSelRect = taskMgr.add(self.UpdateSelRect, "UpdateSelRect") 
-		self.taskUpdateSelRect.lastMpos = None 
+		if pressed == "mouse1":
+			self.npSelRect.setPos(self.pt2InitialMousePos[0], 1, self.pt2InitialMousePos[1]) 
+			self.npSelRect.setScale(1e-3, 1, 1e-3) 
+			self.npSelRect.show() 
+			self.taskUpdateSelRect = taskMgr.add(self.UpdateSelRect, "UpdateSelRect") 
+			self.taskUpdateSelRect.lastMpos = None 
 		
 	def OnStopSelect(self):
 		if not self.active:
