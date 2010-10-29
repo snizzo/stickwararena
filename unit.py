@@ -620,8 +620,7 @@ class GameObject():
 	def getNode(self):
 		return self.node
 		
-	#che dici facciamo le funzioni per accedere alle informazioni della vita cosi?
-	#oppure accediamo direttamente alle variabili?
+	#return the current health of the game object
 	def getHealth(self):
 		return self.healtBar.getHealth()
 	
@@ -671,9 +670,13 @@ class Structure(GameObject):
 class Unit(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
+		self.movementTask = False
 	
 	#move to object from the actual position to the last waypoint in <waylist> passing through all the waypoint
 	def go(self, wayList):
+		if self.movementTask:
+			taskMgr.remove(self.movementTask)
+		self.movementTask = False
 		self.model.loop('run')
 		wayList.pop(0)
 		self.currentWayList = wayList
@@ -684,7 +687,7 @@ class Unit(GameObject):
 			self.currentDir.normalize()
 			self.currentDir[2] = 0.0
 			self.targetReached = False
-			taskMgr.add(self.moveTo, "moveTo")
+			self.movementTask = taskMgr.add(self.moveTo, "moveTo")
 		
 	def moveTo(self, task):
 		if abs(self.node.getX() - self.currentTarget[0]) > 0.1 or abs(self.node.getY() - self.currentTarget[1]) > 0.1:
@@ -706,15 +709,6 @@ class Unit(GameObject):
 				self.currentDir.normalize()
 				self.currentDir[2] = 0.0
 				return task.cont
-	
-		if abs(self.node.getX() - wayPoint[0]) > 0.1 or abs(self.node.getY() - wayPoint[1]) > 0.1:
-			if abs(self.node.getX() - wayPoint[0]) > 0.1:
-				self.node.setX(self.node.getX() - dir[0] * 0.05)
-			if abs(self.node.getY() - wayPoint[1]) > 0.1:
-				self.node.setY(self.node.getY() - dir[1] * 0.05)
-			return task.cont
-		self.stop()
-		return task.done
 		
 	#stop the game unit canceling all the current actions
 	def stop(self):
