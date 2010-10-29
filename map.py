@@ -7,7 +7,7 @@ from legion import *
 
 class Map():
 	def __init__(self):
-		pass
+		self.mapPath = ""
 	
 	def setupInitMap(self):
 		startPosNode = self.mapNode.findAllMatches("**/start_p**")
@@ -38,9 +38,11 @@ class Map():
 		# "maps/burning_sun/burning_sun.egg" demo map name
 		self.map = loader.loadModel(url)
 		self.map.reparentTo(self.mapNode)
+		self.mapPath = url
 	
 	def unloadMap(self):
 		self.mapNode.remove()
+		self.mapPath = ""
 	
 	def setupMap(self):
 		#carico la skybox e riparento

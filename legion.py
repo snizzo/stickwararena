@@ -60,7 +60,6 @@ class Legion():
 	
 	#function that i use to remove all my RTS's units from the main units list.
 	def remove(self):
-		print "legion.remove() called"
 		for unit in self.unitList[:]:
 			unit.remove()
 			self.unitList.remove(unit)
@@ -102,10 +101,24 @@ class Army():
 		
 	
 class Group():
-	def __init__(self, _unitList):
+	def __init__(self, _unitList = []):
 		self.unitList = _unitList
+		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
+		base.accept('right-click-on-selection', self.go)
 		
-	def go(self, wayList):
+	def go(self):
+		if len(mySelection.underMouse) == 1:
+			target = mySelection.underMouse[0]
+			path = self.finder.pathFindToNode()
+		else:
+			path = self.finder.pahFindToMouse()
+		for unit in unitList:
+			unit.go(path)
+		
+	def stop(self):
 		for unit in self.unitList:
-			unit.go(wayList)
+			unit.stop()
 			
+	def clear(self):
+		self.unitList = []
+		

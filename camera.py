@@ -41,7 +41,6 @@ class Camera():
 				self.displayModes.append([di.getDisplayModeWidth(index), di.getDisplayModeHeight(index)]) 
 		
 	def toggleFullscreen(self):
-		print "called fullscreen toggle"
 		wp = WindowProperties()
 		if self.full == True:
 			wp.setSize(self.displayModes[0][0], self.displayModes[0][1])

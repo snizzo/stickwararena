@@ -19,7 +19,6 @@ class Resources():
 	
 	#function that i use to remove all my RTS's units from the main units list.
 	def remove(self):
-		print "resources.remove() called"
 		for res in self.resList[:]:
 			res.remove()
 			self.resList.remove(res)

@@ -510,7 +510,6 @@ class StickWorker():
 #fuckin' OOP
 #health bar class
 class HealthBar():
-
 	fullLifeFrame = Vec4(0,0,0.5,0.5)
 	halfLifeFrame = Vec4(0.5,0.5,0.5,0.5)
 	lowLifeFrame = Vec4(0.5,0,0.5,0.5)
@@ -576,22 +575,22 @@ class HealthBar():
 
 
 class Selector():
-		def __init__(self, _owner, scaleFactor = 1.0):
-			self.owner = _owner
-			self.radius = self.owner.getBounds().getRadius() * scaleFactor
-			
-			self.node = loader.loadModel("images/selector.egg")
-			self.node.setLightOff(True)
-			self.node.reparentTo(self.owner)
-			self.node.setZ(0.1)
-			self.node.setP(270)
-			self.node.setScale(self.radius)
-			
-		def show(self):
-			self.node.show()
-			
-		def hide(self):
-			self.node.hide()
+	def __init__(self, _owner, scaleFactor = 1.0):
+		self.owner = _owner
+		self.radius = self.owner.getBounds().getRadius() * scaleFactor
+		
+		self.node = loader.loadModel("images/selector.egg")
+		self.node.setLightOff(True)
+		self.node.reparentTo(self.owner)
+		self.node.setZ(0.1)
+		self.node.setP(270)
+		self.node.setScale(self.radius)
+		
+	def show(self):
+		self.node.show()
+		
+	def hide(self):
+		self.node.hide()
 	
 		
 #basic game entity class, not for Instantiation
@@ -602,36 +601,45 @@ class GameObject():
 		self.node.setPos(x, y, z)
 		self.isSelected = False
 	
+	#set the health of the game object to <amount> and update the healthbar consistently
 	def setHealth(self, amount):
 		self.healthBar.setHealth(amount)
 		
+	#print on the standard output various debug information
 	def debug(self):
 		print "position:  x = " + str(self.node.getX()) + "    y = " + str(self.node.getY()) + "     z = " + str(self.node.getZ())
 		
+	#return the main node of the game object
 	def getNode(self):
 		return self.node
 		
+	#apply <amount> damage to the game object and update the health bar consistently
 	def damage(self, amount):
 		self.healthBar.update(-amount)
 		
+	#heal <amount> the game object and update the health bar consistently
 	def heal(self, amount):
 		self.healthBar.update(amount)
 		
+	#show or hide the healthbar
 	def showHealthBar(self, bool = False):
 		if bool:
 			self.healthBar.show()
 		else:
 			self.healthBar.hide()
 			
+	#show or hide the selection indicator
 	def showSelector(self, bool = False):
 		if bool:
 			self.selector.show()
 		else:
 			self.selector.hide()
 		
+	#update the game object status
 	def update(self, task):
 		return task.cont
 		
+	#remove the game object from the game
 	def destroy(self):
 		self.army.removeUnit(self)
 		self.node.remove()
@@ -642,9 +650,11 @@ class Structure(GameObject):
 		self.spawnPoint = x, y, z
 		GameObject.__init__(self, x, y, z, _army)
 		
+	#create a new unit of type <unitType> at location <spawnPoint> (note: <spawnPoint> is an instance variable)
 	def createUnit(self, unitType):
 		pass
 		
+	#set the unit spawn point to <x, y>
 	def setSpawnPoint(self, x, y):
 		self.spawnPoint = x, y, self.spawnPoint[2]
 		
@@ -653,11 +663,53 @@ class Unit(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
 	
+	#move to object from the actual position to the last waypoint in <waylist> passing through all the waypoint
 	def go(self, wayList):
-		pass
+		self.model.loop('run')
+		wayList.pop(0)
+		self.currentWayList = wayList
+		if len(self.currentWayList) > 0:
+			self.currentTarget = self.currentWayList.pop(0)
+			self.model.lookAt(self.currentTarget)
+			self.currentDir = self.node.getPos() - self.currentTarget
+			self.currentDir.normalize()
+			self.currentDir[2] = 0.0
+			self.targetReached = False
+			taskMgr.add(self.moveTo, "moveTo")
 		
+	def moveTo(self, task):
+		if abs(self.node.getX() - self.currentTarget[0]) > 0.1 or abs(self.node.getY() - self.currentTarget[1]) > 0.1:
+			if len(self.currentWayList) == 0:
+				self.targetReached = True
+			if abs(self.node.getX() - self.currentTarget[0]) > 0.1:
+				self.node.setX(self.node.getX() - self.currentDir[0] * 0.05)
+			if abs(self.node.getY() - self.currentTarget[1]) > 0.1:
+				self.node.setY(self.node.getY() - self.currentDir[1] * 0.05)
+			return task.cont
+		else:
+			if self.targetReached:
+				self.stop()
+				return task.done
+			else:
+				self.currentTarget = self.currentWayList.pop(0)
+				self.model.lookAt(self.currentTarget)
+				self.currentDir = self.node.getPos() - self.currentTarget
+				self.currentDir.normalize()
+				self.currentDir[2] = 0.0
+				return task.cont
+	
+		if abs(self.node.getX() - wayPoint[0]) > 0.1 or abs(self.node.getY() - wayPoint[1]) > 0.1:
+			if abs(self.node.getX() - wayPoint[0]) > 0.1:
+				self.node.setX(self.node.getX() - dir[0] * 0.05)
+			if abs(self.node.getY() - wayPoint[1]) > 0.1:
+				self.node.setY(self.node.getY() - dir[1] * 0.05)
+			return task.cont
+		self.stop()
+		return task.done
+		
+	#stop the game unit canceling all the current actions
 	def stop(self):
-		self.model.stop()
+		self.model.pose('idle', 1)
 		
 #specialized structure class
 class Base(Structure):
@@ -665,22 +717,27 @@ class Base(Structure):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
 		
+		#load the model
 		self.meshPath = "models/mainbase/base.egg"
 		self.model = loader.loadModel(self.meshPath)
 		self.model.reparentTo(self.node)
 		
+		#set the material properties
 		self.colorFlag = self.node.find("**/colorFlagObj")
 		self.materialFlag = Material("materialFlag")
 		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
 		self.colorFlag.setMaterial(self.materialFlag,1)
 		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
+		#create the healthbar
 		self.healthBar = HealthBar(400, self.model, -0.35)
 		self.healthBar.hide()
 		
+		#create the selector
 		self.selector = Selector(self.model, 0.75)
 		self.selector.hide()
 		
+		#call the update coroutine
 		taskMgr.add(self.update, "structureupdate")
 
 #specialized unit class	
@@ -689,6 +746,7 @@ class Worker(Unit):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
 		
+		#load the model and the animation
 		self.meshPath = "models/ometto/ometto.egg"
 		self.model = Actor (self.meshPath, {
 			'idle':'models/ometto/ometto-idle.egg',
@@ -696,20 +754,26 @@ class Worker(Unit):
 		})
 		self.model.reparentTo(self.node)
 		
+		#set the material properties
 		self.materialFlag = Material("materialFlag")
 		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
 		self.model.setMaterial(self.materialFlag,1)
 		
+		#create the health bar
 		self.healthBar = HealthBar(60, self.model, 0)
 		self.healthBar.hide()
 		
+		#create the selector
 		self.selector = Selector(self.model, 0.5)
 		self.selector.hide()
 		
+		#play the basic animation
 		self.model.play('idle')
 		
+		#call the update coroutine
 		taskMgr.add(self.update, "unitupdate")
 		
+	#send the worker the gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
 		pass
 		
