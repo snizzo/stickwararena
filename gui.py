@@ -57,7 +57,7 @@ class MenuBuilder():
 		self.makeBigButton("beyourhero", "startSingle", -0.68, 0.21, self.mapNode)
 		self.makeBigButton("configure", "exitGame", 0.68, 0.21, self.mapNode)
 		self.makeBigButton("worldwidewar", "exitGame", -0.64, -0.55, self.mapNode)
-		self.makeBigButton("beyourhero", "exitGame", 0.64, -0.55, self.mapNode)
+		self.makeBigButton("surrender", "exitGame", 0.64, -0.55, self.mapNode)
 	
 	def hide(self):
 		self.background.remove()
@@ -173,6 +173,7 @@ class HudBuilder():
 			self.miniImage.setP(16)
 			self.miniImage.setScale(scale)
 			self.miniImage.clearTexture()
+			self.miniImage.setColor(1,1,1,1)
 			self.miniImage.setMaterial(white)
 			self.miniImage.reparentTo(self.displayInfo)
 			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()

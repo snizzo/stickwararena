@@ -56,7 +56,7 @@ class Navigator(ShowBase):
 		
 		#shader and effects function
 		#want to run very fast and with intel based gc
-		#myShader.setBloomed()
+		myShader.setBloomed()
 		
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")
