@@ -55,7 +55,8 @@ class Navigator(ShowBase):
 		base.accept("exitGame", self.exitGame)
 		
 		#shader and effects function
-		myShader.setBloomed()
+		#want to run very fast and with intel based gc
+		#myShader.setBloomed()
 		
 		#ai update setting
 		taskMgr.add(self.aiUpdate,"AIUpdate")

@@ -68,7 +68,8 @@ class HudBuilder():
 		#loading HUD specific font
 		self.font = loader.loadFont("fonts/pirulen.ttf")
 		#image used to show what you have selected
-		self.miniImage = False
+		self.loadedImage = False
+		self.lastSelectedObj = False
 	
 	def show(self):
 		#looking for who you are
@@ -157,6 +158,47 @@ class HudBuilder():
 		self.OneButton.resetFrameSize()
 		self.OneButton.hide()
 	
+	def loadImage(self, model, scale):
+		#do not load it twice
+		white = Material()
+		#white.setShininess(5.0) #Make this material shiny
+		white.setAmbient(VBase4(1,1,1,1)) #Make this material blue
+		
+		if self.loadedImage == False:
+			self.clear()
+			#load it
+			self.miniImage = loader.loadModel(model)
+			self.miniImage.setRenderModeWireframe()
+			self.miniImage.setPos(-0.55,0,-0.82)
+			self.miniImage.setP(16)
+			self.miniImage.setScale(scale)
+			self.miniImage.clearTexture()
+			self.miniImage.setMaterial(white)
+			self.miniImage.reparentTo(self.displayInfo)
+			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+			self.loadedImage = True
+			#store last selected object
+			self.lastSelectedObj = mySelection.getSingleSelected()
+			
+		if self.lastSelectedObj != mySelection.getSingleSelected():
+			#clear
+			self.clear()
+			#load it
+			if self.loadedImage != False:
+				self.miniImage.remove()
+			self.miniImage = loader.loadModel(model)
+			self.miniImage.setRenderModeWireframe()
+			self.miniImage.setPos(-0.55,0,-0.82)
+			self.miniImage.setP(16)
+			self.miniImage.setScale(scale)
+			self.miniImage.clearTexture()
+			self.miniImage.setMaterial(white)
+			self.miniImage.reparentTo(self.displayInfo)
+			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+			self.loadedImage = True
+			#store last selected object
+			self.lastSelectedObj = mySelection.getSingleSelected()
+	
 	def setText(self, title):
 		self.dTL.setText(title)
 	
@@ -170,9 +212,9 @@ class HudBuilder():
 		self.hpTL_np.hide()
 		self.attTL_np.hide()
 		self.defTL_np.hide()
-		if self.miniImage != False:
+		if self.loadedImage == True:
 			self.miniImage.remove()
-			self.miniImage = False
+			self.loadedImage = False
 	
 	def updateCommanderSelection(self):
 		#getting 2D coordinate
@@ -188,17 +230,10 @@ class HudBuilder():
 		#if one single element selected
 		if len(mySelection.listSelected) == 1:
 			obj = mySelection.getSingleSelected()
-			#if it's game unit
-			if obj.type == "GameUnit":
-				#build base specific HUD
-				if obj.uname == "base":
-					self.makeBaseHud()
-					
-				if obj.uname == "worker":
-					self.makeWorkerHud()
-				
-			if obj.type == "BlackMatter":
-				self.makeResourceHud()
+			if obj.type == "base":
+				self.makeBaseHud()
+			if obj.type == "worker":
+				self.makeWorkerHud()
 		
 		#if more than one is selected
 		if len(mySelection.listSelected) > 1:
@@ -207,46 +242,28 @@ class HudBuilder():
 	def makeResourceHud(self):
 		obj = mySelection.getSingleSelected()
 		#updating amount infos
-		self.clear()
 		later = obj.node.getPythonTag("amountT")
 		now = obj.node.getPythonTag("amount")
 		self.hpTL.setText("Res: "+str(now)+"/"+str(later))
 		self.hpTL_np.show()
-		#miniImage
-		if self.miniImage != False:																													 
-			self.miniImage.remove()
-			self.miniImage = False
+		#setting main text
 		self.setText(obj.name)
-		self.miniImage = loader.loadModel("models/blob/blob.egg")
-		self.miniImage.setRenderModeWireframe()
-		self.miniImage.setPos(-0.55,0,-0.82)
-		self.miniImage.setP(16)
-		self.miniImage.setScale(0.09)
-		self.miniImage.reparentTo(self.displayInfo)
-		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		#load image
+		self.loadImage("models/blob/blob.egg", 0.09)
 	
 	def makeWorkerHud(self):
 		obj = mySelection.getSingleSelected()
-		self.clear()
 		#loading miniImage Hud
-		if self.miniImage != False:
-			self.miniImage.remove()
-			self.miniImage = False
-		self.miniImage = loader.loadModel(obj.model)
-		self.miniImage.setRenderModeWireframe()
-		self.miniImage.setPos(-0.55,0,-0.82)
-		self.miniImage.setP(16)
-		self.miniImage.setScale(0.2)
-		self.miniImage.reparentTo(self.displayInfo)
-		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		self.loadImage(obj.meshPath,0.2)
 		
 		#organizing other hud stuff
-		self.setText(obj.name)
+		self.setText("Stick Worker")
 		#gathering information about current selected unit
-		tLife = obj.totalLife
-		cLife = obj.node.getPythonTag("hp")
-		attack = obj.node.getPythonTag("att")
-		defence = obj.node.getPythonTag("def")
+		#gathering information about current selected unit
+		tLife = obj.healthBar.getTotalHealth()
+		cLife = obj.healthBar.getCurrentHealth()
+		attack = "5"   #to define it in UNIT class lately
+		defence = "1"  #to define it in UNIT class lately
 		
 		self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
 		self.hpTL_np.show()
@@ -257,36 +274,23 @@ class HudBuilder():
 	
 	def makeBaseHud(self):
 		obj = mySelection.getSingleSelected()
-		#clear all
-		self.clear()
 		#loading miniImage Hud
-		if self.miniImage != False:
-			self.miniImage.remove()
-			self.miniImage = False
-		self.miniImage = loader.loadModel(obj.model)
-		self.miniImage.setRenderModeWireframe()
-		self.miniImage.setPos(-0.55,0,-0.82)
-		self.miniImage.setP(16)
-		self.miniImage.setScale(0.2)
-		self.miniImage.reparentTo(self.displayInfo)
-		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		self.loadImage(obj.meshPath,0.2)
 		
 		#organizing other hud stuff
-		self.setText(obj.name)
+		self.setText("Main Base")
 		#gathering information about current selected unit
-		tLife = obj.totalLife
-		cLife = obj.node.getPythonTag("hp")
-		attack = obj.node.getPythonTag("att")
-		defence = obj.node.getPythonTag("def")
+		tLife = obj.healthBar.getTotalHealth()
+		cLife = obj.healthBar.getCurrentHealth()
+		attack = "0"   #to define it in UNIT class lately, anyway not used in structure
+		defence = "1"  #to define it in UNIT class lately
 		
 		self.hpTL.setText("life: "+str(cLife)+"/"+str(tLife))
-		self.hpTL_np.show()
-		self.attTL.setText("damage: "+str(attack))
-		self.attTL_np.show()
 		self.defTL.setText("armor: "+str(defence))
+		self.hpTL_np.show()
 		self.defTL_np.show()
 		
-		#base button order :)
+		#base button construction
 		self.OneButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
 		
 		self.OneButton = DirectButton(geom = (
@@ -300,6 +304,7 @@ class HudBuilder():
 		self.OneButton.setZ(-0.57)
 		self.OneButton.show()
 		
+		#send myLegion specific build command:
 		self.OneButton['relief'] = None
 		self.OneButton['command'] = self.myLegion.buildUnit
 		self.OneButton['extraArgs'] = (['worker'])
@@ -309,14 +314,14 @@ class HudBuilder():
 			self.resTL.setText(str(self.myLegion.blackMatter))
 	
 	def update(self, what, obj):
-		#base matter
+		#base
 		if what == "base":
 			if len(mySelection.listSelected) > 0:
 				if mySelection.listSelected[0] == obj:
 					later = obj.totalLife
 					now = obj.node.getPythonTag("hp")
 					self.hpTL.setText("life: "+str(now)+"/"+str(later))
-					
+		#blackmatter
 		if what == "resources":
 			if len(mySelection.listSelected) > 0:
 				if mySelection.listSelected[0] == obj:

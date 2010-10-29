@@ -510,6 +510,7 @@ class StickWorker():
 #fuckin' OOP
 #health bar class
 class HealthBar():
+
 	fullLifeFrame = Vec4(0,0,0.5,0.5)
 	halfLifeFrame = Vec4(0.5,0.5,0.5,0.5)
 	lowLifeFrame = Vec4(0.5,0,0.5,0.5)
@@ -551,6 +552,12 @@ class HealthBar():
 	
 	def hide(self):
 		self.node.hide()
+	
+	def getTotalHealth(self):
+		return self.totalHealth
+		
+	def getCurrentHealth(self):
+		return self.currentHealth
 		
 	def update(self, amount):
 		self.currentHealth += amount
@@ -575,22 +582,22 @@ class HealthBar():
 
 
 class Selector():
-	def __init__(self, _owner, scaleFactor = 1.0):
-		self.owner = _owner
-		self.radius = self.owner.getBounds().getRadius() * scaleFactor
-		
-		self.node = loader.loadModel("images/selector.egg")
-		self.node.setLightOff(True)
-		self.node.reparentTo(self.owner)
-		self.node.setZ(0.1)
-		self.node.setP(270)
-		self.node.setScale(self.radius)
-		
-	def show(self):
-		self.node.show()
-		
-	def hide(self):
-		self.node.hide()
+		def __init__(self, _owner, scaleFactor = 1.0):
+			self.owner = _owner
+			self.radius = self.owner.getBounds().getRadius() * scaleFactor
+			
+			self.node = loader.loadModel("images/selector.egg")
+			self.node.setLightOff(True)
+			self.node.reparentTo(self.owner)
+			self.node.setZ(0.1)
+			self.node.setP(270)
+			self.node.setScale(self.radius)
+			
+		def show(self):
+			self.node.show()
+			
+		def hide(self):
+			self.node.hide()
 	
 		
 #basic game entity class, not for Instantiation
@@ -613,22 +620,24 @@ class GameObject():
 	def getNode(self):
 		return self.node
 		
+	#che dici facciamo le funzioni per accedere alle informazioni della vita cosi?
+	#oppure accediamo direttamente alle variabili?
+	def getHealth(self):
+		return self.healtBar.getHealth()
+	
 	#apply <amount> damage to the game object and update the health bar consistently
 	def damage(self, amount):
 		self.healthBar.update(-amount)
 		
-	#heal <amount> the game object and update the health bar consistently
 	def heal(self, amount):
 		self.healthBar.update(amount)
 		
-	#show or hide the healthbar
 	def showHealthBar(self, bool = False):
 		if bool:
 			self.healthBar.show()
 		else:
 			self.healthBar.hide()
 			
-	#show or hide the selection indicator
 	def showSelector(self, bool = False):
 		if bool:
 			self.selector.show()
@@ -709,7 +718,7 @@ class Unit(GameObject):
 		
 	#stop the game unit canceling all the current actions
 	def stop(self):
-		self.model.pose('idle', 1)
+		self.model.stop()
 		
 #specialized structure class
 class Base(Structure):
