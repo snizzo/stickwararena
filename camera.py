@@ -143,7 +143,7 @@ class clSelectionTool():
 		LS.drawTo(0,0,1) 
 		LS.drawTo(0,0,0) 
 		self.npSelRect.attachNewNode(LS.create()) 
-		self.listConsideration = listConsideration 
+		self.listConsideration = listConsideration
 		self.listSelected = [] 
 		self.listLastSelected = [] 
 		#right click selection
@@ -204,17 +204,23 @@ class clSelectionTool():
 			miniHud = unit.node.find("**/otherThings")
 			miniHud.show()
 			unit.updateBarLife()
-		if unit.type == "BlackMatter":
+		elif unit.type == "BlackMatter":
 			#do nothing
 			pass
+		elif unit.type == "worker" or unit.type == "base":
+			unit.showHealthBar(True)
+			unit.showSelector(True)
 		
 	def funcDeselectActionOnObject(self, unit): 
 		if unit.type == "GameUnit":
 			miniHud = unit.node.find("**/otherThings")
 			miniHud.hide()
-		if unit.type == "BlackMatter":
+		elif unit.type == "BlackMatter":
 			#do nothing
 			pass
+		elif unit.type == "worker" or unit.type == "base":
+			unit.showHealthBar(False)
+			unit.showSelector(False)
 		 
 	def OnStartSelect(self, pressed="mouse1"):
 		y = base.mouseWatcherNode.getMouseY()
@@ -247,7 +253,7 @@ class clSelectionTool():
 		#If the mouse hasn't moved, it's a point selection 
 		if (abs(self.pt2InitialMousePos[0] - self.pt2LastMousePos[0]) <= .01) & (abs(self.pt2InitialMousePos[1] - self.pt2LastMousePos[1]) <= .01): 
 			objTempSelected = 0 
-			fTempObjDist = 2*(base.camLens.getFar())**2 
+			fTempObjDist = 2*(base.camLens.getFar())**2		
 			for i in self.listConsideration: 
 				sphBounds = i.node.getBounds() 
 				#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
@@ -366,7 +372,7 @@ class clSelectionTool():
 				fMouse_Lx = min(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
 				fMouse_Ly = max(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
 				fMouse_Rx = max(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
-				fMouse_Ry = min(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
+				fMouse_Ry = min(self.pt2InitialMousePos[1], self.pt2LastMousePos[1])
 				for i in self.listConsideration: 
 					#Get the loosebounds of the nodepath 
 					sphBounds = i.node.getBounds() 

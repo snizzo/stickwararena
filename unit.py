@@ -516,7 +516,7 @@ class HealthBar():
 	lowLifeFrame = Vec4(0.5,0,0.5,0.5)
 	noLifeFrame = Vec4(0,0.5,0.5,0.5)
 
-	def __init__(self, health, _owner):
+	def __init__(self, health, _owner, _yOffset = 0.0):
 		self.totalHealth = health
 		self.currentHealth = health
 		self.owner = _owner
@@ -530,6 +530,7 @@ class HealthBar():
 		self.material = Material("normalFlag")
 		self.material.setDiffuse(Vec4(1,1,1,1))
 		self.node.setMaterial(self.material,1)
+		self.yOffset = _yOffset
 		
 		self.draw(HealthBar.fullLifeFrame)
 		self.show()
@@ -543,7 +544,7 @@ class HealthBar():
 			self.mesh.billboard(Vec3(i*0.07,0,+0.15), HealthBar.noLifeFrame, 0.035, Vec4(1,1,1,1))
 		barBound = self.node.getBounds().getRadius()
 		self.node.setX(-barBound+0.06)
-		self.node.setY(-self.owner.getBounds().getRadius() / 2)
+		self.node.setY(-self.owner.getBounds().getRadius() / 2 + self.yOffset)
 		self.mesh.end()
 				
 	def show(self):
@@ -573,20 +574,39 @@ class HealthBar():
 		self.currentHealth = amount
 		self.draw(HealthBar.fullLifeFrame)
 
+
+class Selector():
+		def __init__(self, _owner, scaleFactor = 1.0):
+			self.owner = _owner
+			self.radius = self.owner.getBounds().getRadius() * scaleFactor
+			
+			self.node = loader.loadModel("images/selector.egg")
+			self.node.setLightOff(True)
+			self.node.reparentTo(self.owner)
+			self.node.setZ(0.1)
+			self.node.setP(270)
+			self.node.setScale(self.radius)
+			
+		def show(self):
+			self.node.show()
+			
+		def hide(self):
+			self.node.hide()
+	
+		
 #basic game entity class, not for Instantiation
 class GameObject():
 	def __init__ (self, x, y, z, _army):
 		self.army = _army
-		self.position = x, y, z
 		self.node = self.army.attachNewNode("gameobject")
-		self.node.setPos(self.position[0], self.position[1], self.position[2])
+		self.node.setPos(x, y, z)
 		self.isSelected = False
 	
 	def setHealth(self, amount):
 		self.healthBar.setHealth(amount)
 		
 	def debug(self):
-		print "position:  x = " + str(self.position[0]) + "    y = " + str(self.position[1]) + "     z = " + str(self.position[2])
+		print "position:  x = " + str(self.node.getX()) + "    y = " + str(self.node.getY()) + "     z = " + str(self.node.getZ())
 		
 	def getNode(self):
 		return self.node
@@ -596,6 +616,18 @@ class GameObject():
 		
 	def heal(self, amount):
 		self.healthBar.update(amount)
+		
+	def showHealthBar(self, bool = False):
+		if bool:
+			self.healthBar.show()
+		else:
+			self.healthBar.hide()
+			
+	def showSelector(self, bool = False):
+		if bool:
+			self.selector.show()
+		else:
+			self.selector.hide()
 		
 	def update(self, task):
 		return task.cont
@@ -607,7 +639,7 @@ class GameObject():
 #basic structure class, not for Instantiation
 class Structure(GameObject):
 	def __init__(self, x, y, z, _army):
-		self.spawnPoint = base.position
+		self.spawnPoint = x, y, z
 		GameObject.__init__(self, x, y, z, _army)
 		
 	def createUnit(self, unitType):
@@ -631,11 +663,31 @@ class Unit(GameObject):
 class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
+		self.type = "base"
+		
+		self.meshPath = "models/mainbase/base.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		self.healthBar = HealthBar(400, self.model, -0.35)
+		self.healthBar.hide()
+		
+		self.selector = Selector(self.model, 0.75)
+		self.selector.hide()
+		
+		taskMgr.add(self.update, "structureupdate")
 
 #specialized unit class	
 class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
+		self.type = "worker"
 		
 		self.meshPath = "models/ometto/ometto.egg"
 		self.model = Actor (self.meshPath, {
@@ -648,7 +700,11 @@ class Worker(Unit):
 		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
 		self.model.setMaterial(self.materialFlag,1)
 		
-		self.healthBar = HealthBar(60, self.model)
+		self.healthBar = HealthBar(60, self.model, 0)
+		self.healthBar.hide()
+		
+		self.selector = Selector(self.model, 0.5)
+		self.selector.hide()
 		
 		self.model.play('idle')
 		
