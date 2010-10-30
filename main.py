@@ -4,6 +4,7 @@
 from direct.showbase.ShowBase import ShowBase
 from pandac.PandaModules import *
 from panda3d.ai import *
+from PathFind import *
 import sys,os,__builtin__
 #my import
 from gui import *
@@ -42,8 +43,8 @@ class Navigator(ShowBase):
 		__builtin__.myPopupBuilder = PopupBuilder()
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
-		__builtin__.aiWorld = AIWorld(render)
-		__builtin__.myEventManager = BaseEvents()
+		#__builtin__.aiWorld = AIWorld(render)
+		#__builtin__.myEventManager = BaseEvents()
 		
 		#uncomment following line to see intro
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
@@ -59,12 +60,14 @@ class Navigator(ShowBase):
 		myShader.setBloomed()
 		
 		#ai update setting
-		taskMgr.add(self.aiUpdate,"AIUpdate")
+		#taskMgr.add(self.aiUpdate,"AIUpdate")
 	
 	#AI update every frame task
+	'''
 	def aiUpdate(self,task):
 		aiWorld.update()
 		return Task.cont
+	'''
 	
 	#function called when creating a new single player game
 	def startSingle(self):
@@ -107,5 +110,4 @@ class Navigator(ShowBase):
 		sys.exit()
 
 n = Navigator()
-
 n.run()

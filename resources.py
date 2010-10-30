@@ -10,18 +10,27 @@ from unit import *
 class Resources():
 	def __init__(self):
 		#creating main list
-		self.resList = []
-		self.legNode = render.attachNewNode("resources")
+		#self.resList = []
+		#self.legNode = render.attachNewNode("resources")
+		self.resourceList = []
+		self.node = render.attachNewNode("resources")
 	
 	def addResource(self, node):
-		res = BlackMatter(node, self.legNode)
-		self.resList.append(res)
+		#res = BlackMatter(node, self.legNode)
+		#self.resList.append(res)
+		self.resourceList.append(BlackMatter(node, self.node))
+	
+	def removeResource(self, resource):
+		self.resourceList.remove(resource)
+		resource.remove()
 	
 	#function that i use to remove all my RTS's units from the main units list.
 	def remove(self):
-		for res in self.resList[:]:
+		#for res in self.resList[:]:
+			#self.resList.remove(res)
+		for res in self.resourceList:
+			self.resourceList.remove(res)
 			res.remove()
-			self.resList.remove(res)
 
 #creating this Black matter class just to follow the "standard" of selection class...
 #maybe fix in future... or maybe not...

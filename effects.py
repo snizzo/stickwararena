@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from pandac.PandaModules import *
+'''
 from direct.interval.IntervalGlobal import *
 from direct.interval.FunctionInterval import Wait
 from direct.interval.LerpInterval import LerpHprInterval
+'''
 from direct.filter.CommonFilters import CommonFilters
 import __builtin__, sys
 
@@ -21,7 +23,7 @@ class ShaderManager():
 		render.setAttrib(LightRampAttrib.makeHdr0())
 		pass
 		
-
+'''
 class VideoClip():
 	def __init__(self,videourl,addsound=""):
 		self.props = WindowProperties()
@@ -61,4 +63,4 @@ class VideoClip():
 		
 	def remove(self):
 		self.videoNode.remove()
-	
+'''	

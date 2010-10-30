@@ -1,30 +1,34 @@
 # -*- coding: utf-8 -*-
-from direct.showbase.DirectObject import DirectObject
-from panda3d.core import *
-from pandac.PandaModules import *
-from direct.particles.Particles import Particles
-from direct.particles.ParticleEffect import ParticleEffect
-from direct.interval.IntervalGlobal import *
-from direct.interval.FunctionInterval import Wait
-from panda3d.physics import BaseParticleEmitter,BaseParticleRenderer
-from panda3d.physics import PointParticleFactory,SpriteParticleRenderer
-from panda3d.physics import LinearNoiseForce,DiscEmitter
-from panda3d.core import TextNode
-from panda3d.core import AmbientLight,DirectionalLight
-from panda3d.core import Point3,Vec3,Vec4
-from panda3d.core import Filename
-from direct.particles.Particles import Particles
-from direct.particles.ParticleEffect import ParticleEffect
-from direct.particles.ForceGroup import ForceGroup
-from direct.gui.OnscreenText import OnscreenText
-from direct.task import Task
-from direct.actor.Actor import Actor
-from panda3d.ai import *
+'''
+#from direct.showbase.DirectObject import DirectObject
+#from panda3d.core import *
+#from pandac.PandaModules import *
+
+#from direct.particles.Particles import Particles
+#from direct.particles.ParticleEffect import ParticleEffect
+#from direct.interval.IntervalGlobal import *
+#from direct.interval.FunctionInterval import Wait
+#from panda3d.physics import BaseParticleEmitter,BaseParticleRenderer
+#from panda3d.physics import PointParticleFactory,SpriteParticleRenderer
+#from panda3d.physics import LinearNoiseForce,DiscEmitter
+#from panda3d.core import TextNode
+#from panda3d.core import AmbientLight,DirectionalLight
+#from panda3d.core import Point3,Vec3,Vec4
+#from panda3d.core import Filename
+#from direct.particles.Particles import Particles
+#from direct.particles.ParticleEffect import ParticleEffect
+#from direct.particles.ForceGroup import ForceGroup
+#from direct.gui.OnscreenText import OnscreenText
+#from direct.task import Task
+#from direct.actor.Actor import Actor
+#from panda3d.ai import *
+'''
 from PathFind import *
+
 import sys,os,string,math#, copy
 
 from enumeration import Enumeration
-
+'''
 class BaseEvents():
 	def __init__(self):
 		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
@@ -506,7 +510,7 @@ class StickWorker():
 		#other
 		aiWorld.removeAiChar("aiunit"+str(self.node.getKey()))
 		self.main.remove()
-
+'''
 		
 		
 #fuckin' OOP

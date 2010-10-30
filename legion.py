@@ -2,9 +2,10 @@
 from panda3d.core import *
 from pandac.PandaModules import *
 import sys,os
+from random import Random
 
 from unit import *
-
+'''
 class Legion():
 	def __init__(self, pos, color, you):
 		self.you = you
@@ -66,7 +67,7 @@ class Legion():
 			unit.remove()
 			self.unitList.remove(unit)
 		self.legNode.remove()
-
+'''
 
 #fuckin' OOP
 class Army():
@@ -139,6 +140,7 @@ class Group():
 	def __init__(self, _unitList = []):
 		self.unitList = _unitList
 		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
+		self.random = Random()
 		base.accept('right-click-on-selection', self.go)
 		
 	def addUnit(self, unit):
@@ -161,6 +163,9 @@ class Group():
 				path = self.finder.pathFindToNode()
 			else:
 				path = self.finder.pathFindToMouse()
+			lastWayPoint = path[len(path)-1]
+			if len(self.unitList) > 1:
+				path[len(path)-1] = Point3(lastWayPoint[0] + self.random.random() * 0.35, lastWayPoint[1] + self.random.random() + 0.35, lastWayPoint[2])
 			unit.go(path)
 		
 	def stop(self):
