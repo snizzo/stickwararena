@@ -203,9 +203,6 @@ class NavMesh:
 			self.primsFull = self.addCenters()
 			self.pointsNeighboursDic = self.getNeighbours()
 			self.primsNeighboursDic = self.getPrimsNeighbours()
-			
-			
-			
 		else:
 			self.prims = {}
 			self.points = []
@@ -265,7 +262,7 @@ class NavMesh:
 		#print "Path not found :("
 		#print "primPaths : %s" % (self.primPaths)
 		return None
-		
+	
 	def findPath(self, A, B):
 		primPath = self.initSearch(A, B)
 		if primPath != None:

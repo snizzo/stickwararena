@@ -21,7 +21,9 @@ from direct.task import Task
 from direct.actor.Actor import Actor
 from panda3d.ai import *
 from PathFind import *
-import sys,os,string,math
+import sys,os,string,math, copy
+
+from enumeration import Enumeration
 
 class BaseEvents():
 	def __init__(self):
@@ -604,7 +606,7 @@ class Selector():
 class GameObject():
 	def __init__ (self, x, y, z, _army):
 		self.army = _army
-		self.node = self.army.attachNewNode("gameobject")
+		self.node = self.army.getNode().attachNewNode("gameobject")
 		self.node.setPos(x, y, z)
 		self.isSelected = False
 	
@@ -674,12 +676,13 @@ class Unit(GameObject):
 	
 	#move to object from the actual position to the last waypoint in <waylist> passing through all the waypoint
 	def go(self, wayList):
+		self.wayList = wayList
 		if self.movementTask:
 			taskMgr.remove(self.movementTask)
 		self.movementTask = False
 		self.model.loop('run')
-		wayList.pop(0)
-		self.currentWayList = wayList
+		self.currentWayList = copy.copy(wayList)
+		self.currentWayList.pop(0)
 		if len(self.currentWayList) > 0:
 			self.currentTarget = self.currentWayList.pop(0)
 			self.rotateTo(self.currentTarget)
@@ -751,6 +754,7 @@ class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
+		self.unitType = Enumeration("unit", ["worker"])
 		
 		#load the model
 		self.meshPath = "models/mainbase/base.egg"
@@ -774,6 +778,10 @@ class Base(Structure):
 		
 		#call the update coroutine
 		taskMgr.add(self.update, "structureupdate")
+		
+	def createUnit(self, unitType):
+		if unitType == self.unitType.worker:
+			self.army.addUnit(Worker(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
 
 #specialized unit class	
 class Worker(Unit):
