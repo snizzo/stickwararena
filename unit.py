@@ -692,31 +692,38 @@ class Unit(GameObject):
 			self.targetReached = False
 			self.movementTask = taskMgr.add(self.moveTo, "moveTo")
 	
-	#experimental rotation where unit is going to
-	# !!!HAS SOME BUGS NEEDS FIX!!!
-	#but are not critical, just bad to see
+	#make unit face his target smoothly
 	def rotateTo(self, point):
 		nodeRotation = self.node.getH()
+		#avoiding accumulation of degrees problems
+		if nodeRotation > 180:
+			nodeRotation = nodeRotation - 360
+			self.node.setH(nodeRotation)
+		if nodeRotation < -180:
+			nodeRotation = nodeRotation + 360
+			self.node.setH(nodeRotation)
+		#get the needed angle
 		requiredRotation = self.getSteeringAngle(point)
-		'''
-		print "node H: " + str(self.node.getH())
-		print "required H: " + str(self.getSteeringAngle(point))
-		print "difference H: " + str(nodeRotation - requiredRotation)
-		'''
-		if abs(nodeRotation - requiredRotation) > 180:
-			requiredRotation = 360 + requiredRotation 
-		self.node.hprInterval(0.2, Vec3(requiredRotation,0,0)).start()
+		#make the angle working with the -180° / 0° / 180° degrees system
+		if nodeRotation >= 0 and requiredRotation < 0:
+			hlerp = abs(nodeRotation) + abs(requiredRotation)
+			if hlerp > 180:
+				requiredRotation = nodeRotation + (360 - hlerp)
+		if nodeRotation < 0 and requiredRotation > 0:
+			hlerp = abs(nodeRotation) + abs(requiredRotation)
+			if hlerp > 180:
+				requiredRotation = nodeRotation - (360 - hlerp)
+		#play a small interval lasting <0.2> seconds, <to angle>, <from angle>
+		self.node.hprInterval(0.2, Vec3(requiredRotation,0,0),Vec3(nodeRotation,0,0)).start()
 		
-	#experimental rotation where unit is going to
-	#get angle of rotation in degrees
+	#return needed node's angle to turn and face <point> target
 	def getSteeringAngle(self, point):
 		x = self.node.getX() - point.getX()
 		y = self.node.getY() - point.getY()
 		d = math.sqrt(x*x+y*y)
-		if x > 0:
-			h = 90 + math.degrees(math.asin(y/d))
-		elif x < 0:
-			h = 270 - math.degrees(math.asin(y/d))
+		h = 90 + math.degrees(math.asin(y/d))
+		if x < 0:
+			h = h * -1
 		return h
 	
 	def moveTo(self, task):
