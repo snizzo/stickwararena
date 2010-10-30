@@ -21,7 +21,7 @@ from direct.task import Task
 from direct.actor.Actor import Actor
 from panda3d.ai import *
 from PathFind import *
-import sys,os,string,math, copy
+import sys,os,string,math#, copy
 
 from enumeration import Enumeration
 
@@ -644,6 +644,10 @@ class GameObject():
 			self.selector.show()
 		else:
 			self.selector.hide()
+			
+	def showHUD(self, bool = False):
+		self.showHealthBar(bool)
+		self.showSelector(bool)
 		
 	#update the game object status
 	def update(self, task):
@@ -681,7 +685,8 @@ class Unit(GameObject):
 			taskMgr.remove(self.movementTask)
 		self.movementTask = False
 		self.model.loop('run')
-		self.currentWayList = copy.copy(wayList)
+		#self.currentWayList = copy.copy(wayList)
+		self.currentWayList = wayList
 		self.currentWayList.pop(0)
 		if len(self.currentWayList) > 0:
 			self.currentTarget = self.currentWayList.pop(0)
@@ -761,7 +766,7 @@ class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
-		self.unitType = Enumeration("unit", ["worker"])
+		self.unitType = Enumeration("unit", ["worker", "soldier"])
 		
 		#load the model
 		self.meshPath = "models/mainbase/base.egg"
@@ -771,7 +776,7 @@ class Base(Structure):
 		#set the material properties
 		self.colorFlag = self.node.find("**/colorFlagObj")
 		self.materialFlag = Material("materialFlag")
-		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
+		self.materialFlag.setDiffuse(self.army.getColor())
 		self.colorFlag.setMaterial(self.materialFlag,1)
 		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
@@ -789,6 +794,11 @@ class Base(Structure):
 	def createUnit(self, unitType):
 		if unitType == self.unitType.worker:
 			self.army.addUnit(Worker(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
+		elif unitType == self.unitType.soldier:
+			self.army.addUnit(Soldier(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
+			
+	def getUnitType(self):
+		return self.unitType
 
 #specialized unit class	
 class Worker(Unit):
@@ -807,7 +817,7 @@ class Worker(Unit):
 		
 		#set the material properties
 		self.materialFlag = Material("materialFlag")
-		self.materialFlag.setDiffuse(Vec4(1,0,0,1))
+		self.materialFlag.setDiffuse(self.army.getColor())
 		self.model.setMaterial(self.materialFlag,1)
 		
 		#create the health bar
@@ -827,4 +837,38 @@ class Worker(Unit):
 	#send the worker the gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
 		pass
+		
+
+class Soldier(Unit):
+	def __init__(self, x, y, z, _army):
+		Unit.__init__(self, x, y, z, _army)
+		self.type = "soldier"
+		
+		#load the model and the animation
+		self.meshPath = "models/ometto/ometto.egg"
+		self.model = Actor (self.meshPath, {
+			'idle':'models/ometto/ometto-idle.egg',
+			'run':'models/ometto/ometto-run.egg'
+		})
+		self.model.setH(180)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.model.setMaterial(self.materialFlag,1)
+		
+		#create the health bar
+		self.healthBar = HealthBar(60, self.model, 0)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.5)
+		self.selector.hide()
+		
+		#play the basic animation
+		self.model.play('idle')
+		
+		#call the update coroutine
+		taskMgr.add(self.update, "unitupdate")
 		

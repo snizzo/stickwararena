@@ -75,7 +75,7 @@ class HudBuilder():
 		#looking for who you are
 		
 		for legion in myLegion:
-			if legion.you == True:
+			if legion.getIsPlayer():
 				self.myLegion = legion
 		
 		self.hudNode = aspect2d.attachNewNode("hudNode")
@@ -157,6 +157,16 @@ class HudBuilder():
 		self.OneButtonGeom.find('**/worker')))
 		self.OneButton.resetFrameSize()
 		self.OneButton.hide()
+		
+		self.TwoButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
+		
+		self.TwoButton = DirectButton(geom = (
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker')))
+		self.TwoButton.resetFrameSize()
+		self.TwoButton.hide()
 	
 	def loadImage(self, model, scale):
 		#do not load it twice
@@ -209,6 +219,7 @@ class HudBuilder():
 		
 	def clear(self):
 		self.OneButton.hide()
+		self.TwoButton.hide()
 		self.setText("SCommander 1.0")
 		self.hpTL_np.hide()
 		self.attTL_np.hide()
@@ -227,13 +238,14 @@ class HudBuilder():
 		#if nothing selected clear HUD
 		if len(mySelection.listSelected) == 0:
 			self.clear()
+			mySelection.group.clear()
 				
 		#if one single element selected
 		if len(mySelection.listSelected) == 1:
 			obj = mySelection.getSingleSelected()
 			if obj.type == "base":
 				self.makeBaseHud()
-			if obj.type == "worker":
+			if obj.type == "worker" or obj.type == "soldier":
 				self.makeWorkerHud()
 		
 		#if more than one is selected
@@ -307,9 +319,31 @@ class HudBuilder():
 		
 		#send myLegion specific build command:
 		self.OneButton['relief'] = None
-		self.OneButton['command'] = self.myLegion.buildUnit
-		self.OneButton['extraArgs'] = (['worker'])
+		base = self.myLegion.getStructureAt(0)
+		self.OneButton['command'] = base.createUnit
+		self.OneButton['extraArgs'] = ([base.getUnitType().worker])
 		self.OneButton.reparentTo(self.hudNode)
+		
+		#soldier button construction
+		self.TwoButtonGeom = loader.loadModel("images/stick_commander/worker_button.egg")
+		
+		self.TwoButton = DirectButton(geom = (
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker'),
+		self.TwoButtonGeom.find('**/worker')))
+		self.TwoButton.resetFrameSize()
+		self.TwoButton.setScale(0.1)
+		self.TwoButton.setX(0.85)
+		self.TwoButton.setZ(-0.57)
+		self.TwoButton.show()
+		
+		#send myLegion specific build command:
+		self.TwoButton['relief'] = None
+		base = self.myLegion.getStructureAt(0)
+		self.TwoButton['command'] = base.createUnit
+		self.TwoButton['extraArgs'] = ([base.getUnitType().soldier])
+		self.TwoButton.reparentTo(self.hudNode)
 	
 	def updateRes(self):
 			self.resTL.setText(str(self.myLegion.blackMatter))

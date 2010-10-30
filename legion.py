@@ -70,37 +70,69 @@ class Legion():
 
 #fuckin' OOP
 class Army():
-	def __init__(self, _color):
+	def __init__(self, startUpPos, _color, _player):
 		self.unitList = []
 		self.structureList = []
 		self.blackMatter = 200
 		self.color = _color
+		self.player = _player
 		self.node = render.attachNewNode("army")
+		self.addStructure(Base(startUpPos.getX(), startUpPos.getY(), startUpPos.getZ(), self))
 		
 	def getNode(self):
 		return self.node
+		
+	def getColor(self):
+		return self.color
+		
+	def getIsPlayer(self):
+		return self.player
+		
+	def getUnitAt(self, i):
+		return self.unitList[i]
+		
+	def getStructureAt(self, i):
+		return self.structureList[i]
 		
 	def addUnit(self, unit):
 		self.unitList.append(unit)
 		mySelection.listConsideration.append(unit)
 		
 	def removeUnitAt(self, i):
-		self.unitList.pop(i)
+		unit = self.unitList.pop(i)
+		mySelection.listConsideration.remove(unit)
+		unit.destroy()
 		
 	def removeUnit(self, unit):
 		self.unitList.remove(unit)
+		mySelection.listConsideration.remove(unit)
+		unit.destroy()
 		
 	def addStructure(self, structure):
 		self.structureList.append(structure)
+		mySelection.listConsideration.append(structure)
 		
 	def removeStructureAt(self, i):
-		self.structureList.pop(i)
+		structure = self.structureList.pop(i)
+		mySelection.listConsideration.remove(structure)
+		structure.destroy()
 		
 	def removeStructure(self, structure):
 		self.structureList.remove(structure)
+		mySelection.listConsideration.remove(structure)
+		structure.destroy()
 		
 	def addBlackMatter(self, amount):
 		self.blackMatter += amount
+		
+	def remove(self):
+		for unit in self.unitList:
+			unit.destroy()
+		for structure in self.structureList:
+			structure.destroy()
+		self.unitList = []
+		self.structureList = []
+		self.node.remove()
 		
 	
 class Group():
@@ -116,12 +148,19 @@ class Group():
 		self.unitList.remove(unit)
 		
 	def go(self):
+		'''
 		if len(mySelection.underMouse) == 1:
 			target = mySelection.underMouse[0]
 			path = self.finder.pathFindToNode()
 		else:
 			path = self.finder.pathFindToMouse()
+		'''
 		for unit in self.unitList:
+			if len(mySelection.underMouse) == 1:
+				target = mySelection.underMouse[0]
+				path = self.finder.pathFindToNode()
+			else:
+				path = self.finder.pathFindToMouse()
 			unit.go(path)
 		
 	def stop(self):

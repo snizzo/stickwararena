@@ -17,21 +17,21 @@ class Map():
 			if i==0:
 				color = Vec4(1,0,0,1)
 				you = True
-			if i==1:
+				myCamera.setPosition(pos.getX(), pos.getY())
+			elif i==1:
 				color = Vec4(0,1,0,1)
 				you = False
-			if i==2:
+			elif i==2:
 				color = Vec4(0,0,1,1)
 				you = False
-			if i==3:
+			elif i==3:
 				color = Vec4(1,1,0,1)
 				you = False
-			myLegion.append(Legion(pos,color,you))
+			myLegion.append(Army(pos,color,you))
 			i = i+1
 		resPosNode = self.mapNode.findAllMatches("**/r**")
 		for pos in resPosNode:
 			myResources.addResource(pos)
-		myLegion[0].cameraOnFirstBuilding()
 	
 	def loadMap(self, url):
 		self.mapNode = render.attachNewNode("mapNode")

@@ -33,6 +33,10 @@ class Camera():
 		self.getSupportedDisplayRes()
 		
 		base.accept("f", self.toggleFullscreen)
+		
+	def setPosition(self, x, y):
+		camera.setX(x)
+		camera.setY(y - 6)
 	
 	def getSupportedDisplayRes(self):
 		di = base.pipe.getDisplayInformation()
@@ -211,9 +215,8 @@ class clSelectionTool():
 			#do nothing
 			pass
 		'''
-		if unit.type == "worker" or unit.type == "base":
-			unit.showHealthBar(True)
-			unit.showSelector(True)
+		if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
+			unit.showHUD(True)
 		
 	def funcDeselectActionOnObject(self, unit): 
 		'''
@@ -224,9 +227,8 @@ class clSelectionTool():
 			#do nothing
 			pass
 		'''
-		if unit.type == "worker" or unit.type == "base":
-			unit.showHealthBar(False)
-			unit.showSelector(False)
+		if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
+			unit.showHUD()
 		 
 	def OnStartSelect(self, pressed="mouse1"):
 		y = base.mouseWatcherNode.getMouseY()
