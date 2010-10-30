@@ -649,7 +649,7 @@ class GameObject():
 		
 	#remove the game object from the game
 	def destroy(self):
-		self.army.removeUnit(self)
+		#self.army.removeUnit(self)
 		self.node.remove()
 		
 #basic structure class, not for Instantiation
@@ -744,7 +744,7 @@ class Unit(GameObject):
 	def stop(self):
 		if self.movementTask:
 			taskMgr.remove(self.movementTask)
-		self.model.stop()
+		self.model.pose('idle', 1)
 		
 #specialized structure class
 class Base(Structure):
