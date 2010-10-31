@@ -5,7 +5,7 @@ from random import randint
 import sys,os
 
 
-from unit import *
+from unit import GameObject
 
 class Resources():
 	def __init__(self):
@@ -18,7 +18,10 @@ class Resources():
 	def addResource(self, node):
 		#res = BlackMatter(node, self.legNode)
 		#self.resList.append(res)
-		self.resourceList.append(BlackMatter(node, self.node))
+		self.resourceList.append(BlackMatter(node.getX(), node.getY(), node.getZ(), self))
+		
+	def getNode(self):
+		return self.node
 	
 	def removeResource(self, resource):
 		self.resourceList.remove(resource)
@@ -31,20 +34,27 @@ class Resources():
 		for res in self.resourceList:
 			self.resourceList.remove(res)
 			res.remove()
+			
+
+class Resource(GameObject):
+	def __init__(self, x, y, z, _army):
+		GameObject.__init__(self, x, y, z, _army)
+			
 
 #creating this Black matter class just to follow the "standard" of selection class...
 #maybe fix in future... or maybe not...
-class BlackMatter():
-	def __init__(self, pos, owner):
+class BlackMatter(Resource):
+	def __init__(self, x, y, z, _army):
+		Resource.__init__(self, x, y, z, _army)
 		self.type = "BlackMatter"
 		self.name = "Black Matter Pool"
 		#initializing
 		self.node = loader.loadModel("models/blob/blob.egg")
-		self.node.setX(pos.getX())
-		self.node.setY(pos.getY())
-		self.node.setZ(pos.getZ())
+		self.node.setX(x)
+		self.node.setY(y)
+		self.node.setZ(z)
 		self.node.setH(randint(0, 359))
-		self.node.reparentTo(owner)
+		self.node.reparentTo(self.army.getNode())
 		#set amount of black matter
 		self.node.setPythonTag("amountT", 18000)
 		self.node.setPythonTag("amount", 18000)

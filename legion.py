@@ -167,10 +167,9 @@ class Group():
 		
 	def go(self):
 		for unit in self.unitList:
-			''' Temporarly disabled until i check for internal coherence
-			if len(mySelection.underMouse) == 1:
-				target = mySelection.underMouse[0]
-				path = self.finder.pathFindToNode(target)
+			''' Temporarly disabled until I check for internal coherence
+			if mySelection.underMouse):
+				path = self.finder.pathFindToNode(mySelection.underMouse)
 			else:
 			'''
 			path = self.finder.pathFindToMouse()

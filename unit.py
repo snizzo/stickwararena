@@ -612,7 +612,6 @@ class GameObject():
 		self.army = _army
 		self.node = self.army.getNode().attachNewNode("gameobject")
 		self.node.setPos(x, y, z)
-		self.isSelected = False
 	
 	#set the health of the game object to <amount> and update the healthbar consistently
 	def setHealth(self, amount):

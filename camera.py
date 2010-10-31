@@ -155,7 +155,7 @@ class clSelectionTool():
 		#self.listSelected = []
 		#self.listLastSelected = [] 
 		#right click selection
-		self.underMouse = []
+		self.underMouse = False
 		 
 		self.pt2InitialMousePos = (-12, -12) 
 		self.pt2LastMousePos = (-12, -12) 
@@ -312,7 +312,7 @@ class clSelectionTool():
 		self.npSelRect.hide() 
 		self.booSelecting = False 
 		#clearing list
-		self.underMouse = []
+		self.underMouse = False
 		#If the mouse hasn't moved, it's a point selection 
 		if (abs(self.pt2InitialMousePos[0] - self.pt2LastMousePos[0]) <= .01) & (abs(self.pt2InitialMousePos[1] - self.pt2LastMousePos[1]) <= .01): 
 			objTempSelected = 0 
@@ -338,10 +338,11 @@ class clSelectionTool():
 									objTempSelected = i
 			#if something is click-selected
 			if objTempSelected != 0: 
-				if objKeyBoardModifiers.booControl: 
-					self.underMouse.append(objTempSelected) 
-				else:
-					self.underMouse = [objTempSelected] 
+				#if objKeyBoardModifiers.booControl: 
+				#	self.underMouse.append(objTempSelected) 
+				#else:
+				#	self.underMouse = [objTempSelected] 
+				self.underMouse = objTempSelected
 			#avoid pressing mouse in HUD
 			y = base.mouseWatcherNode.getMouseY()
 			if y < -0.5:
