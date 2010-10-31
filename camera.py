@@ -176,7 +176,7 @@ class clSelectionTool():
 		#base.accept("control-mouse1", self.OnStartSelect) 
 		base.accept("mouse1-up", self.OnStopSelect) 	
 		#base.accept("mouse3", self.OnStartSelect, extraArgs=["mouse3"])
-		base.accept("mouse3-up", self.OnRightStopSelect) 
+		base.accept("mouse3-up", self.OnRightClick) 
 		
 		self.taskUpdateSelRect = 0 
 		
@@ -302,7 +302,7 @@ class clSelectionTool():
 				myGroup.clear()
 		messenger.send("mouse-selection")
 	
-	def OnRightStopSelect(self):
+	def OnRightClick(self):
 		if not self.active:
 			return
 		if not base.mouseWatcherNode.hasMouse(): 
@@ -396,6 +396,10 @@ class clSelectionTool():
 					if base.camLens.project(p3, p2): 
 						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
 							#self.listSelected.append(i) 
+							if myGroup.getUnitNumber() > 1:
+								for unit in myGroup.unitList:
+									if not isinstance(unit, Unit):
+										myGroup.removeUnit(unit)
 							myGroup.addUnit(i)
 							#self.funcSelectActionOnObject(i) 
 				'''

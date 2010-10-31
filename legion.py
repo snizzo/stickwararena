@@ -167,7 +167,7 @@ class Group():
 		
 	def go(self):
 		for unit in self.unitList:
-			'''
+			''' Temporarly disabled until i check for internal coherence
 			if len(mySelection.underMouse) == 1:
 				target = mySelection.underMouse[0]
 				path = self.finder.pathFindToNode(target)
@@ -176,7 +176,7 @@ class Group():
 			path = self.finder.pathFindToMouse()
 			lastWayPoint = path[len(path)-1]
 			if len(self.unitList) > 1:
-				path[len(path)-1] = Point3(lastWayPoint[0] + self.random.random() * 0.40, lastWayPoint[1] + self.random.random() * 0.40, lastWayPoint[2])
+				path[len(path)-1] = Point3(lastWayPoint[0] + (self.random.random() -0.5) * 0.80, lastWayPoint[1] + (self.random.random() -0.5) * 0.80, lastWayPoint[2])
 			unit.go(path)
 		
 	def stop(self):
