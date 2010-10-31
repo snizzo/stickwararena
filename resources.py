@@ -2,10 +2,10 @@
 from panda3d.core import *
 from pandac.PandaModules import *
 from random import randint
-import sys,os
+import sys,os, math
 
 
-from unit import GameObject
+from unit import GameObject, Selector
 
 class Resources():
 	def __init__(self):
@@ -18,27 +18,50 @@ class Resources():
 	def addResource(self, node):
 		#res = BlackMatter(node, self.legNode)
 		#self.resList.append(res)
-		self.resourceList.append(BlackMatter(node.getX(), node.getY(), node.getZ(), self))
+		bm = BlackMatter(node.getX(), node.getY(), node.getZ(), self)
+		mySelection.listConsideration.append(bm)
+		self.resourceList.append(bm)
 		
 	def getNode(self):
 		return self.node
+		
+	def getIsPlayer(self):
+		return False
 	
 	def removeResource(self, resource):
+		mySelection.listConsideration.remove(resource)
 		self.resourceList.remove(resource)
-		resource.remove()
+		resource.destroy()
 	
 	#function that i use to remove all my RTS's units from the main units list.
 	def remove(self):
 		#for res in self.resList[:]:
 			#self.resList.remove(res)
 		for res in self.resourceList:
+			mySelection.listConsideration.remove(res)
 			self.resourceList.remove(res)
-			res.remove()
+			res.destroy()
 			
 
 class Resource(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
+		self.mainType = "resource"
+		
+	def showHealthBar(self, bool = False):
+		pass
+		
+	def setHealth(self, amount):
+		pass
+		
+	def getHealth(self):
+		pass
+		
+	def damage(self, amount):
+		pass
+		
+	def heal(self, amount):
+		pass
 			
 
 #creating this Black matter class just to follow the "standard" of selection class...
@@ -46,20 +69,21 @@ class Resource(GameObject):
 class BlackMatter(Resource):
 	def __init__(self, x, y, z, _army):
 		Resource.__init__(self, x, y, z, _army)
-		self.type = "BlackMatter"
+		self.type = "blackmatter"
 		self.name = "Black Matter Pool"
+		self.meshPath = "models/blob/blob.egg"
 		#initializing
-		self.node = loader.loadModel("models/blob/blob.egg")
-		self.node.setX(x)
-		self.node.setY(y)
-		self.node.setZ(z)
-		self.node.setH(randint(0, 359))
-		self.node.reparentTo(self.army.getNode())
+		self.model = loader.loadModel(self.meshPath)
+		self.model.setH(randint(0, 359))
+		self.model.reparentTo(self.node)
 		#set amount of black matter
 		self.node.setPythonTag("amountT", 18000)
 		self.node.setPythonTag("amount", 18000)
-		#adding to selectable unit list
-		mySelection.listConsideration.append(self)
+		
+		#x = 0.9 * math.cos(self.node.getH())
+		#y = 0.9 * math.sin(self.node.getH())
+		self.selector = Selector(self.model, 1.0, 0.75)
+		self.selector.hide()
 	
 	def getX(self):
 		return self.node.getX()
@@ -77,14 +101,5 @@ class BlackMatter(Resource):
 			self.node.setPythonTag("amount", n)
 			messenger.send("commander-update", ['resources', res])
 		else:
-			self.remove()
-	
-	def remove(self):
-		'''
-		if self in mySelection.listSelected:
-			mySelection.listSelected.remove(self)
-		if self in mySelection.listLastSelected:
-			mySelection.listLastSelected.remove(self)
-		'''
-		mySelection.listConsideration.remove(self)
-		self.node.remove()
+			self.army.remove(self)
+

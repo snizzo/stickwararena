@@ -588,13 +588,17 @@ class HealthBar():
 
 
 class Selector():
-		def __init__(self, _owner, scaleFactor = 1.0):
+		def __init__(self, _owner, scaleFactor = 1.0, xOffset = 0.0, yOffset = 0.0):
 			self.owner = _owner
 			self.radius = self.owner.getBounds().getRadius() * scaleFactor
 			
 			self.node = loader.loadModel("images/selector.egg")
 			self.node.setLightOff(True)
 			self.node.reparentTo(self.owner)
+			if xOffset != 0.0:
+				self.node.setX(self.node.getX() + xOffset)
+			if yOffset != 0.0:
+				self.node.setY(self.node.getY() + yOffset)
 			self.node.setZ(0.1)
 			self.node.setP(270)
 			self.node.setScale(self.radius)
@@ -612,6 +616,9 @@ class GameObject():
 		self.army = _army
 		self.node = self.army.getNode().attachNewNode("gameobject")
 		self.node.setPos(x, y, z)
+		
+	def isOwner(self):
+		return self.army.getIsPlayer()
 	
 	#set the health of the game object to <amount> and update the healthbar consistently
 	def setHealth(self, amount):
@@ -668,6 +675,7 @@ class GameObject():
 class Structure(GameObject):
 	def __init__(self, x, y, z, _army):
 		self.spawnPoint = x, y, z
+		self.mainType = "structure"
 		GameObject.__init__(self, x, y, z, _army)
 		
 	#create a new unit of type <unitType> at location <spawnPoint> (note: <spawnPoint> is an instance variable)
@@ -683,6 +691,7 @@ class Unit(GameObject):
 	def __init__(self, x, y, z, _army):
 		GameObject.__init__(self, x, y, z, _army)
 		self.movementTask = False
+		self.mainType = "unit"
 	
 	#move to object from the actual position to the last waypoint in <waylist> passing through all the waypoint
 	def go(self, wayList):

@@ -48,7 +48,7 @@ class PathFinder:
 		else:
 			return self.z
 	
-	def pathFindToMouse(self):
+	def pathFindToMouse(self, unit):
 		P = self.mc.collide()
 		if P!=None:
 			#self.pd2.clear()
@@ -58,7 +58,7 @@ class PathFinder:
 				if prim!=None:
 					#print "listSelected: " + str(mySelection.listSelected[0].main.getPos())
 					#startPoint = mySelection.listSelected[0].node.getPos(render)
-					startPoint = myGroup.getSingleUnit().getPos()
+					startPoint = unit.getPos()
 					endPoint = GCP
 					startPoint.setZ(self.getZ())
 					#print "calling pathfinding with s: " + str(startPoint) + " | f:" + str(endPoint)

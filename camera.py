@@ -282,7 +282,8 @@ class clSelectionTool():
 			#if something is click-selected
 			if objTempSelected != 0: 
 				if objKeyBoardModifiers.booControl:
-					#self.listSelected.append(objTempSelected) 
+					#self.listSelected.append(objTempSelected)
+					myGroup.clear()
 					myGroup.addUnit(objTempSelected)
 				else: 
 					#for i in self.listSelected: 
@@ -349,8 +350,9 @@ class clSelectionTool():
 				return
 			#returning object under mouse
 		#messenger.send("mouse-order")
-		if not myGroup.singleUnit() or isinstance(myGroup.getSingleUnit(), Unit):
-			messenger.send("right-click-on-selection")	
+		#print str(self.underMouse)
+		#if not myGroup.singleUnit() or isinstance(myGroup.getSingleUnit(), Unit):
+		messenger.send("right-click-on-selection")	
 	
 	def UpdateSelRect(self, task): 
 		if not self.active:
@@ -397,10 +399,15 @@ class clSelectionTool():
 					if base.camLens.project(p3, p2): 
 						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
 							#self.listSelected.append(i) 
-							if myGroup.getUnitNumber() > 1:
+							'''
+							if myGroup.getUnitNumber() > 0:
 								for unit in myGroup.unitList:
 									if not isinstance(unit, Unit):
 										myGroup.removeUnit(unit)
+								for resource in myResources.resourceList:
+									if resource in myGroup.unitList:
+										myGroup.removeUnit(resource)
+							'''
 							myGroup.addUnit(i)
 							#self.funcSelectActionOnObject(i) 
 				'''

@@ -264,7 +264,7 @@ class HudBuilder():
 			elif unit.type == "worker" or unit.type == "soldier":
 				self.makeWorkerHud()
 			else:
-				self.setText(str(myGroup.getUnitNumber() + " selected units"))
+				self.setText(str(myGroup.getUnitNumber()) + " selected units")
 		
 	def makeResourceHud(self):
 		obj = mySelection.getSingleSelected()
