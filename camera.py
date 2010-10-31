@@ -8,6 +8,7 @@ import __builtin__
 from direct.task import Task
 import libpanda
 from legion import Group
+from unit import Unit
 
 import math
 
@@ -15,6 +16,7 @@ class Camera():
 	def __init__(self):
 		
 		self.scrollingSpeed = 18
+		self.cameraMovementBorder = 0.92
 		base.disableMouse()
 		camera.setP(-70)
 		camera.setZ(15)
@@ -71,16 +73,16 @@ class Camera():
 			y = base.mouseWatcherNode.getMouseY()
 			
 			self.dt = globalClock.getDt() * self.scrollingSpeed
-			if x < -0.92:
+			if x < -self.cameraMovementBorder:
 				camera.setX(camera.getX()-self.dt)
 				
-			if x > 0.92:
+			if x > self.cameraMovementBorder:
 				camera.setX(camera.getX()+self.dt)
 				
-			if y > 0.92:
+			if y > self.cameraMovementBorder:
 				camera.setY(camera.getY()+self.dt)
 				
-			if y < -0.92:
+			if y < -self.cameraMovementBorder:
 				camera.setY(camera.getY()-self.dt)
 			
 			self.cameraLight.setX(camera.getX())
@@ -127,7 +129,8 @@ class clKeyBoardModifiers():
 		self.booShift = False 
 		 
 class clSelectionTool(): 
-	def __init__(self, listConsideration=[]): 
+	#def __init__(self, listConsideration=[]):
+	def __init__(self):
 		#used to define an active behaviour or less
 		self.active = True
 		#Create a selection window using cardmaker 
@@ -147,10 +150,10 @@ class clSelectionTool():
 		LS.drawTo(0,0,1) 
 		LS.drawTo(0,0,0) 
 		self.npSelRect.attachNewNode(LS.create()) 
-		self.listConsideration = listConsideration
-		self.listSelected = [] 
-		self.group = Group()
-		self.listLastSelected = [] 
+		#self.listConsideration = listConsideration
+		self.listConsideration = []
+		#self.listSelected = []
+		#self.listLastSelected = [] 
 		#right click selection
 		self.underMouse = []
 		 
@@ -168,18 +171,18 @@ class clSelectionTool():
 		self.UpdateTimeSelected = 0.015 
 		 
 		####------Register the left-mouse-button to start selecting 
-		base.accept("mouse1", self.OnStartSelect, extraArgs=["mouse1"]) 
-		base.accept("control-mouse1", self.OnStartSelect) 
-		base.accept("mouse1-up", self.OnStopSelect) 
-		
-		base.accept("mouse3", self.OnStartSelect, extraArgs=["mouse3"])
+		#base.accept("mouse1", self.OnStartSelect, extraArgs=["mouse1"])
+		base.accept("mouse1", self.onStartSelect)
+		#base.accept("control-mouse1", self.OnStartSelect) 
+		base.accept("mouse1-up", self.OnStopSelect) 	
+		#base.accept("mouse3", self.OnStartSelect, extraArgs=["mouse3"])
 		base.accept("mouse3-up", self.OnRightStopSelect) 
 		
 		self.taskUpdateSelRect = 0 
 		
 		####------otherThings
 		self.booSelecting = False
-	
+	'''
 	def getSelected(self):
 		return self.listSelected
 	
@@ -188,25 +191,21 @@ class clSelectionTool():
 	
 	def getUnitUnderMouse(self):
 		return self.underMouse[0]
-	
+	'''
 	def clear(self):
 		self.listConsideration = []
-		self.listLastSelected = []
-		self.listSelected = []
-		self.group.clear()
+		#self.listLastSelected = []
+		#self.listSelected = []
+		myGroup.clear()
 	
 	def setIdle(self):
 		self.active = False
 		
 	def setActive(self):
 		self.active = True
-	
-	def TTest(self): 
-		print "hello control-mouse1" 
-	
+	'''
 	#used to handle all events when selected or not
 	def funcSelectActionOnObject(self, unit):
-		'''
 		if unit.type == "GameUnit":
 			miniHud = unit.node.find("**/otherThings")
 			miniHud.show()
@@ -214,47 +213,46 @@ class clSelectionTool():
 		elif unit.type == "BlackMatter":
 			#do nothing
 			pass
-		'''
-		if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
-			unit.showHUD(True)
+		#if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
+		unit.showHUD(True)
 		
 	def funcDeselectActionOnObject(self, unit): 
-		'''
 		if unit.type == "GameUnit":
 			miniHud = unit.node.find("**/otherThings")
 			miniHud.hide()
 		elif unit.type == "BlackMatter":
 			#do nothing
 			pass
-		'''
-		if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
-			unit.showHUD()
-		 
-	def OnStartSelect(self, pressed="mouse1"):
-		y = base.mouseWatcherNode.getMouseY()
-		if y < -0.5:
-			return
+		#if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
+		unit.showHUD()
+	'''	 
+	#def OnStartSelect(self, pressed="mouse1"):
+	def onStartSelect(self):
 		if not self.active:
 			return
 		if not base.mouseWatcherNode.hasMouse(): 
 			return 
+		y = base.mouseWatcherNode.getMouseY()
+		if y < -0.5:
+			return
 		self.booMouseMoved = False 
 		self.booSelecting = True 
 		self.pt2InitialMousePos = Point2(base.mouseWatcherNode.getMouse()) 
 		self.pt2LastMousePos = Point2(self.pt2InitialMousePos) 
-		if pressed == "mouse1":
-			self.npSelRect.setPos(self.pt2InitialMousePos[0], 1, self.pt2InitialMousePos[1]) 
-			self.npSelRect.setScale(1e-3, 1, 1e-3) 
-			self.npSelRect.show() 
-			self.taskUpdateSelRect = taskMgr.add(self.UpdateSelRect, "UpdateSelRect") 
-			self.taskUpdateSelRect.lastMpos = None 
+		#if pressed == "mouse1":
+		self.npSelRect.setPos(self.pt2InitialMousePos[0], 1, self.pt2InitialMousePos[1]) 
+		self.npSelRect.setScale(1e-3, 1, 1e-3) 
+		self.npSelRect.show() 
+		self.taskUpdateSelRect = taskMgr.add(self.UpdateSelRect, "UpdateSelRect") 
+		self.taskUpdateSelRect.lastMpos = None 
 		
 	def OnStopSelect(self):
 		if not self.active:
 			return
 		if not base.mouseWatcherNode.hasMouse(): 
 			return 
-		if self.taskUpdateSelRect != 0: 
+		#if self.taskUpdateSelRect != 0: 
+		if self.taskUpdateSelRect:
 			taskMgr.remove(self.taskUpdateSelRect) 
 		self.npSelRect.hide() 
 		self.booSelecting = False 
@@ -283,25 +281,25 @@ class clSelectionTool():
 									objTempSelected = i
 			#if something is click-selected
 			if objTempSelected != 0: 
-				if objKeyBoardModifiers.booControl: 
-					self.listSelected.append(objTempSelected) 
-					self.group.addUnit(objTempSelected)
+				if objKeyBoardModifiers.booControl:
+					#self.listSelected.append(objTempSelected) 
+					myGroup.addUnit(objTempSelected)
 				else: 
-					for i in self.listSelected: 
-						self.funcDeselectActionOnObject(i) 
-						self.group.removeUnit(i)
-					self.listSelected = [objTempSelected] 
-					self.group.addUnit(objTempSelected)
-				self.funcSelectActionOnObject(objTempSelected) 
+					#for i in self.listSelected: 
+						#self.funcDeselectActionOnObject(i) 
+					myGroup.clear()
+					#self.listSelected = [objTempSelected] 
+					myGroup.addUnit(objTempSelected)
+				#self.funcSelectActionOnObject(objTempSelected) 
 			#if nothing is selected just deselect all, a normal behaviour in RTS's game
 			y = base.mouseWatcherNode.getMouseY()
 			if y < -0.5:
 				return
 			if objTempSelected == 0:
-				for i in self.listSelected:
-					self.funcDeselectActionOnObject(i)
-					self.listSelected = []
-					self.group.clear()
+				#for i in self.listSelected:
+					#self.funcDeselectActionOnObject(i)
+					#self.listSelected = []
+				myGroup.clear()
 		messenger.send("mouse-selection")
 	
 	def OnRightStopSelect(self):
@@ -350,8 +348,8 @@ class clSelectionTool():
 				return
 			#returning object under mouse
 		#messenger.send("mouse-order")
-		messenger.send("right-click-on-selection")
-		
+		if not myGroup.singleUnit() or isinstance(myGroup.getSingleUnit(), Unit):
+			messenger.send("right-click-on-selection")	
 	
 	def UpdateSelRect(self, task): 
 		if not self.active:
@@ -379,9 +377,9 @@ class clSelectionTool():
 				#its own view fustrum and then check the objects in world space. Adding space correlation/hashing 
 				#will make it go faster. But I'm lazy. 
 				self.fTimeLastUpdateSelected = t 
-				self.listLastSelected = self.listSelected 
-				self.listSelected = [] 
-				self.group.clear()
+				#self.listLastSelected = self.listSelected 
+				#self.listSelected = [] 
+				myGroup.clear()
 				#Get the bounds of the selection box 
 				fMouse_Lx = min(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
 				fMouse_Ly = max(self.pt2InitialMousePos[1], self.pt2LastMousePos[1]) 
@@ -397,9 +395,10 @@ class clSelectionTool():
 					p2 = Point2() 
 					if base.camLens.project(p3, p2): 
 						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
-							self.listSelected.append(i) 
-							self.group.addUnit(i)
-							self.funcSelectActionOnObject(i) 
+							#self.listSelected.append(i) 
+							myGroup.addUnit(i)
+							#self.funcSelectActionOnObject(i) 
+				'''
 				for i in self.listLastSelected: 
 					if not objKeyBoardModifiers.booControl: 
 						if i not in self.listSelected: 
@@ -407,7 +406,6 @@ class clSelectionTool():
 							pass
 					else: 
 						self.listSelected.append(i) 
-		
+				'''
 		return Task.cont
 	
-

@@ -57,7 +57,8 @@ class PathFinder:
 				prim = self.node.getPrim(GCP)
 				if prim!=None:
 					#print "listSelected: " + str(mySelection.listSelected[0].main.getPos())
-					startPoint = mySelection.listSelected[0].node.getPos(render)
+					#startPoint = mySelection.listSelected[0].node.getPos(render)
+					startPoint = myGroup.getSingleUnit().getPos()
 					endPoint = GCP
 					startPoint.setZ(self.getZ())
 					#print "calling pathfinding with s: " + str(startPoint) + " | f:" + str(endPoint)
@@ -88,7 +89,8 @@ class PathFinder:
 	
 	def pathFindToNode(self,unit):
 		#print "listSelected: " + str(mySelection.listSelected[0].main.getPos())
-		startPoint = mySelection.listSelected[0].node.getPos(render)
+		#startPoint = mySelection.listSelected[0].node.getPos(render)
+		startPoint = myGroup.getSingleUnit().getPos()
 		startPoint.setZ(self.getZ())
 		endPoint = unit.node.getPos(render)
 		endPoint.setZ(self.getZ())

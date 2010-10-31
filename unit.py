@@ -626,6 +626,9 @@ class GameObject():
 	def getNode(self):
 		return self.node
 		
+	def getPos(self):
+		return self.node.getPos()
+		
 	#return the current health of the game object
 	def getHealth(self):
 		return self.healtBar.getHealth()
@@ -730,7 +733,10 @@ class Unit(GameObject):
 		x = self.node.getX() - point.getX()
 		y = self.node.getY() - point.getY()
 		d = math.sqrt(x*x+y*y)
-		h = 90 + math.degrees(math.asin(y/d))
+		if d != 0:
+			h = 90 + math.degrees(math.asin(y/d))
+		else:
+			h = 90
 		if x < 0:
 			h = h * -1
 		return h
@@ -752,6 +758,9 @@ class Unit(GameObject):
 				self.stop()
 				return task.done
 			else:
+				if len(self.currentWayList) == 0:
+					self.stop()
+					return task.done
 				self.currentTarget = self.currentWayList.pop(0)
 				self.rotateTo(self.currentTarget)
 				self.currentDir = self.node.getPos() - self.currentTarget
@@ -770,7 +779,7 @@ class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
-		self.unitType = Enumeration("unit", ["worker", "soldier"])
+		self.unitType = Enumeration("unit", [("worker",5), ("soldier",5)])
 		
 		#load the model
 		self.meshPath = "models/mainbase/base.egg"
@@ -793,13 +802,20 @@ class Base(Structure):
 		self.selector.hide()
 		
 		#call the update coroutine
-		taskMgr.add(self.update, "structureupdate")
+		#taskMgr.add(self.update, "structureupdate")
 		
 	def createUnit(self, unitType):
+		if unitType == self.unitType.worker:
+			taskMgr.doMethodLater(self.unitType.__getattr__("worker"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
+		elif unitType == self.unitType.soldier:
+			taskMgr.doMethodLater(self.unitType.__getattr__("soldier"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
+			
+	def createUnitDelayed(self, unitType, task):
 		if unitType == self.unitType.worker:
 			self.army.addUnit(Worker(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
 		elif unitType == self.unitType.soldier:
 			self.army.addUnit(Soldier(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
+		return task.done
 			
 	def getUnitType(self):
 		return self.unitType

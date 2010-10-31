@@ -139,33 +139,44 @@ class Army():
 class Group():
 	def __init__(self, _unitList = []):
 		self.unitList = _unitList
+		for unit in self.unitList:
+			unit.showHUD()
 		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
 		self.random = Random()
 		base.accept('right-click-on-selection', self.go)
 		
 	def addUnit(self, unit):
+		unit.showHUD(True)
 		self.unitList.append(unit)
 		
 	def removeUnit(self, unit):	
+		unit.showHUD()
 		self.unitList.remove(unit)
 		
+	def singleUnit(self):
+		return len(self.unitList) == 1
+		
+	def emptySelection(self):
+		return self.unitList == []
+		
+	def getSingleUnit(self):
+		return self.unitList[0]
+		
+	def getUnitNumber(self):
+		return len(self.unitList)
+		
 	def go(self):
-		'''
-		if len(mySelection.underMouse) == 1:
-			target = mySelection.underMouse[0]
-			path = self.finder.pathFindToNode()
-		else:
-			path = self.finder.pathFindToMouse()
-		'''
 		for unit in self.unitList:
+			'''
 			if len(mySelection.underMouse) == 1:
 				target = mySelection.underMouse[0]
-				path = self.finder.pathFindToNode()
+				path = self.finder.pathFindToNode(target)
 			else:
-				path = self.finder.pathFindToMouse()
+			'''
+			path = self.finder.pathFindToMouse()
 			lastWayPoint = path[len(path)-1]
 			if len(self.unitList) > 1:
-				path[len(path)-1] = Point3(lastWayPoint[0] + self.random.random() * 0.35, lastWayPoint[1] + self.random.random() + 0.35, lastWayPoint[2])
+				path[len(path)-1] = Point3(lastWayPoint[0] + self.random.random() * 0.40, lastWayPoint[1] + self.random.random() * 0.40, lastWayPoint[2])
 			unit.go(path)
 		
 	def stop(self):
@@ -173,5 +184,7 @@ class Group():
 			unit.stop()
 			
 	def clear(self):
+		for unit in self.unitList:
+			unit.showHUD()
 		self.unitList = []
 		

@@ -70,9 +70,11 @@ class BlackMatter():
 			self.remove()
 	
 	def remove(self):
+		'''
 		if self in mySelection.listSelected:
 			mySelection.listSelected.remove(self)
 		if self in mySelection.listLastSelected:
 			mySelection.listLastSelected.remove(self)
+		'''
 		mySelection.listConsideration.remove(self)
 		self.node.remove()

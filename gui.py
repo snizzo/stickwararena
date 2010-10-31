@@ -189,9 +189,11 @@ class HudBuilder():
 			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
 			self.loadedImage = True
 			#store last selected object
-			self.lastSelectedObj = mySelection.getSingleSelected()
+			#self.lastSelectedObj = mySelection.getSingleSelected()
+			self.lastSelectedObj = myGroup.getSingleUnit()
 			
-		if self.lastSelectedObj != mySelection.getSingleSelected():
+		#if self.lastSelectedObj != mySelection.getSingleSelected():
+		if self.lastSelectedObj != myGroup.getSingleUnit():
 			#clear
 			self.clear()
 			#load it
@@ -208,7 +210,8 @@ class HudBuilder():
 			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
 			self.loadedImage = True
 			#store last selected object
-			self.lastSelectedObj = mySelection.getSingleSelected()
+			#self.lastSelectedObj = mySelection.getSingleSelected()
+			self.lastSelectedObj = myGroup.getSingleUnit()
 	
 	def setText(self, title):
 		self.dTL.setText(title)
@@ -234,7 +237,7 @@ class HudBuilder():
 		#if mouse is in the HUD don't selected and load selection
 		if y < -0.5:
 			return
-		
+		'''
 		#if nothing selected clear HUD
 		if len(mySelection.listSelected) == 0:
 			self.clear()
@@ -251,7 +254,18 @@ class HudBuilder():
 		#if more than one is selected
 		if len(mySelection.listSelected) > 1:
 			self.setText(str(len(mySelection.listSelected)) + " selected units")
-	
+		'''
+		if myGroup.emptySelection():
+			self.clear()
+		elif myGroup.singleUnit():
+			unit = myGroup.getSingleUnit()
+			if unit.type == "base":	
+				self.makeBaseHud()
+			elif unit.type == "worker" or unit.type == "soldier":
+				self.makeWorkerHud()
+			else:
+				self.setText(str(myGroup.getUnitNumber() + " selected units"))
+		
 	def makeResourceHud(self):
 		obj = mySelection.getSingleSelected()
 		#updating amount infos
@@ -265,13 +279,13 @@ class HudBuilder():
 		self.loadImage("models/blob/blob.egg", 0.09)
 	
 	def makeWorkerHud(self):
-		obj = mySelection.getSingleSelected()
+		#obj = mySelection.getSingleSelected()
+		obj = myGroup.getSingleUnit()
 		#loading miniImage Hud
 		self.loadImage(obj.meshPath,0.2)
 		
 		#organizing other hud stuff
 		self.setText("Stick Worker")
-		#gathering information about current selected unit
 		#gathering information about current selected unit
 		tLife = obj.healthBar.getTotalHealth()
 		cLife = obj.healthBar.getCurrentHealth()
@@ -286,7 +300,8 @@ class HudBuilder():
 		self.defTL_np.show()
 	
 	def makeBaseHud(self):
-		obj = mySelection.getSingleSelected()
+		#obj = mySelection.getSingleSelected()
+		obj = myGroup.getSingleUnit()
 		#loading miniImage Hud
 		self.loadImage(obj.meshPath,0.2)
 		

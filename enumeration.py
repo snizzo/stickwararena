@@ -7,6 +7,33 @@ class Enumeration:
 	def __init__(self, name, enumList):
 		self.__doc__ = name
 		lookup = {}
+		uniqueNames = []
+		values = []
+		for x in enumList:
+			if type(x) == types.TupleType:
+				x, i = x
+			if type(x) != types.StringType:
+				raise EnumException, "enum name is not a string: " + x
+			if type(i) != types.IntType:
+				raise EnumException, "enum value is not an integer: " + i
+			if x in uniqueNames:
+				raise EnumException, "enum name is not unique: " + x
+			uniqueNames.append(x)
+			values.append(i)
+			lookup[x] = i
+			i += 1
+		self.lookup = lookup
+		
+	def __getattr__(self, attr):
+		if not self.lookup.has_key(attr):
+			raise AttributeError
+		return self.lookup[attr]
+		
+
+class ReverseEnumeration:
+	def __init__(self, name, enumList):
+		self.__doc__ = name
+		lookup = {}
 		reverseLookup = {}
 		i = 0
 		uniqueNames = []
@@ -37,4 +64,5 @@ class Enumeration:
 		
 	def whatIs(self, value):
 		return self.reverseLookup[value]
+		
 		
