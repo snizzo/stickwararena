@@ -586,6 +586,123 @@ class HealthBar():
 		self.currentHealth = amount
 		self.draw(HealthBar.fullLifeFrame)
 
+class Hud():
+
+	def __init__(self, parent):
+		self.parent = parent
+		self.font = loader.loadFont("fonts/pirulen.ttf")
+		#list of all buttons
+		self.miniImage = False
+		self.itemList = {}
+		self.buttonList = {}
+		
+		self.hudNode = aspect2d.attachNewNode("unitHudNode")
+		self.bgImage = render2d.attachNewNode("unitBgImage")
+		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		
+		#make standard hud
+		self.setGrid()
+	
+	def setGrid(self, columns=3,cellsize=0.1,padding=2,xoff=0.70,yoff=-0.57):
+		self.gridX = columns
+		self.cellSize = cellsize
+		self.gridPadding = padding
+		self.xOffset = xoff
+		self.yOffset = yoff
+	
+	def getNextCell(self):
+		listLen = len(self.buttonList)
+		cellNumber = listLen + 1
+		if listLen == 0:
+			x = 0
+			y = 0
+			pos = Vec3(x,0,y)
+			return pos
+		elif listLen > 0:
+			cellRelXNumber = cellNumber % self.gridX
+			cellRelYNumber = int(cellNumber / self.gridX)
+			if cellNumber / self.gridX > cellRelYNumber:
+				cellRelYNumber += 1
+			x = (self.cellSize + self.gridPadding) * cellRelXNumber
+			y = (self.cellSize + self.gridPadding) * cellRelYNumber
+			pos = Vec3(x,0,y)
+			return pos
+	
+	def showGrid(self):
+		for button in self.buttonList:
+			x = button.getX()
+			z = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(z+self.zOffset)
+	
+	def loadImage(self, model, scale,z):
+		self.miniImage = loader.loadModel(model)
+		self.miniImage.setRenderModeWireframe()
+		self.miniImage.setPos(-0.55,0,z)
+		self.miniImage.setP(16)
+		self.miniImage.setScale(scale)
+		self.miniImage.reparentTo(self.displayInfo)
+		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+	
+	def addTextLine(self,name,text,pos,scale,align=TextNode.ALeft):
+		tl = TextNode(name)
+		tl.setText(text)
+		tl.setFont(self.font)
+		tl.setAlign(align)
+		tlnp = self.displayInfo.attachNewNode(tl)
+		tlnp.setScale(scale)
+		tlnp.setPos(pos)
+		self.itemList[name] = tlnp
+	
+	def addButton(self,name):
+		btg = loader.loadModel("images/stick_commander/"+name+"_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/'+name),
+		btg.find('**/'+name),
+		btg.find('**/'+name),
+		btg.find('**/'+name)))
+		bt.resetFrameSize()
+		self.bt.setScale(0.1)
+		#getting nent cell position from directives
+		pos = self.getNextCell()
+		self.bt.setPos(pos)
+		self.buttonList[name] = bt
+		bt.hide()
+	
+	def addTitle(self, text):
+		self.addTextLine("title", text, Vec3(-0.15,0,-0.55), 0.05, TextNode.ACenter)
+	
+	def makeStandard(self,scale,z):
+		#adding title hud
+		self.addTitle(self.parent.type)
+		#print life string
+		l = "life: " + str(self.parent.healthBar.getCurrentHealth()) + "/" + str(self.parent.healthBar.getTotalHealth())
+		self.addTextLine("lifeString", l, Vec3(-0.14,0,-0.65),0.04)
+		#print attack string
+		a = "attack: " + str(self.parent.attack)
+		self.addTextLine("attackString", a,Vec3(-0.14,0,-0.73),0.04)
+		#print defence string
+		d = "armor: " + str(self.parent.armor)
+		self.addTextLine("armorString", d,Vec3(-0.14,0,-0.81),0.04)
+		#image
+		self.loadImage(self.parent.meshPath,scale,z)
+	
+	def show(self):
+		#build button grid
+		self.showGrid()
+		self.hudNode.show()
+		self.bgImage.show()
+	
+	def hide(self):
+		for name, button in self.buttonList.iteritems():
+			button.remove()
+		for name, item in self.itemList.iteritems():
+			item.remove()
+		if self.miniImage:
+			self.miniImage.remove()
+			self.miniImage = False
+		self.hudNode.hide()
+		self.bgImage.hide()
 
 class Selector():
 		def __init__(self, _owner, scaleFactor = 1.0, xOffset = 0.0, yOffset = 0.0):
@@ -657,8 +774,16 @@ class GameObject():
 			self.selector.show()
 		else:
 			self.selector.hide()
-			
+	
+	def showGui(self, bool = False):
+		if bool:
+			self.showObjectHud()
+			self.hud.show()
+		else:
+			self.hud.hide()
+	
 	def showHUD(self, bool = False):
+		self.showGui(bool)
 		self.showHealthBar(bool)
 		self.showSelector(bool)
 		
@@ -827,9 +952,18 @@ class Base(Structure):
 		self.selector = Selector(self.model, 0.75)
 		self.selector.hide()
 		
+		#create the gui
+		self.hud = Hud(self)
+		
 		#call the update coroutine
 		#taskMgr.add(self.update, "structureupdate")
-		
+	
+	def showObjectHud(self):
+		print "specific hud"
+	
+	def hideObjectHud(self):
+		print "specific hud"
+	
 	def createUnit(self, unitType):
 		if unitType == self.unitType.worker:
 			taskMgr.doMethodLater(self.unitType.__getattr__("worker"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
@@ -855,6 +989,10 @@ class Worker(Unit):
 		self.type = "worker"
 		self.unitType = Enumeration("structure", [])
 		
+		#unit params
+		self.attack = 5
+		self.armor = 0
+		
 		#load the model and the animation
 		self.meshPath = "models/ometto/ometto.egg"
 		self.model = Actor (self.meshPath, {
@@ -877,11 +1015,31 @@ class Worker(Unit):
 		self.selector = Selector(self.model, 0.5)
 		self.selector.hide()
 		
+		#create the gui
+		self.hud = Hud(self)
+		#creating
+		
 		#play the basic animation
 		self.model.play('idle')
 		
 		#call the update coroutine
 		taskMgr.add(self.update, "unitupdate")
+	
+	def showObjectHud(self):
+		'''
+		#adding title hud
+		self.hud.addTitle(self.type)
+		#print life string
+		l = "life: " + str(self.healthBar.getCurrentHealth()) + "/" + str(self.healthBar.getTotalHealth())
+		self.hud.addTextLine("lifeString", l, Vec3(-0.14,0,-0.65),0.04)
+		#print attack string
+		a = "attack: " + str(self.attack)
+		self.hud.addTextLine("attackString", a,Vec3(-0.14,0,-0.73),0.04)
+		#print defence string
+		d = "armor: " + str(self.armor)
+		self.hud.addTextLine("armorString", d,Vec3(-0.14,0,-0.81),0.04)
+		'''
+		self.hud.makeStandard(0.4,-0.89)
 		
 	#send the worker the gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
@@ -924,3 +1082,8 @@ class Soldier(Unit):
 		#call the update coroutine
 		taskMgr.add(self.update, "unitupdate")
 		
+	def showObjectHud(self):
+		print "specific hud"
+	
+	def hideObjectHud(self):
+		print "specific hud"

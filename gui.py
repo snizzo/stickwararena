@@ -116,7 +116,7 @@ class HudBuilder():
 		self.resTL_np.show()
 		
 		self.dTL = TextNode("debugTextLine")
-		self.dTL.setText("nothing selected")
+		self.dTL.setText("")
 		self.dTL.setFont(self.font)
 		self.dTL.setAlign(TextNode.ACenter)
 		self.dTL_np = self.displayInfo.attachNewNode(self.dTL)
@@ -223,7 +223,7 @@ class HudBuilder():
 	def clear(self):
 		self.OneButton.hide()
 		self.TwoButton.hide()
-		self.setText("SCommander 1.0")
+		self.setText("")
 		self.hpTL_np.hide()
 		self.attTL_np.hide()
 		self.defTL_np.hide()
@@ -262,10 +262,11 @@ class HudBuilder():
 			if unit.type == "base":	
 				self.makeBaseHud()
 			elif unit.type == "worker" or unit.type == "soldier":
-				self.makeWorkerHud()
+				#self.makeWorkerHud()
+				pass
 			else:
 				self.setText(str(myGroup.getUnitNumber()) + " selected units")
-		
+	
 	def makeResourceHud(self):
 		obj = mySelection.getSingleSelected()
 		#updating amount infos
@@ -277,7 +278,7 @@ class HudBuilder():
 		self.setText(obj.name)
 		#load image
 		self.loadImage("models/blob/blob.egg", 0.09)
-	
+	'''
 	def makeWorkerHud(self):
 		#obj = mySelection.getSingleSelected()
 		obj = myGroup.getSingleUnit()
@@ -298,7 +299,7 @@ class HudBuilder():
 		self.attTL_np.show()
 		self.defTL.setText("armor: "+str(defence))
 		self.defTL_np.show()
-	
+	'''
 	def makeBaseHud(self):
 		#obj = mySelection.getSingleSelected()
 		obj = myGroup.getSingleUnit()
