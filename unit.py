@@ -25,7 +25,7 @@
 '''
 from PathFind import *
 
-import sys,os,string,math#, copy
+import sys,os,string,math, Queue#, copy
 
 from enumeration import Enumeration
 '''
@@ -676,11 +676,29 @@ class Structure(GameObject):
 	def __init__(self, x, y, z, _army):
 		self.spawnPoint = x, y, z
 		self.mainType = "structure"
+		self.creationQueue = Queue.Queue(5)
+		self.queueBusy = False
 		GameObject.__init__(self, x, y, z, _army)
+		taskMgr.add(self.update, "creationQueue")
 		
 	#create a new unit of type <unitType> at location <spawnPoint> (note: <spawnPoint> is an instance variable)
 	def createUnit(self, unitType):
 		pass
+		
+	def addUnitToCreationQueue(self, unitType):
+		if not self.creationQueue.full():
+			self.creationQueue.put(unitType)
+			#print str(unitType) + " added to queue"
+			return True
+		else:
+			return False
+		
+	def update(self, task):
+		if not self.creationQueue.empty() and not self.queueBusy:
+			#print "started unit creation"
+			self.createUnit(self.creationQueue.get())
+			self.queueBusy = True
+		return task.cont
 		
 	#set the unit spawn point to <x, y>
 	def setSpawnPoint(self, x, y):
@@ -823,6 +841,8 @@ class Base(Structure):
 			self.army.addUnit(Worker(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
 		elif unitType == self.unitType.soldier:
 			self.army.addUnit(Soldier(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
+		#print "unit created"
+		self.queueBusy = False
 		return task.done
 			
 	def getUnitType(self):
@@ -833,6 +853,7 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
+		self.unitType = Enumeration("structure", [])
 		
 		#load the model and the animation
 		self.meshPath = "models/ometto/ometto.egg"
@@ -864,6 +885,9 @@ class Worker(Unit):
 		
 	#send the worker the gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
+		pass
+		
+	def buildStructure(self, structureType):
 		pass
 		
 
