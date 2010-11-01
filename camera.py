@@ -235,6 +235,7 @@ class clSelectionTool():
 		y = base.mouseWatcherNode.getMouseY()
 		if y < -0.5:
 			return
+		myGroup.clear()
 		self.booMouseMoved = False 
 		self.booSelecting = True 
 		self.pt2InitialMousePos = Point2(base.mouseWatcherNode.getMouse()) 

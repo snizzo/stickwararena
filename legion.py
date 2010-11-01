@@ -152,9 +152,15 @@ class Group():
 		#self.unitList.append(unit)
 		if unit.isOwner() and isinstance(unit, Unit):
 			self.multipleObject.append(unit)
-			self.singleObject = False
-		elif len(self.multipleObject) == 0:
+			#print "append " + str(unit) + " to multiple"
+			if self.singleObject:
+				#print "remove " + str(self.singleObject) + " from single"
+				self.singleObject.showHUD()
+				self.singleObject = False
+				#print "remove " + str(unit) + " to multiple"
+		elif len(self.multipleObject) == 0 and not self.singleObject:
 			self.singleObject = unit
+			#print "append " + str(unit) + " to single"
 		else:
 			return
 		unit.showHUD(True)
@@ -163,8 +169,10 @@ class Group():
 		unit.showHUD()
 		#self.unitList.remove(unit)
 		if unit == self.singleObject:
+			#print "remove " + str(unit) + " from single"
 			self.singleOjbect = False
 		else:
+			#print "remove " + str(unit) + " from multiple"
 			self.multipleObject.remove(unit)
 		
 	def singleUnit(self):
@@ -215,9 +223,11 @@ class Group():
 		#	unit.showHUD()
 		#self.unitList = []
 		if self.singleObject:
+			#print "remove " + str(self.singleObject) + " from single"
 			self.singleObject.showHUD()
 			self.singleObject = False
 		for unit in self.multipleObject:
 			unit.showHUD()
+			#print "remove " + str(unit) + " from multiple"
 		self.multipleObject = []
 		
