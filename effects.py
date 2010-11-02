@@ -63,4 +63,4 @@ class VideoClip():
 		
 	def remove(self):
 		self.videoNode.remove()
-'''	
+'''
