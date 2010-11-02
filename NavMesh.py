@@ -42,29 +42,12 @@ def processGeomNode(geomNode):
 	for i in range(geomNode.getNumGeoms()):
 		geom = geomNode.getGeom(i)
 		state = geomNode.getGeomState(i)
-		#print "Geom : ", geom
-		#print "State : ", state
 		return processGeom(geom)
-	#print "#------- end of processGeomNode ---------"	
 	
 def processGeom(geom):
 	vdata = geom.getVertexData()
 	prim = geom.getPrimitive(0)
 	return processPrimitive(prim, vdata)
-	
-	'''
-	#print vdata
-	#self.processVertexData(vdata)
-	n = 0
-	for i in range(geom.getNumPrimitives()):
-		prim = geom.getPrimitive(i)
-		#print prim
-		processPrimitive(prim, vdata)
-		print "primitive %s done" % (n)
-		n=n+1
-	'''
-	#print "#------- end of processGeom ---------"
-
 
 def processVertexData(self, vdata):
 	vertex = GeomVertexReader(vdata, 'vertex')
@@ -74,7 +57,6 @@ def processVertexData(self, vdata):
 		try:t = texcoord.getData2f()
 		except : t = "grosse erreur de texcoord.getData2f()"
 		print "v = %s, t = %s" % (repr(v), repr(t))
-
 
 def processPrimitive(prim, vdata, scale = 1):
 	prims = {}
@@ -95,8 +77,6 @@ def processPrimitive(prim, vdata, scale = 1):
 			#print "prim %s has vertex %s: %s" % (p, vi, v)
 		prims[p]=vertexList
 	return prims
-
-
 
 #-----------------------------------------------------------------------
 # NavMesh initial functions
@@ -195,9 +175,7 @@ def getCost(path):
 
 class NavMesh:
 	def __init__(self, modelPath=None):
-		if modelPath!=None:
-			# dico de la forme : {n1 : [p1, p2, p3],...},
-			#où prim est un polygon, p des VBase3
+		if modelPath != None:
 			self.prims = self.load(modelPath)
 			self.points = self.getPointsList()
 			self.primsFull = self.addCenters()
@@ -242,8 +220,6 @@ class NavMesh:
 		
 		if primB in self.primsNeighboursDic[primA]:
 			return [primA, primB]
-			
-		#print "primA : %s, primB : %s" % (primA, primB)
 		
 		self.primPaths = []
 		
@@ -257,10 +233,7 @@ class NavMesh:
 			self.primDig()
 			path = self.checkIfPrimPathFound()
 			if path != False:
-				#print "Prim path found! %s" % (path)
 				return path
-		#print "Path not found :("
-		#print "primPaths : %s" % (self.primPaths)
 		return None
 	
 	def findPath(self, A, B):
@@ -286,11 +259,6 @@ class NavMesh:
 		newPath = []
 		pathLeft = []
 		
-		
-		#print "----------------------------------------------"
-		#print "Initial Path : %s" % (path)
-		#print "longueur : %s" % (len(path))
-		
 		for i in path:
 			pathLeft.append(i)
 		
@@ -303,13 +271,11 @@ class NavMesh:
 				newPath.append(pathLeft.pop(0))
 		
 		newPath.append(pathLeft.pop(0))
-		
-		#print "Smoothed path trouvé : %s" % (newPath)
+
 		return newPath
 		
 		
 	def primDig(self):
-		#print "digging : step = %s" % (self.step)
 		pathList = self.primPaths
 		
 		newPrimPaths = []
@@ -326,7 +292,6 @@ class NavMesh:
 					tmpPathList.append(tmpPath)
 			newPrimPaths.extend(tmpPathList)
 		self.primPaths.extend(newPrimPaths)
-		#print "digging : new prim paths found : %s" % (newPrimPaths)
 		self.cleanPrimPaths()
 		
 		
@@ -335,11 +300,6 @@ class NavMesh:
 		for path in self.primPaths:
 			if len(path) != self.step:
 				liste.append(path)
-				#print "cleaning : keeping %s" % (path)
-			'''
-			else:
-				print "cleaning : removing %s" % (path)
-			'''
 		self.primPaths = liste
 		self.step = self.step + 1
 		
@@ -355,8 +315,6 @@ class NavMesh:
 		geomNodeCollection = decor.findAllMatches('**/+GeomNode')
 		for nodePath in geomNodeCollection:
 			geomNode = nodePath.node()
-			#processGeomNode(geomNode)
-			#print geomNode
 			return processGeomNode(geomNode)
 			
 	def getPointsList(self):
@@ -370,7 +328,6 @@ class NavMesh:
 	def getPrim(self, pt):
 		for k, v in self.prims.items():
 			if PointInTriangle(pt, v[0], v[1], v[2]):
-				#print "le point %s est dans le chemin. Prim = %s, vertices = %s" % (pt, k, v)
 				return k
 		return None
 		

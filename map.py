@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from pandac.PandaModules import *
-import sys,os,__builtin__
+import sys,os
 
 from legion import *
 
@@ -45,7 +45,6 @@ class Map():
 		self.mapPath = ""
 	
 	def setupMap(self):
-		#carico la skybox e riparento
 		self.skybox = loader.loadModel("maps/data/skybox.egg")
 		self.skybox.setScale(16)
 		self.skybox.reparentTo(render)

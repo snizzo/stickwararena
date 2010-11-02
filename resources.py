@@ -9,15 +9,10 @@ from unit import GameObject, Selector
 
 class Resources():
 	def __init__(self):
-		#creating main list
-		#self.resList = []
-		#self.legNode = render.attachNewNode("resources")
 		self.resourceList = []
 		self.node = render.attachNewNode("resources")
 	
 	def addResource(self, node):
-		#res = BlackMatter(node, self.legNode)
-		#self.resList.append(res)
 		bm = BlackMatter(node.getX(), node.getY(), node.getZ(), self)
 		mySelection.listConsideration.append(bm)
 		self.resourceList.append(bm)
@@ -35,8 +30,6 @@ class Resources():
 	
 	#function that i use to remove all my RTS's units from the main units list.
 	def remove(self):
-		#for res in self.resList[:]:
-			#self.resList.remove(res)
 		for res in self.resourceList:
 			mySelection.listConsideration.remove(res)
 			self.resourceList.remove(res)
@@ -63,9 +56,7 @@ class Resource(GameObject):
 	def heal(self, amount):
 		pass
 			
-
-#creating this Black matter class just to follow the "standard" of selection class...
-#maybe fix in future... or maybe not...
+			
 class BlackMatter(Resource):
 	def __init__(self, x, y, z, _army):
 		Resource.__init__(self, x, y, z, _army)
@@ -79,9 +70,7 @@ class BlackMatter(Resource):
 		#set amount of black matter
 		self.node.setPythonTag("amountT", 18000)
 		self.node.setPythonTag("amount", 18000)
-		
-		#x = 0.9 * math.cos(self.node.getH())
-		#y = 0.9 * math.sin(self.node.getH())
+
 		self.selector = Selector(self.model, 1.0, 0.75)
 		self.selector.hide()
 	
@@ -102,4 +91,3 @@ class BlackMatter(Resource):
 			messenger.send("commander-update", ['resources', res])
 		else:
 			self.army.remove(self)
-

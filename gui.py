@@ -2,7 +2,7 @@
 from pandac.PandaModules import *
 from direct.gui.DirectGui import *
 from direct.interval.LerpInterval import LerpHprInterval
-import __builtin__, sys
+import sys
 
 class PopupBuilder():
 	def __init__(self):
@@ -379,3 +379,138 @@ class HudBuilder():
 					later = obj.node.getPythonTag("amountT")
 					now = obj.node.getPythonTag("amount")
 					self.hpTL.setText("Res: "+str(now)+"/"+str(later))
+
+					
+#fuckin' oop
+class Hud():
+	def __init__(self, parent):
+		self.parent = parent
+		self.font = loader.loadFont("fonts/pirulen.ttf")
+		#list of all buttons
+		self.miniImage = False
+		self.itemList = {}
+		self.buttonList = {}
+		
+		self.hudNode = aspect2d.attachNewNode("unitHudNode")
+		self.bgImage = render2d.attachNewNode("unitBgImage")
+		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		
+		#make standard hud
+		self.setGrid()
+	
+	def setGrid(self, columns = 3, cellsize = 0.1, padding = 2, xoff = 0.70, yoff = -0.57):
+		self.gridX = columns
+		self.cellSize = cellsize
+		self.gridPadding = padding
+		self.xOffset = xoff
+		self.yOffset = yoff
+	
+	def getNextCell(self):
+		listLen = len(self.buttonList)
+		cellNumber = listLen + 1
+		if listLen == 0:
+			x = 0
+			y = 0
+		elif listLen > 0:
+			cellRelXNumber = cellNumber % self.gridX
+			cellRelYNumber = int(cellNumber / self.gridX)
+			if cellNumber / self.gridX > cellRelYNumber:
+				cellRelYNumber += 1
+			x = (self.cellSize + self.gridPadding) * cellRelXNumber
+			y = (self.cellSize + self.gridPadding) * cellRelYNumber
+		return Vec3(x,0,y)
+	
+	def showGrid(self):
+		for button in self.buttonList:
+			x = button.getX()
+			z = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(z+self.zOffset)
+	
+	def loadImage(self, model, scale, z):
+		self.miniImage = loader.loadModel(model)
+		self.miniImage.setRenderModeWireframe()
+		self.miniImage.setPos(-0.55,0,z)
+		self.miniImage.setP(16)
+		self.miniImage.setScale(scale)
+		self.miniImage.reparentTo(self.displayInfo)
+		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+	
+	def addTextLine(self, name, text, pos, scale, align = TextNode.ALeft):
+		tl = TextNode(name)
+		tl.setText(text)
+		tl.setFont(self.font)
+		tl.setAlign(align)
+		tlnp = self.displayInfo.attachNewNode(tl)
+		tlnp.setScale(scale)
+		tlnp.setPos(pos)
+		self.itemList[name] = tlnp
+	
+	def addButton(self, name):
+		btg = loader.loadModel("images/stick_commander/" + name + "_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/' + name),
+		btg.find('**/' + name),
+		btg.find('**/' + name),
+		btg.find('**/' + name)))
+		bt.resetFrameSize()
+		self.bt.setScale(0.1)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		self.bt.setPos(pos)
+		self.buttonList[name] = bt
+		bt.hide()
+	
+	def addTitle(self, text):
+		self.addTextLine("title", text, Vec3(-0.15,0,-0.55), 0.05, TextNode.ACenter)
+	
+	def makeStandard(self, scale, z):
+		#adding title hud
+		self.addTitle(self.parent.type)
+		#print life string
+		s = "life: " + str(self.parent.healthBar.getCurrentHealth()) + "/" + str(self.parent.healthBar.getTotalHealth())
+		self.addTextLine("lifeString", s, Vec3(-0.14,0,-0.65),0.04)
+		#print attack string
+		s = "attack: " + str(self.parent.attack)
+		self.addTextLine("attackString", s, Vec3(-0.14,0,-0.73),0.04)
+		#print defence string
+		s = "armor: " + str(self.parent.armor)
+		self.addTextLine("armorString", s, Vec3(-0.14,0,-0.81),0.04)
+		#image
+		self.loadImage(self.parent.meshPath, scale, z)
+	
+	def show(self):
+		#build button grid
+		self.showGrid()
+		self.hudNode.show()
+		self.bgImage.show()
+	
+	def hide(self):
+		for name, button in self.buttonList.iteritems():
+			button.remove()
+		for name, item in self.itemList.iteritems():
+			item.remove()
+		if self.miniImage:
+			self.miniImage.remove()
+			self.miniImage = False
+		self.hudNode.hide()
+		self.bgImage.hide()
+		
+		
+class MultipleHud(Hud):
+	def __init__(self):
+		#Hud.__init__(self)
+		pass
+		
+		
+class WorkerHud(Hud):
+	def __init__(self):
+		#Hud.__init__(self)
+		pass
+		
+
+class BaseHud(Hud):
+	def __init__(self):
+		#Hud.__init__(self)
+		pass
+		

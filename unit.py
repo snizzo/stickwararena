@@ -2,8 +2,9 @@
 
 from PathFind import *
 from direct.showbase.DirectObject import DirectObject
-import sys,os,string,math, Queue#, copy
-
+from random import Random
+import sys,os,string,math, Queue
+from gui import *
 from enumeration import ReverseEnumeration
 		
 #fuckin' OOP
@@ -78,142 +79,6 @@ class HealthBar():
 		self.totalHealth = amount
 		self.currentHealth = amount
 		self.draw(HealthBar.fullLifeFrame)
-
-		
-class Hud():
-	def __init__(self, parent):
-		self.parent = parent
-		self.font = loader.loadFont("fonts/pirulen.ttf")
-		#list of all buttons
-		self.miniImage = False
-		self.itemList = {}
-		self.buttonList = {}
-		
-		self.hudNode = aspect2d.attachNewNode("unitHudNode")
-		self.bgImage = render2d.attachNewNode("unitBgImage")
-		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
-		
-		#make standard hud
-		self.setGrid()
-	
-	def setGrid(self, columns=3,cellsize=0.1,padding=2,xoff=0.70,yoff=-0.57):
-		self.gridX = columns
-		self.cellSize = cellsize
-		self.gridPadding = padding
-		self.xOffset = xoff
-		self.yOffset = yoff
-	
-	def getNextCell(self):
-		listLen = len(self.buttonList)
-		cellNumber = listLen + 1
-		if listLen == 0:
-			x = 0
-			y = 0
-			pos = Vec3(x,0,y)
-			return pos
-		elif listLen > 0:
-			cellRelXNumber = cellNumber % self.gridX
-			cellRelYNumber = int(cellNumber / self.gridX)
-			if cellNumber / self.gridX > cellRelYNumber:
-				cellRelYNumber += 1
-			x = (self.cellSize + self.gridPadding) * cellRelXNumber
-			y = (self.cellSize + self.gridPadding) * cellRelYNumber
-			pos = Vec3(x,0,y)
-			return pos
-	
-	def showGrid(self):
-		for button in self.buttonList:
-			x = button.getX()
-			z = button.getZ()
-			button.setX(x+self.xOffset)
-			button.setZ(z+self.zOffset)
-	
-	def loadImage(self, model, scale,z):
-		self.miniImage = loader.loadModel(model)
-		self.miniImage.setRenderModeWireframe()
-		self.miniImage.setPos(-0.55,0,z)
-		self.miniImage.setP(16)
-		self.miniImage.setScale(scale)
-		self.miniImage.reparentTo(self.displayInfo)
-		self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
-	
-	def addTextLine(self,name,text,pos,scale,align=TextNode.ALeft):
-		tl = TextNode(name)
-		tl.setText(text)
-		tl.setFont(self.font)
-		tl.setAlign(align)
-		tlnp = self.displayInfo.attachNewNode(tl)
-		tlnp.setScale(scale)
-		tlnp.setPos(pos)
-		self.itemList[name] = tlnp
-	
-	def addButton(self,name):
-		btg = loader.loadModel("images/stick_commander/"+name+"_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/'+name),
-		btg.find('**/'+name),
-		btg.find('**/'+name),
-		btg.find('**/'+name)))
-		bt.resetFrameSize()
-		self.bt.setScale(0.1)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		self.bt.setPos(pos)
-		self.buttonList[name] = bt
-		bt.hide()
-	
-	def addTitle(self, text):
-		self.addTextLine("title", text, Vec3(-0.15,0,-0.55), 0.05, TextNode.ACenter)
-	
-	def makeStandard(self,scale,z):
-		#adding title hud
-		self.addTitle(self.parent.type)
-		#print life string
-		l = "life: " + str(self.parent.healthBar.getCurrentHealth()) + "/" + str(self.parent.healthBar.getTotalHealth())
-		self.addTextLine("lifeString", l, Vec3(-0.14,0,-0.65),0.04)
-		#print attack string
-		a = "attack: " + str(self.parent.attack)
-		self.addTextLine("attackString", a,Vec3(-0.14,0,-0.73),0.04)
-		#print defence string
-		d = "armor: " + str(self.parent.armor)
-		self.addTextLine("armorString", d,Vec3(-0.14,0,-0.81),0.04)
-		#image
-		self.loadImage(self.parent.meshPath,scale,z)
-	
-	def show(self):
-		#build button grid
-		self.showGrid()
-		self.hudNode.show()
-		self.bgImage.show()
-	
-	def hide(self):
-		for name, button in self.buttonList.iteritems():
-			button.remove()
-		for name, item in self.itemList.iteritems():
-			item.remove()
-		if self.miniImage:
-			self.miniImage.remove()
-			self.miniImage = False
-		self.hudNode.hide()
-		self.bgImage.hide()
-		
-		
-class MultipleHud(Hud):
-	def __init__(self):
-		#Hud.__init__(self)
-		pass
-		
-		
-class WorkerHud(Hud):
-	def __init__(self):
-		#Hud.__init__(self)
-		pass
-		
-
-class BaseHud(Hud):
-	def __init__(self):
-		#Hud.__init__(self)
-		pass
 		
 
 class Selector():
@@ -317,11 +182,13 @@ class GameObject(DirectObject):
 		
 	#remove the game object from the game
 	def destroy(self):
-		#self.army.removeUnit(self)
 		self.node.remove()
 		
 #basic structure class, not for Instantiation
 class Structure(GameObject):
+
+	random = Random()
+
 	def __init__(self, x, y, z, _army):
 		self.spawnPoint = x + 2, y + 2, z
 		self.mainType = "structure"
@@ -337,14 +204,12 @@ class Structure(GameObject):
 	def addUnitToCreationQueue(self, unitType):
 		if not self.creationQueue.full():
 			self.creationQueue.put(unitType)
-			#print str(unitType) + " added to queue"
 			return True
 		else:
 			return False
 		
 	def update(self, task):
 		if not self.creationQueue.empty() and not self.queueBusy:
-			#print "started unit creation"
 			self.createUnit(self.creationQueue.get())
 			self.queueBusy = True
 		return task.cont
@@ -367,7 +232,6 @@ class Unit(GameObject):
 			taskMgr.remove(self.movementTask)
 		self.movementTask = False
 		self.model.loop('run')
-		#self.currentWayList = copy.copy(wayList)
 		self.currentWayList = wayList
 		self.currentWayList.pop(0)
 		if len(self.currentWayList) > 0:
@@ -401,19 +265,19 @@ class Unit(GameObject):
 			if hlerp > 180:
 				requiredRotation = nodeRotation - (360 - hlerp)
 		#play a small interval lasting <0.2> seconds, <to angle>, <from angle>
-		self.node.hprInterval(0.2, Vec3(requiredRotation,0,0),Vec3(nodeRotation,0,0)).start()
+		self.node.hprInterval(0.2, Vec3(requiredRotation,0,0), Vec3(nodeRotation,0,0)).start()
 		
 	#return needed node's angle to turn and face <point> target
 	def getSteeringAngle(self, point):
 		x = self.node.getX() - point.getX()
 		y = self.node.getY() - point.getY()
-		d = math.sqrt(x*x+y*y)
+		d = math.sqrt(x*x + y*y)
 		if d != 0:
-			h = 90 + math.degrees(math.asin(y/d))
+			h = 90 + math.degrees(math.asin(y / d))
 		else:
 			h = 90
 		if x < 0:
-			h = h * -1
+			h = -h
 		return h
 	
 	def moveTo(self, task):
@@ -490,9 +354,9 @@ class Base(Structure):
 			
 	def createUnitDelayed(self, unitType, task):
 		if unitType == self.unitType.worker:
-			self.army.addUnit(Worker(self.spawnPoint[0], self.spawnPoint[1], self.spawnPoint[2], self.army))
+			self.army.addUnit(Worker(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
 		elif unitType == self.unitType.soldier:
-			self.army.addUnit(Soldier(self.spawnPoint[0], self.spawnPoint[1], self.spawnPoint[2], self.army))
+			self.army.addUnit(Soldier(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
 		self.queueBusy = False
 		return task.done
 			

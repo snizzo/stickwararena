@@ -75,7 +75,6 @@ class Army():
 	
 class Group(DirectObject):
 	def __init__(self, _unitList = []):
-		#self.unitList = _unitList
 		self.singleObject = False
 		self.multipleObject = _unitList
 		for unit in self.multipleObject:
@@ -85,35 +84,26 @@ class Group(DirectObject):
 		self.accept('right-click-on-selection', self.go)
 		
 	def addUnit(self, unit):
-		#self.unitList.append(unit)
 		if unit.isOwner() and isinstance(unit, Unit):
 			self.multipleObject.append(unit)
-			#print "append " + str(unit) + " to multiple"
 			if self.singleObject:
-				#print "remove " + str(self.singleObject) + " from single"
 				self.singleObject.showHUD()
 				self.singleObject = False
-				#print "remove " + str(unit) + " to multiple"
 		elif len(self.multipleObject) == 0 and not self.singleObject:
 			self.singleObject = unit
-			#print "append " + str(unit) + " to single"
 		else:
 			return
 		unit.showHUD(True)
 		
 	def removeUnit(self, unit):	
 		unit.showHUD()
-		#self.unitList.remove(unit)
 		if unit == self.singleObject:
-			#print "remove " + str(unit) + " from single"
 			self.singleOjbect = False
 		else:
-			#print "remove " + str(unit) + " from multiple"
 			self.multipleObject.remove(unit)
 		
 	def notifyRightClick(self):
 		mySelection.notifyRightClick(True)
-		print "notify requested"
 		
 	def notifyLeftClick(self):
 		mySelection.notifyLeftClick(True)
@@ -139,42 +129,34 @@ class Group(DirectObject):
 				unit.rightButtonNotify()
 		
 	def singleUnit(self):
-		#return len(self.unitList) == 1
 		return self.singleObject
 		
 	def emptySelection(self):
-		#return self.unitList == []
 		return self.multipleObject == [] and not self.singleObject
 		
 	def getSingleUnit(self):
-		#return self.unitList[0]
 		return self.singleObject
 		
 	def getUnitNumber(self):
-		#return len(self.unitList)
 		if self.singleObject:
 			return 1
 		else:
 			len(self.multipleObject)
 		
 	def go(self):
-		#for unit in self.unitList:
 		for unit in self.multipleObject:
 			''' Temporarly disabled until I check for internal coherence
-			if mySelection.underMouse):
+			if mySelection.underMouse:
 				path = self.finder.pathFindToNode(mySelection.underMouse)
 			else:
 			'''
 			path = self.finder.pathFindToMouse(unit)
-			#if len(self.unitList) > 1:
 			if len(self.multipleObject) > 1:
 				lastWayPoint = path[len(path)-1]
 				path[len(path)-1] = Point3(lastWayPoint[0] + (self.random.random() -0.5) * 0.80, lastWayPoint[1] + (self.random.random() -0.5) * 0.80, lastWayPoint[2])
 			unit.go(path)
 		
 	def stop(self):
-		#for unit in self.unitList:
-		#	unit.stop()
 		if self.singleObject:
 			self.singleObject.stop()
 		else:
@@ -182,16 +164,11 @@ class Group(DirectObject):
 				unit.stop()
 			
 	def clear(self):
-		#for unit in self.unitList:
-		#	unit.showHUD()
-		#self.unitList = []
 		if self.singleObject:
-			#print "remove " + str(self.singleObject) + " from single"
 			self.singleObject.showHUD()
 			self.singleObject = False
 		for unit in self.multipleObject:
 			unit.showHUD()
-			#print "remove " + str(unit) + " from multiple"
 		self.multipleObject = []
 		mySelection.notifyLeftClick(False)
 		mySelection.notifyRightClick(False)
