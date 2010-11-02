@@ -335,7 +335,7 @@ class HudBuilder():
 		
 		#send myLegion specific build command:
 		self.OneButton['relief'] = None
-		base = self.myLegion.getStructureAt(0)
+		base = myLegion[0].getStructureAt(0)
 		self.OneButton['command'] = base.addUnitToCreationQueue
 		self.OneButton['extraArgs'] = ([base.getUnitType().worker])
 		self.OneButton.reparentTo(self.hudNode)
@@ -356,7 +356,7 @@ class HudBuilder():
 		
 		#send myLegion specific build command:
 		self.TwoButton['relief'] = None
-		base = self.myLegion.getStructureAt(0)
+		base = myLegion[0].getStructureAt(0)
 		self.TwoButton['command'] = base.addUnitToCreationQueue
 		self.TwoButton['extraArgs'] = ([base.getUnitType().soldier])
 		self.TwoButton.reparentTo(self.hudNode)

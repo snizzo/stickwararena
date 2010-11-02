@@ -27,7 +27,7 @@ from PathFind import *
 
 import sys,os,string,math, Queue#, copy
 
-from enumeration import Enumeration
+from enumeration import ReverseEnumeration
 '''
 class BaseEvents():
 	def __init__(self):
@@ -736,6 +736,13 @@ class GameObject():
 		
 	def isOwner(self):
 		return self.army.getIsPlayer()
+		
+	def leftButtonNotify(self):
+		pass
+		
+	def rightButtonNotify(self):
+		print "right click notified"
+		#pass
 	
 	#set the health of the game object to <amount> and update the healthbar consistently
 	def setHealth(self, amount):
@@ -930,7 +937,7 @@ class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
-		self.unitType = Enumeration("unit", [("worker",5), ("soldier",5)])
+		self.unitType = ReverseEnumeration("unit", [("worker", 4), ("soldier", 5)])
 		
 		#load the model
 		self.meshPath = "models/mainbase/base.egg"
@@ -975,7 +982,6 @@ class Base(Structure):
 			self.army.addUnit(Worker(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
 		elif unitType == self.unitType.soldier:
 			self.army.addUnit(Soldier(self.node.getX()+2, self.node.getY()+2, self.node.getZ(), self.army))
-		#print "unit created"
 		self.queueBusy = False
 		return task.done
 			
@@ -987,7 +993,7 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
-		self.unitType = Enumeration("structure", [])
+		self.unitType = ReverseEnumeration("structure", [])
 		
 		#unit params
 		self.attack = 5

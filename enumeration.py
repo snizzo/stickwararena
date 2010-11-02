@@ -64,5 +64,4 @@ class ReverseEnumeration:
 		
 	def whatIs(self, value):
 		return self.reverseLookup[value]
-		
-		
+	

@@ -124,7 +124,7 @@ class Army():
 		mySelection.listConsideration.remove(structure)
 		structure.destroy()
 		
-	def addBlackMatter(self, amount):
+	def alterBlackMatter(self, amount):
 		self.blackMatter += amount
 		
 	def remove(self):
@@ -137,7 +137,7 @@ class Army():
 		self.node.remove()
 		
 	
-class Group():
+class Group(DirectObject):
 	def __init__(self, _unitList = []):
 		#self.unitList = _unitList
 		self.singleObject = False
@@ -146,7 +146,7 @@ class Group():
 			unit.showHUD(True)
 		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
 		self.random = Random()
-		base.accept('right-click-on-selection', self.go)
+		self.accept('right-click-on-selection', self.go)
 		
 	def addUnit(self, unit):
 		#self.unitList.append(unit)
@@ -174,6 +174,33 @@ class Group():
 		else:
 			#print "remove " + str(unit) + " from multiple"
 			self.multipleObject.remove(unit)
+		
+	def notifyRightClick(self):
+		mySelection.notifyRightClick(True)
+		print "notify requested"
+		
+	def notifyLeftClick(self):
+		mySelection.notifyLeftClick(True)
+		
+	def abortLeftClickNotify(self):
+		mySelection.notifyLeftClick(False)
+	
+	def abortRightClickNotify(self):
+		mySelection.notifyRightClick(False)
+		
+	def leftButtonPressed(self):
+		if self.singleObject:
+			self.singleObject.leftButtonNotify()
+		else:
+			for unit in self.multipleObject:
+				unit.leftButtonNotify()
+		
+	def rightButtonPressed(self):
+		if self.singleObject:
+			self.singleObject.rightButtonNotify()
+		else:
+			for unit in self.multipleObject:
+				unit.rightButtonNotify()
 		
 	def singleUnit(self):
 		#return len(self.unitList) == 1
@@ -230,4 +257,6 @@ class Group():
 			unit.showHUD()
 			#print "remove " + str(unit) + " from multiple"
 		self.multipleObject = []
+		mySelection.notifyLeftClick(False)
+		mySelection.notifyRightClick(False)
 		

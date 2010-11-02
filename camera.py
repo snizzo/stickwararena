@@ -156,6 +156,9 @@ class clSelectionTool():
 		#self.listLastSelected = [] 
 		#right click selection
 		self.underMouse = False
+		
+		self._notifyRightClick = False
+		self._notifyLeftClick = False
 		 
 		self.pt2InitialMousePos = (-12, -12) 
 		self.pt2LastMousePos = (-12, -12) 
@@ -182,6 +185,7 @@ class clSelectionTool():
 		
 		####------otherThings
 		self.booSelecting = False
+		
 	'''
 	def getSelected(self):
 		return self.listSelected
@@ -192,6 +196,13 @@ class clSelectionTool():
 	def getUnitUnderMouse(self):
 		return self.underMouse[0]
 	'''
+	
+	def notifyRightClick(self, bool):
+		self._notifyRightClick = bool
+		
+	def notifyLeftClick(self, bool):
+		self._notifyLeftClick = bool
+	
 	def clear(self):
 		self.listConsideration = []
 		#self.listLastSelected = []
@@ -282,13 +293,20 @@ class clSelectionTool():
 									objTempSelected = i
 			#if something is click-selected
 			if objTempSelected != 0: 
+				'''
 				if objKeyBoardModifiers.booControl:
 					#self.listSelected.append(objTempSelected)
 					myGroup.clear()
 					myGroup.addUnit(objTempSelected)
 				else: 
+				'''
 					#for i in self.listSelected: 
 						#self.funcDeselectActionOnObject(i) 
+				if self._notifyLeftClick:
+					myGroup.leftButtonPressed()
+					self._notifyLeftClick = False
+					self._notifyRightClick = False
+				else:
 					myGroup.clear()
 					#self.listSelected = [objTempSelected] 
 					myGroup.addUnit(objTempSelected)
@@ -301,7 +319,12 @@ class clSelectionTool():
 				#for i in self.listSelected:
 					#self.funcDeselectActionOnObject(i)
 					#self.listSelected = []
-				myGroup.clear()
+				if self._notifyLeftClick:
+					myGroup.leftButtonPressed()
+					self._notifyLeftClick = False
+					self._notifyRightClick = False
+				else:
+					myGroup.clear()
 		messenger.send("mouse-selection")
 	
 	def OnRightClick(self):
@@ -353,7 +376,12 @@ class clSelectionTool():
 		#messenger.send("mouse-order")
 		#print str(self.underMouse)
 		#if not myGroup.singleUnit() or isinstance(myGroup.getSingleUnit(), Unit):
-		messenger.send("right-click-on-selection")	
+		if self._notifyRightClick:
+			myGroup.rightButtonPressed()
+			self._notifyRightClick = False
+			self._notifyLeftClick = False
+		else:
+			messenger.send("right-click-on-selection")	
 	
 	def UpdateSelRect(self, task): 
 		if not self.active:
