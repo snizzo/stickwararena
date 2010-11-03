@@ -174,14 +174,6 @@ class GameObject(DirectObject):
 			self.selector.hide()
 	
 	def showGui(self, bool = False):
-		#if bool:
-			#self.showObjectHud()
-		#	self.hud.show()
-		#else:
-		#	self.hud.hide()
-		pass
-			
-	def showObjectHud(self):
 		pass
 	
 	def showHUD(self, bool = False):
@@ -211,15 +203,20 @@ class Structure(GameObject):
 		self.creationQueue = Queue.Queue(5)
 		self.queueBusy = False
 		GameObject.__init__(self, x, y, z, _army)
-		taskMgr.add(self.update, "creationQueue")
+		self.unitCreationTask = False
 		
 	#create a new unit of type <unitType> at location <spawnPoint> (note: <spawnPoint> is an instance variable)
 	def createUnit(self, unitType):
 		pass
 		
+	def createUnitDelayed(self, unitType, task):
+		return task.done
+		
 	def addUnitToCreationQueue(self, unitType):
 		if not self.creationQueue.full():
 			self.creationQueue.put(unitType)
+			if not self.unitCreationTask:
+				self.unitCreationTask = taskMgr.add(self.update, "creationQueue")
 			return True
 		else:
 			return False
@@ -228,6 +225,9 @@ class Structure(GameObject):
 		if not self.creationQueue.empty() and not self.queueBusy:
 			self.createUnit(self.creationQueue.get())
 			self.queueBusy = True
+		if self.creationQueue.empty():
+			self.unitCreationTask = False
+			return task.done
 		return task.cont
 		
 	#set the unit spawn point to <x, y>
@@ -401,7 +401,7 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
-		self.unitType = ReverseEnumeration("structure", [])
+		self.unitType = ReverseEnumeration("structure", [("Base", 40)])
 		
 		#unit params
 		self.attack = 5
@@ -429,19 +429,13 @@ class Worker(Unit):
 		self.selector = Selector(self.model, 0.5)
 		self.selector.hide()
 		
-		#create the gui
-		#self.hud = Hud(self)
-		
 		#play the basic animation
 		self.model.play('idle')
 		
 		#call the update coroutine
 		taskMgr.add(self.update, "unitupdate")
-	
-	def showObjectHud(self):
-		self.hud.makeStandard(0.4,-0.89)
 		
-	#send the worker the gather the indicated <blackMatter> through the route indicated by <wayList>
+	#send the worker to gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
 		pass
 		
@@ -450,12 +444,15 @@ class Worker(Unit):
 		
 	def showGui(self, bool = False):
 		if bool:
-			Worker.hud.show(self, 0.4,-0.89)
+			Worker.hud.show(self, 0.4, -0.89)
 		else:
 			Worker.hud.hide()
 		
 
 class Soldier(Unit):
+
+	hud = SoldierHud()
+
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "soldier"
@@ -487,3 +484,10 @@ class Soldier(Unit):
 		
 		#call the update coroutine
 		taskMgr.add(self.update, "unitupdate")
+		
+	def showGui(self, bool = False):
+		if bool:
+			Soldier.hud.show(self, 0.4, -0.89)
+		else:
+			Soldier.hud.hide()
+			

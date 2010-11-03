@@ -93,7 +93,17 @@ class Group(DirectObject):
 			self.singleObject = unit
 		else:
 			return
-		unit.showHUD(True)
+		if len(self.multipleObject) > 0:
+			if len(self.multipleObject) > 1:
+				for unit in self.multipleObject:
+					unit.showGui()
+				GameObject.multipleHud.show(len(self.multipleObject))
+			else:
+				unit.showGui(True)
+			unit.showHealthBar(True)
+			unit.showSelector(True)
+		else:
+			unit.showHUD(True)
 		
 	def removeUnit(self, unit):	
 		unit.showHUD()

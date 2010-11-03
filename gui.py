@@ -589,10 +589,32 @@ class _Hud():
 		
 class MultipleHud(_Hud):
 	def __init__(self):
-		_Hud.__init__(self)
+		#self.hide()
+		pass
+		
+	def show(self, unitNumber):
+		pass
 		
 		
 class WorkerHud(_Hud):
+	def __init__(self):
+		_Hud.__init__(self)
+		self.addTextLine("attackString", "", _Hud.secondRowPosition, 0.04)
+		self.addTextLine("armorString", "", _Hud.thirdRowPosition, 0.04)
+		
+	def setTextLine(self, parent):
+		_Hud.setTextLine(self, parent)
+		s = "attack: " + str(parent.getAttack())
+		self.itemList['attackString'].getNode(0).setText(s)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		self.setTextLine(parent)
+		_Hud.show(self, parent, scale, z)
+		
+		
+class SoldierHud(_Hud):
 	def __init__(self):
 		_Hud.__init__(self)
 		self.addTextLine("attackString", "", _Hud.secondRowPosition, 0.04)
