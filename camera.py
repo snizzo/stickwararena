@@ -98,6 +98,7 @@ class Camera():
 		base.camera.setX(x)
 		base.camera.setY(y-6)
 
+'''
 class clKeyBoardModifiers(): 
 	def __init__(self): 
 		self.booAlt = False 
@@ -127,7 +128,8 @@ class clKeyBoardModifiers():
 		 
 	def OnShiftUp(self): 
 		self.booShift = False 
-		 
+'''
+ 
 class clSelectionTool(): 
 	#def __init__(self, listConsideration=[]):
 	def __init__(self):
@@ -149,11 +151,8 @@ class clSelectionTool():
 		LS.drawTo(1,0,1) 
 		LS.drawTo(0,0,1) 
 		LS.drawTo(0,0,0) 
-		self.npSelRect.attachNewNode(LS.create()) 
-		#self.listConsideration = listConsideration
+		self.npSelRect.attachNewNode(LS.create())
 		self.listConsideration = []
-		#self.listSelected = []
-		#self.listLastSelected = [] 
 		#right click selection
 		self.underMouse = False
 		
@@ -162,9 +161,7 @@ class clSelectionTool():
 		 
 		self.pt2InitialMousePos = (-12, -12) 
 		self.pt2LastMousePos = (-12, -12) 
-		 
-		####----Used to differentiate between group selections and point selections 
-		#self.booMouseMoved  = False 
+		
 		self.fFovh, self.fFovv = base.camLens.getFov() 
 		 
 		####--Used to control how frequently update_rect is updated; 
@@ -173,29 +170,15 @@ class clSelectionTool():
 		self.UpdateTimeSelRect = 0.015 
 		self.UpdateTimeSelected = 0.015 
 		 
-		####------Register the left-mouse-button to start selecting 
-		#base.accept("mouse1", self.OnStartSelect, extraArgs=["mouse1"])
+		####------Register the left-mouse-button to start selecting
 		base.accept("mouse1", self.onStartSelect)
-		#base.accept("control-mouse1", self.OnStartSelect) 
-		base.accept("mouse1-up", self.OnStopSelect) 	
-		#base.accept("mouse3", self.OnStartSelect, extraArgs=["mouse3"])
+		base.accept("mouse1-up", self.OnStopSelect)
 		base.accept("mouse3-up", self.OnRightClick) 
 		
 		self.taskUpdateSelRect = 0 
 		
 		####------otherThings
 		self.booSelecting = False
-		
-	'''
-	def getSelected(self):
-		return self.listSelected
-	
-	def getSingleSelected(self):
-		return self.listSelected[0]
-	
-	def getUnitUnderMouse(self):
-		return self.underMouse[0]
-	'''
 	
 	def notifyRightClick(self, bool):
 		self._notifyRightClick = bool
@@ -205,8 +188,6 @@ class clSelectionTool():
 	
 	def clear(self):
 		self.listConsideration = []
-		#self.listLastSelected = []
-		#self.listSelected = []
 		myGroup.clear()
 	
 	def setIdle(self):
@@ -214,30 +195,7 @@ class clSelectionTool():
 		
 	def setActive(self):
 		self.active = True
-	'''
-	#used to handle all events when selected or not
-	def funcSelectActionOnObject(self, unit):
-		if unit.type == "GameUnit":
-			miniHud = unit.node.find("**/otherThings")
-			miniHud.show()
-			unit.updateBarLife()
-		elif unit.type == "BlackMatter":
-			#do nothing
-			pass
-		#if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
-		unit.showHUD(True)
-		
-	def funcDeselectActionOnObject(self, unit): 
-		if unit.type == "GameUnit":
-			miniHud = unit.node.find("**/otherThings")
-			miniHud.hide()
-		elif unit.type == "BlackMatter":
-			#do nothing
-			pass
-		#if unit.type == "worker" or unit.type == "soldier" or unit.type == "base":
-		unit.showHUD()
-	'''	 
-	#def OnStartSelect(self, pressed="mouse1"):
+	
 	def onStartSelect(self):
 		if not self.active:
 			return
@@ -250,8 +208,7 @@ class clSelectionTool():
 		self.booMouseMoved = False 
 		self.booSelecting = True 
 		self.pt2InitialMousePos = Point2(base.mouseWatcherNode.getMouse()) 
-		self.pt2LastMousePos = Point2(self.pt2InitialMousePos) 
-		#if pressed == "mouse1":
+		self.pt2LastMousePos = Point2(self.pt2InitialMousePos)
 		self.npSelRect.setPos(self.pt2InitialMousePos[0], 1, self.pt2InitialMousePos[1]) 
 		self.npSelRect.setScale(1e-3, 1, 1e-3) 
 		self.npSelRect.show() 
@@ -263,7 +220,6 @@ class clSelectionTool():
 			return
 		if not base.mouseWatcherNode.hasMouse(): 
 			return 
-		#if self.taskUpdateSelRect != 0: 
 		if self.taskUpdateSelRect:
 			taskMgr.remove(self.taskUpdateSelRect) 
 		self.npSelRect.hide() 
@@ -273,8 +229,7 @@ class clSelectionTool():
 			objTempSelected = 0 
 			fTempObjDist = 2*(base.camLens.getFar())**2		
 			for i in self.listConsideration: 
-				sphBounds = i.node.getBounds() 
-				#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+				sphBounds = i.node.getBounds()
 				p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
 				r = sphBounds.getRadius() 
 				screen_width = r/(p3[1]*math.tan(math.radians(self.fFovh/2))) 
@@ -293,39 +248,25 @@ class clSelectionTool():
 									objTempSelected = i
 			#if something is click-selected
 			if objTempSelected != 0: 
-				'''
-				if objKeyBoardModifiers.booControl:
-					#self.listSelected.append(objTempSelected)
-					myGroup.clear()
-					myGroup.addUnit(objTempSelected)
-				else: 
-				'''
-					#for i in self.listSelected: 
-						#self.funcDeselectActionOnObject(i) 
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
 					self._notifyLeftClick = False
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
-					#self.listSelected = [objTempSelected] 
 					myGroup.addUnit(objTempSelected)
-				#self.funcSelectActionOnObject(objTempSelected) 
 			#if nothing is selected just deselect all, a normal behaviour in RTS's game
 			y = base.mouseWatcherNode.getMouseY()
 			if y < -0.5:
 				return
 			if objTempSelected == 0:
-				#for i in self.listSelected:
-					#self.funcDeselectActionOnObject(i)
-					#self.listSelected = []
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
 					self._notifyLeftClick = False
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
-		messenger.send("mouse-selection")
+		#messenger.send("mouse-selection")
 	
 	def OnRightClick(self):
 		if not self.active:
@@ -343,8 +284,7 @@ class clSelectionTool():
 			objTempSelected = 0 
 			fTempObjDist = 2*(base.camLens.getFar())**2 
 			for i in self.listConsideration: 
-				sphBounds = i.node.getBounds() 
-				#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+				sphBounds = i.node.getBounds()
 				p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
 				r = sphBounds.getRadius() 
 				screen_width = r/(p3[1]*math.tan(math.radians(self.fFovh/2))) 
@@ -362,20 +302,13 @@ class clSelectionTool():
 									fTempObjDist = dist 
 									objTempSelected = i
 			#if something is click-selected
-			if objTempSelected != 0: 
-				#if objKeyBoardModifiers.booControl: 
-				#	self.underMouse.append(objTempSelected) 
-				#else:
-				#	self.underMouse = [objTempSelected] 
+			if objTempSelected != 0:
 				self.underMouse = objTempSelected
 			#avoid pressing mouse in HUD
 			y = base.mouseWatcherNode.getMouseY()
 			if y < -0.5:
 				return
 			#returning object under mouse
-		#messenger.send("mouse-order")
-		#print str(self.underMouse)
-		#if not myGroup.singleUnit() or isinstance(myGroup.getSingleUnit(), Unit):
 		if self._notifyRightClick:
 			myGroup.rightButtonPressed()
 			self._notifyRightClick = False
@@ -408,9 +341,7 @@ class clSelectionTool():
 				#A better way to handle a large number of objects is to first transform the 2-d selection rect into 
 				#its own view fustrum and then check the objects in world space. Adding space correlation/hashing 
 				#will make it go faster. But I'm lazy. 
-				self.fTimeLastUpdateSelected = t 
-				#self.listLastSelected = self.listSelected 
-				#self.listSelected = [] 
+				self.fTimeLastUpdateSelected = t
 				myGroup.clear()
 				#Get the bounds of the selection box 
 				fMouse_Lx = min(self.pt2InitialMousePos[0], self.pt2LastMousePos[0]) 
@@ -420,33 +351,12 @@ class clSelectionTool():
 				for i in self.listConsideration: 
 					#Get the loosebounds of the nodepath 
 					sphBounds = i.node.getBounds() 
-					#Put the center of the sphere into the camera coordinate system 
-					#p3 = base.cam.getRelativePoint(render, sphBounds.getCenter()) 
+					#Put the center of the sphere into the camera coordinate system
 					p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
 					#Check if p3 is in the view fustrum 
 					p2 = Point2() 
 					if base.camLens.project(p3, p2): 
-						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly): 
-							#self.listSelected.append(i) 
-							'''
-							if myGroup.getUnitNumber() > 0:
-								for unit in myGroup.unitList:
-									if not isinstance(unit, Unit):
-										myGroup.removeUnit(unit)
-								for resource in myResources.resourceList:
-									if resource in myGroup.unitList:
-										myGroup.removeUnit(resource)
-							'''
+						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly):
 							myGroup.addUnit(i)
-							#self.funcSelectActionOnObject(i) 
-				'''
-				for i in self.listLastSelected: 
-					if not objKeyBoardModifiers.booControl: 
-						if i not in self.listSelected: 
-							self.funcDeselectActionOnObject(i) 
-							pass
-					else: 
-						self.listSelected.append(i) 
-				'''
 		return Task.cont
 	

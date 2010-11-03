@@ -299,7 +299,7 @@ class HudBuilder():
 		self.attTL_np.show()
 		self.defTL.setText("armor: "+str(defence))
 		self.defTL_np.show()
-	'''
+	
 	def makeBaseHud(self):
 		#obj = mySelection.getSingleSelected()
 		obj = myGroup.getSingleUnit()
@@ -360,7 +360,7 @@ class HudBuilder():
 		self.TwoButton['command'] = base.addUnitToCreationQueue
 		self.TwoButton['extraArgs'] = ([base.getUnitType().soldier])
 		self.TwoButton.reparentTo(self.hudNode)
-	
+	'''
 	def updateRes(self):
 			self.resTL.setText(str(self.myLegion.blackMatter))
 	
@@ -382,6 +382,7 @@ class HudBuilder():
 
 					
 #fuckin' oop
+'''
 class Hud():
 	def __init__(self, parent):
 		self.parent = parent
@@ -495,22 +496,154 @@ class Hud():
 			self.miniImage = False
 		self.hudNode.hide()
 		self.bgImage.hide()
-		
-		
-class MultipleHud(Hud):
+'''
+
+class _Hud():
+
+	titlePosition = Vec3(0,0,-0.55)
+	firstRowPosition = Vec3(-0.14,0,-0.65)
+	secondRowPosition = Vec3(-0.14,0,-0.73)
+	thirdRowPosition = Vec3(-0.14,0,-0.81)
+
 	def __init__(self):
-		#Hud.__init__(self)
-		pass
+		self.font = loader.loadFont("fonts/pirulen.ttf")
+		self.miniImage = False
+		self.itemList = {}
+		self.buttonList = {}
+		
+		self.actualMeshPath = ""
+		
+		self.hudNode = aspect2d.attachNewNode("unitHudNode")
+		self.bgImage = render2d.attachNewNode("unitBgImage")
+		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		
+		#make standard hud
+		self.setGrid()
+		
+		self.addTextLine("titleString", "", _Hud.titlePosition, 0.05, TextNode.ACenter)
+		self.addTextLine("healthString", "", _Hud.firstRowPosition, 0.04)
+		
+		self.hide()
+		
+	def setGrid(self, columns = 3, cellsize = 0.1, padding = 2, xoff = 0.70, yoff = -0.57):
+		self.gridX = columns
+		self.cellSize = cellsize
+		self.gridPadding = padding
+		self.xOffset = xoff
+		self.yOffset = yoff
+		
+	def getNextCell(self):
+		listLen = len(self.buttonList)
+		cellNumber = listLen + 1
+		if listLen == 0:
+			x = 0
+			y = 0
+		elif listLen > 0:
+			cellRelXNumber = cellNumber % self.gridX
+			cellRelYNumber = int(cellNumber / self.gridX)
+			if cellNumber / self.gridX > cellRelYNumber:
+				cellRelYNumber += 1
+			x = (self.cellSize + self.gridPadding) * cellRelXNumber
+			y = (self.cellSize + self.gridPadding) * cellRelYNumber
+		return Vec3(x,0,y)
+		
+	def addTextLine(self, name, text, pos, scale, align = TextNode.ALeft):
+		tl = TextNode(name)
+		tl.setText(text)
+		tl.setFont(self.font)
+		tl.setAlign(align)
+		tlnp = self.displayInfo.attachNewNode(tl)
+		tlnp.setScale(scale)
+		tlnp.setPos(pos)
+		self.itemList[name] = tlnp
+		
+	def setTextLine(self, parent):
+		self.itemList['titleString'].getNode(0).setText(parent.getType())
+		s = "life: " + str(parent.getHealthBar().getCurrentHealth()) + "/" + str(parent.getHealthBar().getTotalHealth())
+		self.itemList['healthString'].getNode(0).setText(s)
+		
+	def loadImage(self, model, scale, z):
+		if self.actualMeshPath != model:
+			if self.miniImage:
+				self.miniImage.remove()
+			self.miniImage = False
+			self.actualMeshPath = model
+			self.miniImage = loader.loadModel(self.actualMeshPath)
+			self.miniImage.setRenderModeWireframe()
+			self.miniImage.setPos(-0.55,0,z)
+			self.miniImage.setP(16)
+			self.miniImage.setScale(scale)
+			self.miniImage.reparentTo(self.displayInfo)
+			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
+		
+	def show(self, parent, scale, z):
+		self.loadImage(parent.getMeshPath(), scale, z)
+		self.setTextLine(parent)
+		self.hudNode.show()
+		self.bgImage.show()
+		
+	def hide(self):
+		self.hudNode.hide()
+		self.bgImage.hide()
 		
 		
-class WorkerHud(Hud):
+class MultipleHud(_Hud):
 	def __init__(self):
-		#Hud.__init__(self)
-		pass
+		_Hud.__init__(self)
+		
+		
+class WorkerHud(_Hud):
+	def __init__(self):
+		_Hud.__init__(self)
+		self.addTextLine("attackString", "", _Hud.secondRowPosition, 0.04)
+		self.addTextLine("armorString", "", _Hud.thirdRowPosition, 0.04)
+		
+	def setTextLine(self, parent):
+		_Hud.setTextLine(self, parent)
+		s = "attack: " + str(parent.getAttack())
+		self.itemList['attackString'].getNode(0).setText(s)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		self.setTextLine(parent)
+		_Hud.show(self, parent, scale, z)
 		
 
-class BaseHud(Hud):
+class BaseHud(_Hud):
 	def __init__(self):
-		#Hud.__init__(self)
-		pass
+		_Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", _Hud.thirdRowPosition, 0.04)
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.hudNode)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['worker'] = bt
+		
+	def setTextLine(self, parent):
+		_Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		self.setButton(parent)
+		self.setTextLine(parent)
+		_Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		self.buttonList['worker']['command'] = parent.addUnitToCreationQueue
+		self.buttonList['worker']['extraArgs'] = ([parent.getUnitType().worker])
 		

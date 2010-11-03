@@ -42,7 +42,7 @@ class Navigator(ShowBase):
 		__builtin__.myLegion = []
 		__builtin__.myGroup = Group()
 		__builtin__.myCamera = Camera()
-		__builtin__.objKeyBoardModifiers = clKeyBoardModifiers()
+		#__builtin__.objKeyBoardModifiers = clKeyBoardModifiers()
 		__builtin__.mySelection = clSelectionTool()
 		#__builtin__.aiWorld = AIWorld(render)
 		#__builtin__.myEventManager = BaseEvents()

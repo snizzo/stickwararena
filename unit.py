@@ -117,6 +117,15 @@ class GameObject(DirectObject):
 	def isOwner(self):
 		return self.army.getIsPlayer()
 		
+	def getType(self):
+		return self.type
+		
+	def getMainType(self):
+		return self.mainType
+		
+	def getMeshPath(self):
+		return self.meshPath
+		
 	def leftButtonNotify(self):
 		pass
 		
@@ -149,6 +158,9 @@ class GameObject(DirectObject):
 	def heal(self, amount):
 		self.healthBar.update(amount)
 		
+	def getHealthBar(self):
+		return self.healthBar
+		
 	def showHealthBar(self, bool = False):
 		if bool:
 			self.healthBar.show()
@@ -162,11 +174,12 @@ class GameObject(DirectObject):
 			self.selector.hide()
 	
 	def showGui(self, bool = False):
-		if bool:
-			self.showObjectHud()
-			self.hud.show()
-		else:
-			self.hud.hide()
+		#if bool:
+			#self.showObjectHud()
+		#	self.hud.show()
+		#else:
+		#	self.hud.hide()
+		pass
 			
 	def showObjectHud(self):
 		pass
@@ -179,6 +192,9 @@ class GameObject(DirectObject):
 	#update the game object status
 	def update(self, task):
 		return task.cont
+		
+	def getArmor(self):
+		return self.armor
 		
 	#remove the game object from the game
 	def destroy(self):
@@ -217,6 +233,7 @@ class Structure(GameObject):
 	#set the unit spawn point to <x, y>
 	def setSpawnPoint(self, x, y):
 		self.spawnPoint = x, y, self.spawnPoint[2]
+	
 		
 #basic unit class, not for Instantiation
 class Unit(GameObject):
@@ -313,6 +330,10 @@ class Unit(GameObject):
 			taskMgr.remove(self.movementTask)
 		self.model.pose('idle', 1)
 		
+	def getAttack(self):
+		return self.attack
+
+		
 #specialized structure class
 class Base(Structure):
 
@@ -322,6 +343,8 @@ class Base(Structure):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
 		self.unitType = ReverseEnumeration("unit", [("worker", 4), ("soldier", 5)])
+		
+		self.armor = 100
 		
 		#load the model
 		self.meshPath = "models/mainbase/base.egg"
@@ -344,7 +367,7 @@ class Base(Structure):
 		self.selector.hide()
 		
 		#create the gui
-		self.hud = Hud(self)
+		#self.hud = Hud(self)
 	
 	def createUnit(self, unitType):
 		if unitType == self.unitType.worker:
@@ -362,6 +385,13 @@ class Base(Structure):
 			
 	def getUnitType(self):
 		return self.unitType
+		
+	def showGui(self, bool = False):
+		if bool:
+			Base.hud.show(self, 0.2, -0.82)
+		else:
+			Base.hud.hide()
+		
 
 #specialized unit class	
 class Worker(Unit):
@@ -400,7 +430,7 @@ class Worker(Unit):
 		self.selector.hide()
 		
 		#create the gui
-		self.hud = Hud(self)
+		#self.hud = Hud(self)
 		
 		#play the basic animation
 		self.model.play('idle')
@@ -417,6 +447,12 @@ class Worker(Unit):
 		
 	def buildStructure(self, structureType):
 		pass
+		
+	def showGui(self, bool = False):
+		if bool:
+			Worker.hud.show(self, 0.4,-0.89)
+		else:
+			Worker.hud.hide()
 		
 
 class Soldier(Unit):
