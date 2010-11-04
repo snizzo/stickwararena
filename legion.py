@@ -103,6 +103,7 @@ class Group(DirectObject):
 		elif len(self.multipleObject) == 0 and not self.singleObject:
 			self.singleObject = unit
 			unit.showHUD(True)
+			GameObject.multipleHud.hide()
 		else:
 			return
 		
@@ -161,11 +162,13 @@ class Group(DirectObject):
 				path = self.finder.pathFindToNode(mySelection.underMouse)
 			else:
 			'''
-			path = self.finder.pathFindToMouse(unit)
-			if len(self.multipleObject) > 1:
-				lastWayPoint = path[len(path)-1]
-				path[len(path)-1] = Point3(lastWayPoint[0] + (self.random.random() -0.5) * 0.80, lastWayPoint[1] + (self.random.random() -0.5) * 0.80, lastWayPoint[2])
-			unit.go(path)
+			path = self.finder.pathFindToMouse(unit, self)
+			
+	def onPathComplete(self, unit, path):
+		if len(self.multipleObject) > 1:
+			lastWayPoint = path[len(path)-1]
+			path[len(path)-1] = Point3(lastWayPoint[0] + (self.random.random() -0.5) * 0.80, lastWayPoint[1] + (self.random.random() -0.5) * 0.80, lastWayPoint[2])
+		unit.go(path)
 		
 	def stop(self):
 		if self.singleObject:
@@ -181,6 +184,7 @@ class Group(DirectObject):
 		for unit in self.multipleObject:
 			unit.showHUD()
 		self.multipleObject = []
+		GameObject.multipleHud.hide()
 		mySelection.notifyLeftClick(False)
 		mySelection.notifyRightClick(False)
 		

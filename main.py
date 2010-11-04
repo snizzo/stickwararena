@@ -7,7 +7,7 @@ from panda3d.ai import *
 from PathFind import *
 import sys,os,__builtin__
 #my import
-from gui import _Hud
+from gui import Hud
 from map import *
 from effects import *
 from unit import *
@@ -36,16 +36,12 @@ class Navigator(ShowBase):
 		__builtin__.myShader = ShaderManager()
 		__builtin__.myMap = Map()
 		__builtin__.myMenuBuilder = MenuBuilder()
-		#__builtin__.myHudBuilder = HudBuilder()
 		__builtin__.myPopupBuilder = PopupBuilder()
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
 		__builtin__.myGroup = Group()
 		__builtin__.myCamera = Camera()
-		#__builtin__.objKeyBoardModifiers = clKeyBoardModifiers()
 		__builtin__.mySelection = clSelectionTool()
-		#__builtin__.aiWorld = AIWorld(render)
-		#__builtin__.myEventManager = BaseEvents()
 		
 		#uncomment following line to see intro
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
@@ -59,16 +55,6 @@ class Navigator(ShowBase):
 		#shader and effects function
 		#want to run very fast and with intel based gc
 		myShader.setBloomed()
-		
-		#ai update setting
-		#taskMgr.add(self.aiUpdate,"AIUpdate")
-	
-	#AI update every frame task
-	'''
-	def aiUpdate(self,task):
-		aiWorld.update()
-		return Task.cont
-	'''
 	
 	#function called when creating a new single player game
 	def startSingle(self):
@@ -79,8 +65,7 @@ class Navigator(ShowBase):
 		#setup players, starting structures and resources
 		myMap.setupInitMap()
 		#show game hud
-		#myHudBuilder.show()
-		_Hud.showGuiBackground(True)
+		Hud.showGuiBackground(True)
 		#make mouse selection tool active
 		mySelection.setActive()
 		
@@ -98,8 +83,7 @@ class Navigator(ShowBase):
 		#if you're seeing main menu once closed a game unload map and remove everything from scene
 		if(f=="game"):
 			myMap.unloadMap()
-			#myHudBuilder.hide()
-			_Hud.showGuiBackground()
+			Hud.showGuiBackground()
 			for legion in myLegion:
 				legion.remove()
 			myResources.remove()
