@@ -86,24 +86,25 @@ class Group(DirectObject):
 	def addUnit(self, unit):
 		if unit.isOwner() and isinstance(unit, Unit):
 			self.multipleObject.append(unit)
-			if self.singleObject:
-				self.singleObject.showHUD()
-				self.singleObject = False
-		elif len(self.multipleObject) == 0 and not self.singleObject:
-			self.singleObject = unit
-		else:
-			return
-		if len(self.multipleObject) > 0:
+			
 			if len(self.multipleObject) > 1:
 				for unit in self.multipleObject:
 					unit.showGui()
 				GameObject.multipleHud.show(len(self.multipleObject))
 			else:
 				unit.showGui(True)
+				GameObject.multipleHud.hide()
 			unit.showHealthBar(True)
 			unit.showSelector(True)
-		else:
+			
+			if self.singleObject:
+				self.singleObject.showHUD()
+				self.singleObject = False
+		elif len(self.multipleObject) == 0 and not self.singleObject:
+			self.singleObject = unit
 			unit.showHUD(True)
+		else:
+			return
 		
 	def removeUnit(self, unit):	
 		unit.showHUD()

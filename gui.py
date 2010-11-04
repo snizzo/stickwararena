@@ -62,7 +62,7 @@ class MenuBuilder():
 	def hide(self):
 		self.background.remove()
 		self.mapNode.remove()
-
+'''
 class HudBuilder():
 	def __init__(self):
 		#loading HUD specific font
@@ -237,7 +237,7 @@ class HudBuilder():
 		#if mouse is in the HUD don't selected and load selection
 		if y < -0.5:
 			return
-		'''
+
 		#if nothing selected clear HUD
 		if len(mySelection.listSelected) == 0:
 			self.clear()
@@ -254,7 +254,7 @@ class HudBuilder():
 		#if more than one is selected
 		if len(mySelection.listSelected) > 1:
 			self.setText(str(len(mySelection.listSelected)) + " selected units")
-		'''
+
 		if myGroup.emptySelection():
 			self.clear()
 		elif myGroup.singleUnit():
@@ -278,7 +278,7 @@ class HudBuilder():
 		self.setText(obj.name)
 		#load image
 		self.loadImage("models/blob/blob.egg", 0.09)
-	'''
+
 	def makeWorkerHud(self):
 		#obj = mySelection.getSingleSelected()
 		obj = myGroup.getSingleUnit()
@@ -360,7 +360,7 @@ class HudBuilder():
 		self.TwoButton['command'] = base.addUnitToCreationQueue
 		self.TwoButton['extraArgs'] = ([base.getUnitType().soldier])
 		self.TwoButton.reparentTo(self.hudNode)
-	'''
+
 	def updateRes(self):
 			self.resTL.setText(str(self.myLegion.blackMatter))
 	
@@ -379,7 +379,7 @@ class HudBuilder():
 					later = obj.node.getPythonTag("amountT")
 					now = obj.node.getPythonTag("amount")
 					self.hpTL.setText("Res: "+str(now)+"/"+str(later))
-
+'''
 					
 #fuckin' oop
 '''
@@ -500,10 +500,28 @@ class Hud():
 
 class _Hud():
 
-	titlePosition = Vec3(0,0,-0.55)
-	firstRowPosition = Vec3(-0.14,0,-0.65)
-	secondRowPosition = Vec3(-0.14,0,-0.73)
-	thirdRowPosition = Vec3(-0.14,0,-0.81)
+	titlePosition = Vec3(0,0,-0.60)
+	firstRowPosition = Vec3(-0.14,0,-0.70)
+	secondRowPosition = Vec3(-0.14,0,-0.78)
+	thirdRowPosition = Vec3(-0.14,0,-0.86)
+	
+	mainGui = False
+	topGui = False
+	
+	@staticmethod
+	def showGuiBackground(bool = False):
+		if not _Hud.mainGui:
+			_Hud.mainGui = DirectFrame(frameColor=(0, 0, 0, .9),frameSize=(-1, 1, -1, -0.5))
+			_Hud.mainGui.reparentTo(render2d)
+		if not _Hud.topGui:
+			_Hud.topGui = DirectFrame(frameColor=(0, 0, 0, .9),frameSize=(-1, 1, 0.95, 1))
+			_Hud.topGui.reparentTo(render2d)
+		if bool:
+			_Hud.mainGui.show()
+			_Hud.topGui.show()
+		else:
+			_Hud.mainGui.hide()
+			_Hud.topGui.hide()
 
 	def __init__(self):
 		self.font = loader.loadFont("fonts/pirulen.ttf")
@@ -576,9 +594,10 @@ class _Hud():
 			self.miniImage.reparentTo(self.displayInfo)
 			self.miniImage.hprInterval(10, Vec3(360,16,0)).loop()
 		
-	def show(self, parent, scale, z):
-		self.loadImage(parent.getMeshPath(), scale, z)
-		self.setTextLine(parent)
+	def show(self, parent = False, scale = 1.0, z = 0.0):
+		if parent:
+			self.loadImage(parent.getMeshPath(), scale, z)
+			self.setTextLine(parent)
 		self.hudNode.show()
 		self.bgImage.show()
 		
@@ -589,12 +608,12 @@ class _Hud():
 		
 class MultipleHud(_Hud):
 	def __init__(self):
-		#self.hide()
-		pass
+		_Hud.__init__(self)
 		
 	def show(self, unitNumber):
-		pass
-		
+		self.itemList['titleString'].getNode(0).setText(str(unitNumber) + " units selected")
+		_Hud.show(self) 
+	
 		
 class WorkerHud(_Hud):
 	def __init__(self):
@@ -654,6 +673,12 @@ class BaseHud(_Hud):
 		bt['command'] = None
 		bt['extraArgs'] =  None
 		self.buttonList['worker'] = bt
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
 		
 	def setTextLine(self, parent):
 		_Hud.setTextLine(self, parent)

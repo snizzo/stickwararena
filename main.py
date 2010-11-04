@@ -7,7 +7,7 @@ from panda3d.ai import *
 from PathFind import *
 import sys,os,__builtin__
 #my import
-from gui import *
+from gui import _Hud
 from map import *
 from effects import *
 from unit import *
@@ -36,7 +36,7 @@ class Navigator(ShowBase):
 		__builtin__.myShader = ShaderManager()
 		__builtin__.myMap = Map()
 		__builtin__.myMenuBuilder = MenuBuilder()
-		__builtin__.myHudBuilder = HudBuilder()
+		#__builtin__.myHudBuilder = HudBuilder()
 		__builtin__.myPopupBuilder = PopupBuilder()
 		__builtin__.myResources = Resources()
 		__builtin__.myLegion = []
@@ -79,7 +79,8 @@ class Navigator(ShowBase):
 		#setup players, starting structures and resources
 		myMap.setupInitMap()
 		#show game hud
-		myHudBuilder.show()
+		#myHudBuilder.show()
+		_Hud.showGuiBackground(True)
 		#make mouse selection tool active
 		mySelection.setActive()
 		
@@ -97,7 +98,8 @@ class Navigator(ShowBase):
 		#if you're seeing main menu once closed a game unload map and remove everything from scene
 		if(f=="game"):
 			myMap.unloadMap()
-			myHudBuilder.hide()
+			#myHudBuilder.hide()
+			_Hud.showGuiBackground()
 			for legion in myLegion:
 				legion.remove()
 			myResources.remove()
