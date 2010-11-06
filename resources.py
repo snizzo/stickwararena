@@ -6,6 +6,7 @@ import sys,os, math
 
 
 from unit import GameObject, Selector
+from gui import BlackMatterHud
 
 class Resources():
 	def __init__(self):
@@ -58,6 +59,9 @@ class Resource(GameObject):
 			
 			
 class BlackMatter(Resource):
+	
+	hud = BlackMatterHud()
+	
 	def __init__(self, x, y, z, _army):
 		Resource.__init__(self, x, y, z, _army)
 		self.type = "blackmatter"
@@ -68,11 +72,17 @@ class BlackMatter(Resource):
 		self.model.setH(randint(0, 359))
 		self.model.reparentTo(self.node)
 		#set amount of black matter
-		self.node.setPythonTag("amountT", 18000)
-		self.node.setPythonTag("amount", 18000)
+		self.resCurrent = 18000
+		self.resTotal = self.resCurrent
 
 		self.selector = Selector(self.model, 1.0, 0.75)
 		self.selector.hide()
+	
+	def getTotalResource(self):
+		return self.resTotal
+	
+	def getResource(self):
+		return self.resCurrent
 	
 	def getX(self):
 		return self.node.getX()
@@ -83,11 +93,17 @@ class BlackMatter(Resource):
 	def getZ(self):
 		return self.node.getZ()
 	
-	def subResource(self, res):
-		amount = self.node.getPythonTag("amount")
-		n = amount - 5
+	def setResource(self, res):
+		n = self.resCurrent - 5
 		if n > 0:
-			self.node.setPythonTag("amount", n)
-			messenger.send("commander-update", ['resources', res])
+			self.resCurrent = n
+			#TODO: update blackmatter
 		else:
-			self.army.remove(self)
+			#TODO: remove blackmatter, maybe scale animation...
+			pass
+	
+	def showGui(self, bool = False):
+		if bool:
+			BlackMatter.hud.show(self, 0.12, -0.79)
+		else:
+			BlackMatter.hud.hide()

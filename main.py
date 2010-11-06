@@ -17,11 +17,11 @@ from camera import *
 
 #fullscreen e grandezza finestra
 loadPrcFileData("","""
-fullscreen 0
-win-size 800 600
+fullscreen 1
+win-size 1280 800
 text-encoding utf8
 show-frame-rate-meter 1
-sync-video #f
+sync-video #t
 """)
 
 class Navigator(ShowBase):
@@ -43,7 +43,11 @@ class Navigator(ShowBase):
 		__builtin__.myCamera = Camera()
 		__builtin__.mySelection = clSelectionTool()
 		
-		#uncomment following line to see intro
+		# used to force fullscreen
+		# uncomment to use
+		#myCamera.setFullscreen(True)
+		
+		# uncomment following line to see intro
 		#introVideo = VideoClip("video/intro.mpg", "video/menutheme.mp3")
 		#introVideo.play()
 		self.mainMenu("intro")

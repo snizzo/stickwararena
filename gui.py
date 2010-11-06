@@ -142,9 +142,12 @@ class Hud():
 		tlnp.setScale(scale)
 		tlnp.setPos(pos)
 		self.itemList[name] = tlnp
-		
-	def setTextLine(self, parent):
+	
+	def setTitle(self, parent):
 		self.itemList['titleString'].getNode(0).setText(parent.getType())
+	
+	def setTextLine(self, parent):
+		self.setTitle(parent)
 		s = "life: " + str(parent.getHealthBar().getCurrentHealth()) + "/" + str(parent.getHealthBar().getTotalHealth())
 		self.itemList['healthString'].getNode(0).setText(s)
 		
@@ -200,7 +203,6 @@ class WorkerHud(Hud):
 		self.setTextLine(parent)
 		Hud.show(self, parent, scale, z)
 		
-		
 class SoldierHud(Hud):
 	def __init__(self):
 		Hud.__init__(self)
@@ -218,6 +220,19 @@ class SoldierHud(Hud):
 		self.setTextLine(parent)
 		Hud.show(self, parent, scale, z)
 		
+class BlackMatterHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		self.addTextLine("resourceString", "", Hud.firstRowPosition, 0.04)
+		
+	def setTextLine(self, parent):
+		self.setTitle(parent)
+		s = "resource: " + str(parent.getResource()) + "/" + str(parent.getTotalResource())
+		self.itemList['resourceString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
 
 class BaseHud(Hud):
 	def __init__(self):

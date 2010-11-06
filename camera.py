@@ -46,7 +46,19 @@ class Camera():
 		for index in range(di.getTotalDisplayModes()):
 			if abs(float(di.getDisplayModeWidth(index)) / float(di.getDisplayModeHeight(index)) - (16. / 9.)) < 0.001:
 				self.displayModes.append([di.getDisplayModeWidth(index), di.getDisplayModeHeight(index)]) 
-		
+	
+	def setFullscreen(self,bool):
+		wp = WindowProperties()
+		if bool == False:
+			wp.setSize(self.displayModes[0][0], self.displayModes[0][1])
+			wp.setFullscreen(False)
+			self.full = False
+		else:
+			wp.setSize(self.displayModes[len(self.displayModes) - 1][0], self.displayModes[len(self.displayModes) - 1][1])
+			wp.setFullscreen(True)
+			self.full = True
+		base.win.requestProperties(wp)
+	
 	def toggleFullscreen(self):
 		wp = WindowProperties()
 		if self.full:
