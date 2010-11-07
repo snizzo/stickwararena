@@ -1,0 +1,33 @@
+<Comment> {
+  "egg-texture-cards -o selector.egg -p 384,384 selector.png"
+}
+<Texture> selector {
+  selector.png
+}
+<Group> {
+  <VertexPool> vpool {
+    <Vertex> 0 {
+      -0.888021 0.882812 0
+      <UV> { 0 1 }
+    }
+    <Vertex> 1 {
+      -0.888021 -0.882812 0
+      <UV> { 0 0 }
+    }
+    <Vertex> 2 {
+      0.888021 -0.882812 0
+      <UV> { 1 0 }
+    }
+    <Vertex> 3 {
+      0.888021 0.882812 0
+      <UV> { 1 1 }
+    }
+  }
+  <Group> selector {
+    <Polygon> {
+      <RGBA> { 1 1 1 1 }
+      <TRef> { selector }
+      <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    }
+  }
+}

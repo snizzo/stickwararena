@@ -1,0 +1,5 @@
+ + Workers must gather resources.
+ + Workers can construct new buildings.
+ + Buildings can construct new units.
+ + Units can move, pathfind, flock and fight.
+ + boh

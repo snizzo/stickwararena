@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<map envset="structure" name="The Cube" size="2">
+    <environment>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+                <element type="pStart"></element>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+        <row>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+            <square>
+                <terrain type="plain_terrain"></terrain>
+            </square>
+        </row>
+    </environment>
+    <customized>
+    </customized>
+</map>
