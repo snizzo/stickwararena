@@ -42,6 +42,8 @@ class Navigator(ShowBase):
 		__builtin__.myGroup = Group()
 		__builtin__.myCamera = Camera()
 		__builtin__.mySelection = clSelectionTool()
+		__builtin__.myMessages = Messages()
+		__builtin__.myAudio = Audio()
 		
 		# used to force fullscreen
 		# uncomment to use
@@ -59,6 +61,7 @@ class Navigator(ShowBase):
 		#shader and effects function
 		#want to run very fast and with intel based gc
 		myShader.setBloomed()
+		myAudio.playSoundtrack()
 	
 	#function called when creating a new single player game
 	def startSingle(self):

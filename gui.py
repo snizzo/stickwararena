@@ -2,7 +2,39 @@
 from pandac.PandaModules import *
 from direct.gui.DirectGui import *
 from direct.interval.LerpInterval import LerpHprInterval
+from direct.interval.IntervalGlobal import *
 import sys
+
+class Messages():
+	def __init__(self):
+		#creating baloon info root node
+		self.bInfo = render2d.attachNewNode("baloonInfo")
+		
+		#loading fonts
+		self.font = loader.loadFont("fonts/freesans.ttf")
+		
+		#creating baloon text node
+		self.tl = TextNode("tPop")
+		self.tl.setFont(self.font)
+		self.tl.setAlign(TextNode.ARight)
+		self.tlnp = self.bInfo.attachNewNode(self.tl)
+		self.tlnp.setScale(0.05)
+		self.tlnp.setPos(0.95,0,0.85)
+		
+		self.tl.setFrameAsMargin(0.2,0.3,0.3,0)
+		self.tl.setFrameColor(0, 0, 0, 0.5)
+		self.tl.setCardColor(0, 0, 0, 0.5)
+		self.tl.setCardAsMargin(0.2,0.3,0.3,0)
+		self.tl.setCardDecal(True)
+		
+		self.tlnp.hide()
+		self.tlnp.setY(-1)
+	
+	def showBaloon(self,message,time):
+		self.tl.setText(message)
+		showFunc = Func(self.tlnp.show)
+		hideFunc = Func(self.tlnp.hide)
+		Sequence(showFunc,Wait(time),hideFunc).start()
 
 class PopupBuilder():
 	def __init__(self):

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from pandac.PandaModules import *
-'''
 from direct.interval.IntervalGlobal import *
 from direct.interval.FunctionInterval import Wait
 from direct.interval.LerpInterval import LerpHprInterval
-'''
 from direct.filter.CommonFilters import CommonFilters
-import __builtin__, sys
+from direct.task import Task
+import __builtin__, sys,os,string
 
 class ShaderManager():
 	def __init__(self):
@@ -22,6 +21,54 @@ class ShaderManager():
 		#self.filters.setVolumetricLighting(myCamera.cameraLightNode)
 		render.setAttrib(LightRampAttrib.makeHdr0())
 		pass
+	
+class Audio():
+	def __init__(self):
+		self.audioList = []
+		self.audioList = self.getAudioTracks()
+		
+		self.currentTrack = 0
+		self.lenghtTrack = len(self.audioList)
+		
+	def getAudioTracks(self):
+		tracks = os.listdir("sounds/music")
+		for i in range(len(tracks)):
+			tracks[i] = "sounds/music/" + tracks[i]
+		return tracks
+	
+	def playSoundtrack(self):
+		self.sound = loader.loadSfx(self.audioList[0])
+		self.sound.play()
+		myMessages.showBaloon(self.getBName(self.audioList[0]), 5)
+		taskMgr.add(self.playMusic,"soundtrack")
+	
+	def stopSoundtrack(self):
+		self.currentTrack = -1
+		self.sound.stop()
+	
+	def playMusic(self,task):
+		if self.sound.status() == AudioSound.PLAYING:
+			return Task.cont
+		self.currentTrack += 1
+		if self.currentTrack > len(self.audioList)-1:
+			self.currentTrack = 0
+		self.sound.stop()
+		self.sound = loader.loadSfx(self.audioList[self.currentTrack])
+		self.sound.play()
+		myMessages.showBaloon(self.getBName(self.audioList[self.currentTrack]), 5)	
+		
+		return Task.cont
+	
+	def getBName(self,name):
+		name = self.audioList[self.currentTrack].split("/")
+		name = name.pop()
+		name = name.split(".")
+		name.pop()
+		sname = ""
+		for n in name:
+			sname += n
+		return sname
+		
 		
 '''
 class VideoClip():
