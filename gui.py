@@ -134,6 +134,7 @@ class Hud():
 		self.hudNode = aspect2d.attachNewNode("unitHudNode")
 		self.bgImage = render2d.attachNewNode("unitBgImage")
 		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
+		self.buttons = self.hudNode.attachNewNode("buttons")
 		
 		#make standard hud
 		self.setGrid()
@@ -224,6 +225,29 @@ class WorkerHud(Hud):
 		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['base'] = bt
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
 	def setTextLine(self, parent):
 		Hud.setTextLine(self, parent)
 		s = "attack: " + str(parent.getAttack())
@@ -232,14 +256,29 @@ class WorkerHud(Hud):
 		self.itemList['armorString'].getNode(0).setText(s)
 		
 	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
 		self.setTextLine(parent)
 		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		self.buttonList['base']['command'] = parent.buildStructure
+		self.buttonList['base']['extraArgs'] = ([parent.getStructureType().base])
 		
 class SoldierHud(Hud):
 	def __init__(self):
 		Hud.__init__(self)
 		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
 		
 	def setTextLine(self, parent):
 		Hud.setTextLine(self, parent)
@@ -280,7 +319,7 @@ class BaseHud(Hud):
 		btg.find('**/worker')))
 		bt.resetFrameSize()
 		bt.setScale(0.1)
-		bt.reparentTo(self.hudNode)
+		bt.reparentTo(self.buttons)
 		#getting next cell position from directives
 		pos = self.getNextCell()
 		bt.setPos(pos)
@@ -301,7 +340,11 @@ class BaseHud(Hud):
 		self.itemList['armorString'].getNode(0).setText(s)
 		
 	def show(self, parent, scale, z):
-		self.setButton(parent)
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
 		self.setTextLine(parent)
 		Hud.show(self, parent, scale, z)
 		

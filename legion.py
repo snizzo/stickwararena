@@ -4,7 +4,7 @@ from pandac.PandaModules import *
 import sys,os
 from random import Random
 from unit import *
-from PathFind import PathFinder
+from PathFind import PathFinderPool
 
 #fuckin' OOP
 class Army():
@@ -79,7 +79,8 @@ class Group(DirectObject):
 		self.multipleObject = _unitList
 		for unit in self.multipleObject:
 			unit.showHUD(True)
-		self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
+		#self.finder = PathFinder("maps/burning_sun/burning_sun_nav.egg")
+		self.finder = PathFinderPool(5, "maps/burning_sun/burning_sun_nav.egg")
 		self.random = Random()
 		self.accept('right-click-on-selection', self.go)
 		
@@ -162,7 +163,8 @@ class Group(DirectObject):
 				path = self.finder.pathFindToNode(mySelection.underMouse)
 			else:
 			'''
-			path = self.finder.pathFindToMouse(unit, self)
+			#self.finder.pathFindToMouse(unit, self)
+			self.finder.addPathFindTask(unit, self)
 			
 	def onPathComplete(self, unit, path):
 		if len(self.multipleObject) > 1:
