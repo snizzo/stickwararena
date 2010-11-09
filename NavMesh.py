@@ -181,6 +181,8 @@ class NavMesh:
 			self.primsFull = self.addCenters()
 			self.pointsNeighboursDic = self.getNeighbours()
 			self.primsNeighboursDic = self.getPrimsNeighbours()
+			#print str(self.pointsNeighboursDic)
+			#print str(self.primsNeighboursDic)
 		else:
 			self.prims = {}
 			self.points = []

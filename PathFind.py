@@ -41,9 +41,7 @@ class PathFinderPool:
 		
 	def createNewTask(self, unit, army, task):
 		for i in range(self.slotNum):
-			print "checking pathFinder n. " + str(i)
 			if self.pathFindTask[i].isFree():
-				print "using pathFinder n. " + str(i)
 				self.pathFindTask[i].setIsFree(False)
 				path = self.pathFindTask[i].pathFindToMouse(self.pathFindQueue.get())
 				self.pathFindTask[i].setIsFree(True)

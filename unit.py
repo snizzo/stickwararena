@@ -200,7 +200,7 @@ class Structure(GameObject):
 	def __init__(self, x, y, z, _army):
 		self.spawnPoint = x + 2, y + 2, z
 		self.mainType = "structure"
-		self.creationQueue = Queue.Queue(5)
+		self.creationQueue = Queue.Queue(4)
 		self.queueBusy = False
 		GameObject.__init__(self, x, y, z, _army)
 		self.unitCreationTask = False
@@ -219,6 +219,7 @@ class Structure(GameObject):
 				self.unitCreationTask = taskMgr.add(self.update, "creationQueue")
 			return True
 		else:
+			myMessages.showBaloon("Creation Queue Full", 5)
 			return False
 		
 	def update(self, task):
