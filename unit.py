@@ -382,6 +382,9 @@ class Base(Structure):
 			self.army.addUnit(Soldier(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
 		self.queueBusy = False
 		return task.done
+		
+	def attackUnit(self, unit):
+		pass
 			
 	def getUnitType(self):
 		return self.unitType
@@ -401,7 +404,9 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
-		self.unitType = ReverseEnumeration("structure", [("Base", 40)])
+		self.structureType = ReverseEnumeration("structure", [("base", 40)])
+		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
+		self.waiting = self.waitingType.idle
 		
 		#unit params
 		self.attack = 5
@@ -440,7 +445,17 @@ class Worker(Unit):
 		pass
 		
 	def buildStructure(self, structureType):
-		pass
+		self.stop()
+		self.waiting = self.waitingType.build
+		myGroup.notifyRightClick()
+		
+	def rightButtonNotify(self):
+		if self.waiting == self.waitingType.build:
+			pass
+		self.waiting = self.waitingType.idle
+		
+	def getStructureType(self):
+		return self.structureType
 		
 	def showGui(self, bool = False):
 		if bool:
