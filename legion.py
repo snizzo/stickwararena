@@ -128,6 +128,7 @@ class Group(DirectObject):
 		mySelection.notifyRightClick(False)
 		
 	def leftButtonPressed(self):
+		"left button pressed"
 		if self.singleObject:
 			self.singleObject.leftButtonNotify()
 		else:
@@ -135,6 +136,7 @@ class Group(DirectObject):
 				unit.leftButtonNotify()
 		
 	def rightButtonPressed(self):
+		"right button pressed"
 		if self.singleObject:
 			self.singleObject.rightButtonNotify()
 		else:

@@ -51,6 +51,10 @@ class MouseCollider:
 			return self.pq.getEntry(0).getSurfacePoint(render)
 		return None
 
+	def hasMouse(self):
+		return base.mouseWatcherNode.hasMouse()
+		
+		
 class GroundCollider:
 	def __init__(self):
 		self.picker = CollisionTraverser()
