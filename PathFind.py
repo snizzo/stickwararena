@@ -11,7 +11,7 @@ from direct.showbase.DirectObject import DirectObject
 #import direct.directbase.DirectStart
 from direct.actor.Actor import Actor
 from direct.stdpy import thread
-import math, sys, time, Queue, collections, copy
+import math, sys, time, Queue, collections, copy, random
 
 from NavMesh import *
 #from NavDrawer import *
@@ -25,17 +25,15 @@ class PathFinderPool:
 		self.pathFindTask = collections.deque()
 		self.slotNum = slotNum
 		self.pathFindQueue = Queue.Queue(50)
-		#for i in range(slotNum):
-		#	self.pathFindTask.append(PathFinder(modelPath))
 		self.pathFindTask.append(PathFinder(modelPath))
 		for i in range(1, self.slotNum):
 			self.pathFindTask.append(copy.copy(self.pathFindTask[0]))
-		taskMgr.setupTaskChain("pathFinderChain", numThreads = slotNum, tickClock = None, threadPriority = None, frameBudget = -1, frameSync = False, timeslicePriority = False)
+		taskMgr.setupTaskChain("pathFinderChain", numThreads = self.slotNum, tickClock = None, threadPriority = None, frameBudget = -1, frameSync = False, timeslicePriority = False)
 		
 	def addPathFindTask(self, unit, army):
 		if not self.pathFindQueue.full():
 			self.pathFindQueue.put(unit)
-			taskMgr.add(self.createNewTask, "createTask", extraArgs=[unit, army], appendTask = True, taskChain = "pathFinderChain")
+			taskMgr.add(self.createNewTask, "createTask", extraArgs = [unit, army], appendTask = True, taskChain = "pathFinderChain")
 			return True
 		return False
 		

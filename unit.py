@@ -408,6 +408,7 @@ class Worker(Unit):
 		self.structureType = ReverseEnumeration("structure", [("base", 40)])
 		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
 		self.waiting = self.waitingType.idle
+		self.structureToBuild = False
 		
 		#unit params
 		self.attack = 5
@@ -439,21 +440,35 @@ class Worker(Unit):
 		self.model.play('idle')
 		
 		#call the update coroutine
-		taskMgr.add(self.update, "unitupdate")
+		#taskMgr.add(self.update, "unitupdate")
 		
 	#send the worker to gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
 		pass
 		
 	def buildStructure(self, structureType):
+		self.structureToBuild = structureType
 		self.stop()
 		self.waiting = self.waitingType.build
+		self.manageBuild()
 		myGroup.notifyRightClick()
 		
 	def rightButtonNotify(self):
+		print "right button notified"
 		if self.waiting == self.waitingType.build:
 			pass
 		self.waiting = self.waitingType.idle
+		
+	def manageBuild(self):
+		model = loader.loadModel("models/mainbase/base.egg")
+		model.reparentTo(render)
+		model.setRenderModeWireframe()
+		model.setPos(self.node.getX(), self.node.getY(), 0.0)
+		taskMgr.add(self.updateBuild, "updateBuild", extraArgs = [model], appendTask = True)
+		
+	def updateBuild(self, model, task):
+		#model.setPos(base.mouseWatcherNode.getMouse().getX(), base.mouseWatcherNode.getMouse().getY(), 0.0)
+		return task.cont
 		
 	def getStructureType(self):
 		return self.structureType

@@ -194,6 +194,7 @@ class clSelectionTool():
 	
 	def notifyRightClick(self, bool):
 		self._notifyRightClick = bool
+		print str(bool)
 		
 	def notifyLeftClick(self, bool):
 		self._notifyLeftClick = bool
@@ -263,6 +264,7 @@ class clSelectionTool():
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
 					self._notifyLeftClick = False
+					print "left click != 0"
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
@@ -274,6 +276,7 @@ class clSelectionTool():
 			if objTempSelected == 0:
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
+					print "left click == 0"
 					self._notifyLeftClick = False
 					self._notifyRightClick = False
 				else:
@@ -323,6 +326,7 @@ class clSelectionTool():
 			#returning object under mouse
 		if self._notifyRightClick:
 			myGroup.rightButtonPressed()
+			print "right click"
 			self._notifyRightClick = False
 			self._notifyLeftClick = False
 		else:
