@@ -7,10 +7,27 @@ import __builtin__
 #from direct.showbase import DirectObject
 from direct.task import Task
 import libpanda
-from legion import Group
-from unit import Unit
+from NavCollide import MouseCollider, GroundCollider
 
 import math
+
+class Mouse:
+	
+	mc = False
+	gc = False
+	
+	@staticmethod
+	def queryMousePosition():
+		if not Mouse.mc:
+			Mouse.mc = MouseCollider()
+		if not Mouse.gc:
+			Mouse.gc = GroundCollider()
+		mcc = Mouse.mc.collide()
+		if Mouse.mc.hasMouse() and mcc != None:
+			return Mouse.gc.collide(mcc + Vec3(0.0, 0.0, 0.5))
+		else:
+			return False
+
 
 class Camera():
 	def __init__(self):
@@ -193,10 +210,11 @@ class clSelectionTool():
 		self.booSelecting = False
 	
 	def notifyRightClick(self, bool):
+		print "right click " + str(bool)
 		self._notifyRightClick = bool
-		print str(bool)
 		
 	def notifyLeftClick(self, bool):
+		print "left click " + str(bool)
 		self._notifyLeftClick = bool
 	
 	def clear(self):
@@ -281,6 +299,11 @@ class clSelectionTool():
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
+		if self._notifyLeftClick:
+			myGroup.leftButtonPressed()
+			print "left click == 0"
+			self._notifyLeftClick = False
+			self._notifyRightClick = False
 		#messenger.send("mouse-selection")
 	
 	def OnRightClick(self):

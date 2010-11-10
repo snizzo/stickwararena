@@ -8,9 +8,7 @@ from direct.gui.DirectGui import *
 from direct.interval.IntervalGlobal import *
 from direct.task.Task import Task
 from direct.showbase.DirectObject import DirectObject
-#import direct.directbase.DirectStart
 from direct.actor.Actor import Actor
-from direct.stdpy import thread
 import math, sys, time, Queue, collections, copy, random
 
 from NavMesh import *

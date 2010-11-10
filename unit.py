@@ -6,6 +6,7 @@ from random import Random
 import sys,os,string,math, Queue
 from gui import *
 from enumeration import ReverseEnumeration
+from camera import Mouse
 		
 #fuckin' OOP
 #health bar class
@@ -409,6 +410,7 @@ class Worker(Unit):
 		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
 		self.waiting = self.waitingType.idle
 		self.structureToBuild = False
+		self.wiremodel = False
 		
 		#unit params
 		self.attack = 5
@@ -451,23 +453,39 @@ class Worker(Unit):
 		self.stop()
 		self.waiting = self.waitingType.build
 		self.manageBuild()
-		myGroup.notifyRightClick()
 		
 	def rightButtonNotify(self):
-		print "right button notified"
 		if self.waiting == self.waitingType.build:
-			pass
+			mp = Mouse.queryMousePosition()
+			if mp:
+				self.army.addUnit(Base(mp.getX(), mp.getY(), 0.0, self.army))
+				self.wiremodel.hide()
+				self.wiremodel.remove()
+		self.waiting = self.waitingType.idle
+		
+	def leftButtonNotify(self):
+		if self.waiting == self.waitingType.build and self.wiremodel:
+			self.wiremodel.hide()
+			self.wiremodel.remove()
 		self.waiting = self.waitingType.idle
 		
 	def manageBuild(self):
-		model = loader.loadModel("models/mainbase/base.egg")
-		model.reparentTo(render)
-		model.setRenderModeWireframe()
-		model.setPos(self.node.getX(), self.node.getY(), 0.0)
-		taskMgr.add(self.updateBuild, "updateBuild", extraArgs = [model], appendTask = True)
+		self.wiremodel = loader.loadModel("models/mainbase/base.egg")
+		self.wiremodel.reparentTo(render)
+		self.wiremodel.setRenderModeWireframe()
+		mp = Mouse.queryMousePosition()
+		while not mp:
+			mp = Mouse.queryMousePosition()
+		if self.wiremodel:
+			self.wiremodel.setPos(mp)
+		taskMgr.add(self.updateBuild, "updateBuild")
+		taskMgr.doMethodLater(0.1, myGroup.notifyRightClick, "rightNotify", extraArgs=[])
+		taskMgr.doMethodLater(0.1, myGroup.notifyLeftClick, "leftNotify", extraArgs=[])
 		
-	def updateBuild(self, model, task):
-		#model.setPos(base.mouseWatcherNode.getMouse().getX(), base.mouseWatcherNode.getMouse().getY(), 0.0)
+	def updateBuild(self, task):
+		mp = Mouse.queryMousePosition()
+		if mp and self.wiremodel:
+			self.wiremodel.setPos(mp)
 		return task.cont
 		
 	def getStructureType(self):
