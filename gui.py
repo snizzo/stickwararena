@@ -43,6 +43,14 @@ class PopupBuilder():
 	def sendResponse(self, response):
 		if(response):
 			messenger.send("goToMainMenu", ['game'])
+			mySelection.clear()
+			myGroup.clear()
+			for army in myLegion:
+				for unit in army.getUnitList():
+					unit.showHUD(False)
+				for unit in army.getStructureList():
+					unit.showHUD(False)
+				army.remove()
 		self.dialog.cleanup()
 		self.dialog.remove()
 		

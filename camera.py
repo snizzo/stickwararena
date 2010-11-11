@@ -13,15 +13,15 @@ import math
 
 class Mouse:
 	
-	mc = False
-	gc = False
+	mc = MouseCollider()
+	gc = GroundCollider()
 	
 	@staticmethod
 	def queryMousePosition():
-		if not Mouse.mc:
-			Mouse.mc = MouseCollider()
-		if not Mouse.gc:
-			Mouse.gc = GroundCollider()
+		#if not Mouse.mc:
+		#	Mouse.mc = MouseCollider()
+		#if not Mouse.gc:
+		#	Mouse.gc = GroundCollider()
 		mcc = Mouse.mc.collide()
 		if Mouse.mc.hasMouse() and mcc != None:
 			return Mouse.gc.collide(mcc + Vec3(0.0, 0.0, 0.5))
@@ -210,7 +210,7 @@ class clSelectionTool():
 		self.booSelecting = False
 	
 	def notifyRightClick(self, bool):
-		print "right click " + str(bool)
+		#print "right click " + str(bool)
 		self._notifyRightClick = bool
 		
 	def notifyLeftClick(self, bool):
@@ -259,7 +259,7 @@ class clSelectionTool():
 		if (abs(self.pt2InitialMousePos[0] - self.pt2LastMousePos[0]) <= .01) & (abs(self.pt2InitialMousePos[1] - self.pt2LastMousePos[1]) <= .01): 
 			objTempSelected = 0 
 			fTempObjDist = 2*(base.camLens.getFar())**2		
-			for i in self.listConsideration: 
+			for i in self.listConsideration:
 				sphBounds = i.node.getBounds()
 				p3 = base.cam.getRelativePoint(i.node.getParent(), sphBounds.getCenter()) 
 				r = sphBounds.getRadius() 
@@ -282,7 +282,7 @@ class clSelectionTool():
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
 					self._notifyLeftClick = False
-					print "left click != 0"
+					#print "left click != 0"
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
@@ -294,14 +294,14 @@ class clSelectionTool():
 			if objTempSelected == 0:
 				if self._notifyLeftClick:
 					myGroup.leftButtonPressed()
-					print "left click == 0"
+					#print "left click == 0"
 					self._notifyLeftClick = False
 					self._notifyRightClick = False
 				else:
 					myGroup.clear()
 		if self._notifyLeftClick:
 			myGroup.leftButtonPressed()
-			print "left click == 0"
+			#print "left click == 0"
 			self._notifyLeftClick = False
 			self._notifyRightClick = False
 		#messenger.send("mouse-selection")
@@ -349,7 +349,7 @@ class clSelectionTool():
 			#returning object under mouse
 		if self._notifyRightClick:
 			myGroup.rightButtonPressed()
-			print "right click"
+			#print "right click"
 			self._notifyRightClick = False
 			self._notifyLeftClick = False
 		else:

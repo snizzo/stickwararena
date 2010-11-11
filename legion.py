@@ -32,6 +32,12 @@ class Army():
 	def getStructureAt(self, i):
 		return self.structureList[i]
 		
+	def getUnitList(self):
+		return self.unitList
+		
+	def getStructureList(self):
+		return self.structureList
+		
 	def addUnit(self, unit):
 		self.unitList.append(unit)
 		mySelection.listConsideration.append(unit)
@@ -128,7 +134,7 @@ class Group(DirectObject):
 		mySelection.notifyRightClick(False)
 		
 	def leftButtonPressed(self):
-		"left button pressed"
+		#print "left button pressed"
 		if self.singleObject:
 			self.singleObject.leftButtonNotify()
 		else:
@@ -136,7 +142,7 @@ class Group(DirectObject):
 				unit.leftButtonNotify()
 		
 	def rightButtonPressed(self):
-		"right button pressed"
+		#print "right button pressed"
 		if self.singleObject:
 			self.singleObject.rightButtonNotify()
 		else:
@@ -165,7 +171,6 @@ class Group(DirectObject):
 				path = self.finder.pathFindToNode(mySelection.underMouse)
 			else:
 			'''
-			#self.finder.pathFindToMouse(unit, self)
 			self.finder.addPathFindTask(unit, self)
 			
 	def onPathComplete(self, unit, path):
