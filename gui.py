@@ -3,7 +3,8 @@ from pandac.PandaModules import *
 from direct.gui.DirectGui import *
 from direct.interval.LerpInterval import LerpHprInterval
 from direct.interval.IntervalGlobal import *
-import sys
+from camera import Mouse
+import sys, __builtin__
 
 class Messages():
 	def __init__(self):
@@ -34,7 +35,67 @@ class Messages():
 		self.tl.setText(message)
 		showFunc = Func(self.tlnp.show)
 		hideFunc = Func(self.tlnp.hide)
-		Sequence(showFunc,Wait(time),hideFunc).start()
+		Sequence(showFunc,Wait(time),hideFunc).start()		
+
+
+class Popup():
+
+	TOPLEFT = 0
+	TOPRIGHT = 1
+	BOTTOMLEFT = 2
+	BOTTOMRIGHT = 3
+	font = loader.loadFont("fonts/freesans.ttf")
+	
+	def __init__(self, message, position = 1, xOffset = 0.01, yOffset = 0.01):
+		self.node = render2d.attachNewNode("popup")
+		if isinstance(message, str):
+			text = TextNode("popup")
+			text.setFont(Popup.font)
+			text.setAlign(TextNode.ALeft)
+			textPath = self.node.attachNewNode(text)
+			text.setText(message)
+			text.setFrameAsMargin(0.2,0.3,0.3,0)
+			text.setFrameColor(0, 0, 0, 0.5)
+			text.setCardColor(0, 0, 0, 0.5)
+			text.setCardAsMargin(0.2,0.3,0.3,0)
+			text.setCardDecal(True)
+		else:
+			y = 0.0
+			for line in message:
+				text = TextNode("popup")
+				if y == 0.0:
+					text.setFrameAsMargin(0.2,0.3,0.2 + 1 * (len(message) - 1),-0.3)
+					text.setFrameColor(0, 0, 0, 0.5)
+					text.setCardColor(0, 0, 0, 0.5)
+					text.setCardAsMargin(0.2,0.3,0.2 + 1 * (len(message) - 1),-0.3)
+					text.setCardDecal(True)
+				text.setFont(Popup.font)
+				text.setAlign(TextNode.ALeft)
+				textPath = self.node.attachNewNode(text)
+				text.setText(line)
+				textPath.setZ(textPath.getZ() - y)
+				y += 1
+				yOffset += 0.04
+			yOffset -= 0.04
+		self.node.setScale(0.040)
+		
+		mp = Mouse.queryScreenMousePosition()
+		if mp:
+			if position == Popup.TOPLEFT:
+				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+			elif position == Popup.TOPRIGHT:
+				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+			elif position == Popup.BOTTOMLEFT:
+				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+			elif position == Popup.BOTTOMRIGHT:
+				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+			else:
+				self.node.setPos(0.95,0,0.85)
+		else:
+			self.node.setPos(0.95,0,0.85)
+		
+	def remove(self):
+		self.node.remove()
 
 class PopupBuilder():
 	def __init__(self):
@@ -152,7 +213,7 @@ class Hud():
 		
 		self.hide()
 		
-	def setGrid(self, columns = 4, cellsize = 0.05, padding = 0.0, xoff = 0.70, yoff = -0.57):
+	def setGrid(self, columns = 4, cellsize = 0.1, padding = 0.01, xoff = 0.70, yoff = -0.57):
 		self.gridX = columns
 		self.cellSize = cellsize
 		self.gridPadding = padding
@@ -160,18 +221,14 @@ class Hud():
 		self.yOffset = yoff
 		
 	def getNextCell(self):
-		listLen = len(self.buttonList)
-		cellNumber = listLen + 1
-		if listLen == 0:
-			x = 0
-			y = 0
-		elif listLen > 0:
-			cellRelXNumber = cellNumber % self.gridX
-			cellRelYNumber = int(cellNumber / self.gridX)
-			if cellNumber / self.gridX > cellRelYNumber:
-				cellRelYNumber += 1
-			x = (self.cellSize + self.gridPadding) * cellRelXNumber
-			y = (self.cellSize + self.gridPadding) * cellRelYNumber
+		cellNumber = len(self.buttonList)
+		cellRelXNumber = cellNumber % self.gridX
+		cellRelY = cellNumber / self.gridX
+		cellRelYNumber = int(cellNumber / self.gridX)
+		if cellRelY > cellRelYNumber:
+			cellRelYNumber += 1
+		x = (self.cellSize + self.gridPadding) * cellRelXNumber
+		y = -(self.cellSize + self.gridPadding) * cellRelYNumber
 		return Vec3(x,0,y)
 		
 	def addTextLine(self, name, text, pos, scale, align = TextNode.ALeft):
@@ -267,6 +324,108 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['barrack'] = bt
 		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['armory'] = bt
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['lab'] = bt
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['factory'] = bt
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['airbase'] = bt
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['bunker'] = bt
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['turret'] = bt
+		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
 			y = button.getZ()
@@ -294,6 +453,18 @@ class WorkerHud(Hud):
 		self.buttonList['base']['extraArgs'] = ([parent.getStructureType().base])
 		self.buttonList['barrack']['command'] = parent.buildStructure
 		self.buttonList['barrack']['extraArgs'] = ([parent.getStructureType().barrack])
+		self.buttonList['armory']['command'] = parent.buildStructure
+		self.buttonList['armory']['extraArgs'] = ([parent.getStructureType().armory])
+		self.buttonList['lab']['command'] = parent.buildStructure
+		self.buttonList['lab']['extraArgs'] = ([parent.getStructureType().lab])
+		self.buttonList['factory']['command'] = parent.buildStructure
+		self.buttonList['factory']['extraArgs'] = ([parent.getStructureType().factory])
+		self.buttonList['airbase']['command'] = parent.buildStructure
+		self.buttonList['airbase']['extraArgs'] = ([parent.getStructureType().airbase])
+		self.buttonList['bunker']['command'] = parent.buildStructure
+		self.buttonList['bunker']['extraArgs'] = ([parent.getStructureType().bunker])
+		self.buttonList['turret']['command'] = parent.buildStructure
+		self.buttonList['turret']['extraArgs'] = ([parent.getStructureType().turret])
 		
 class SoldierHud(Hud):
 	def __init__(self):
@@ -426,4 +597,189 @@ class BarrackHud(Hud):
 	def setButton(self, parent):
 		self.buttonList['soldier']['command'] = parent.addUnitToCreationQueue
 		self.buttonList['soldier']['extraArgs'] = ([parent.getUnitType().soldier])
+		
+		
+class ArmoryHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
+		
+
+class LabHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
+		
+class FactoryHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
+		
+		
+class AirbaseHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
+		
+		
+class BunkerHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "attack: " + str(parent.getAttack())
+		self.itemList['attackString'].getNode(0).setText(s)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
+		
+		
+class TurretHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "attack: " + str(parent.getAttack())
+		self.itemList['attackString'].getNode(0).setText(s)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		pass
 		

@@ -121,6 +121,9 @@ class GameObject(DirectObject):
 	def getType(self):
 		return self.type
 		
+	def getUnitType(self):
+		return self.unitType
+		
 	def getMainType(self):
 		return self.mainType
 		
@@ -381,12 +384,6 @@ class Base(Structure):
 		self.queueBusy = False
 		return task.done
 		
-	def attackUnit(self, unit):
-		pass
-			
-	def getUnitType(self):
-		return self.unitType
-		
 	def showGui(self, bool = False):
 		if bool:
 			Base.hud.show(self, 0.2, -0.82)
@@ -423,17 +420,8 @@ class Barrack(Structure):
 		self.healthBar.hide()
 		
 		#create the selector
-		self.selector = Selector(self.model, 0.75)
+		self.selector = Selector(self.model, 0.85)
 		self.selector.hide()
-		
-		#create the gui
-		#self.hud = Hud(self)
-		
-	def attackUnit(self, unit):
-		pass
-			
-	def getUnitType(self):
-		return self.unitType
 		
 	def createUnit(self, unitType):
 		if unitType == self.unitType.soldier:
@@ -450,8 +438,250 @@ class Barrack(Structure):
 			Barrack.hud.show(self, 0.2, -0.82)
 		else:
 			Barrack.hud.hide()
-		
+			
+			
+#specialized structure class
+class Armory(Structure):
 
+	hud = ArmoryHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "armory"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.armor = 80
+		
+		#load the model
+		self.meshPath = "models/armory/armory.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(300, self.model, -0.25)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.70)
+		self.selector.hide()
+		
+	def showGui(self, bool = False):
+		if bool:
+			Armory.hud.show(self, 0.2, -0.82)
+		else:
+			Armory.hud.hide()
+			
+			
+#specialized structure class
+class Lab(Structure):
+
+	hud = LabHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "laboratory"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.armor = 70
+		
+		#load the model
+		self.meshPath = "models/lab/lab.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(310, self.model, -0.25)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.75)
+		self.selector.hide()
+		
+	def showGui(self, bool = False):
+		if bool:
+			Lab.hud.show(self, 0.2, -0.90)
+		else:
+			Lab.hud.hide()
+		
+		
+#specialized structure class
+class Factory(Structure):
+
+	hud = FactoryHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "factory"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.armor = 70
+		
+		#load the model
+		self.meshPath = "models/factory/factory.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(250, self.model, -0.25)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.78)
+		self.selector.hide()
+		
+	def showGui(self, bool = False):
+		if bool:
+			Factory.hud.show(self, 0.2, -0.88)
+		else:
+			Factory.hud.hide()
+		
+		
+#specialized structure class
+class Airbase(Structure):
+
+	hud = AirbaseHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "airbase"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.armor = 70
+		
+		#load the model
+		self.meshPath = "models/airbase/airbase.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(310, self.model, -0.35)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.80)
+		self.selector.hide()
+		
+	def showGui(self, bool = False):
+		if bool:
+			Airbase.hud.show(self, 0.2, -0.82)
+		else:
+			Airbase.hud.hide()
+			
+			
+#specialized structure class
+class Bunker(Structure):
+
+	hud = BunkerHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "bunker"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.attack = 35
+		self.armor = 30
+		
+		#load the model
+		self.meshPath = "models/bunker/bunker.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(310, self.model, -0.4)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.9)
+		self.selector.hide()
+		
+	def getAttack(self):
+		return self.attack
+		
+	def showGui(self, bool = False):
+		if bool:
+			Bunker.hud.show(self, 0.2, -0.82)
+		else:
+			Bunker.hud.hide()
+			
+			
+#specialized structure class
+class Turret(Structure):
+
+	hud = TurretHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "turret"
+		self.unitType = ReverseEnumeration("unit", [])
+		
+		self.attack = 40
+		self.armor = 70
+		
+		#load the model
+		self.meshPath = "models/turret/turret.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(310, self.model, -0.4)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.9)
+		self.selector.hide()
+		
+	def getAttack(self):
+		return self.attack
+		
+	def showGui(self, bool = False):
+		if bool:
+			Turret.hud.show(self, 0.2, -0.82)
+		else:
+			Turret.hud.hide()
+		
+		
 #specialized unit class	
 class Worker(Unit):
 
@@ -460,7 +690,7 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
-		self.structureType = ReverseEnumeration("structure", [("base", 40), ("barrack", 35)])
+		self.structureType = ReverseEnumeration("structure", [("base", 50), ("barrack", 30), ("armory", 35), ("lab", 40), ("factory", 45), ("airbase", 38), ("bunker", 33), ("turret", 25)])
 		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
 		self.waiting = self.waitingType.idle
 		self.structureToBuild = False
@@ -495,9 +725,6 @@ class Worker(Unit):
 		#play the basic animation
 		self.model.play('idle')
 		
-		#call the update coroutine
-		#taskMgr.add(self.update, "unitupdate")
-		
 	#send the worker to gather the indicated <blackMatter> through the route indicated by <wayList>
 	def gather(self, blackMatter, wayList):
 		pass
@@ -516,6 +743,18 @@ class Worker(Unit):
 					self.army.addUnit(Base(mp.getX(), mp.getY(), 0.0, self.army))
 				elif self.structureToBuild == self.structureType.barrack:
 					self.army.addUnit(Barrack(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.armory:
+					self.army.addUnit(Armory(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.lab:
+					self.army.addUnit(Lab(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.factory:
+					self.army.addUnit(Factory(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.airbase:
+					self.army.addUnit(Airbase(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.bunker:
+					self.army.addUnit(Bunker(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.turret:
+					self.army.addUnit(Turret(mp.getX(), mp.getY(), 0.0, self.army))
 				self.wiremodel.hide()
 				self.wiremodel.remove()
 				self.structureToBuild = False
@@ -532,6 +771,18 @@ class Worker(Unit):
 			self.wiremodel = loader.loadModel("models/mainbase/base.egg")
 		elif self.structureToBuild == self.structureType.barrack:
 			self.wiremodel = loader.loadModel("models/barrack/barrack.egg")
+		elif self.structureToBuild == self.structureType.armory:
+			self.wiremodel = loader.loadModel("models/armory/armory.egg")
+		elif self.structureToBuild == self.structureType.lab:
+			self.wiremodel = loader.loadModel("models/lab/lab.egg")
+		elif self.structureToBuild == self.structureType.factory:
+			self.wiremodel = loader.loadModel("models/factory/factory.egg")
+		elif self.structureToBuild == self.structureType.airbase:
+			self.wiremodel = loader.loadModel("models/airbase/airbase.egg")
+		elif self.structureToBuild == self.structureType.bunker:
+			self.wiremodel = loader.loadModel("models/bunker/bunker.egg")
+		elif self.structureToBuild == self.structureType.turret:
+			self.wiremodel = loader.loadModel("models/turret/turret.egg")
 		self.wiremodel.reparentTo(render)
 		self.wiremodel.setRenderModeWireframe()
 		mp = Mouse.queryMousePosition()
