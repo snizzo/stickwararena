@@ -412,14 +412,14 @@ class Barrack(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		self.colorFlag = self.node.find("**/colorFlagObj")
-		self.materialFlag = Material("materialFlag")
-		self.materialFlag.setDiffuse(self.army.getColor())
-		self.colorFlag.setMaterial(self.materialFlag,1)
-		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		#self.colorFlag = self.node.find("**/colorFlagObj")
+		#self.materialFlag = Material("materialFlag")
+		#self.materialFlag.setDiffuse(self.army.getColor())
+		#self.colorFlag.setMaterial(self.materialFlag,1)
+		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
-		self.healthBar = HealthBar(250, self.model, -0.35)
+		self.healthBar = HealthBar(250, self.model, -0.25)
 		self.healthBar.hide()
 		
 		#create the selector
@@ -566,6 +566,10 @@ class Soldier(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "soldier"
+		
+		#unit params
+		self.attack = 10
+		self.armor = 2
 		
 		#load the model and the animation
 		self.meshPath = "models/ometto/ometto.egg"
