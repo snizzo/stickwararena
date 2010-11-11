@@ -344,7 +344,7 @@ class Base(Structure):
 	def __init__(self, x, y, z, _army):
 		Structure.__init__(self, x, y, z, _army)
 		self.type = "base"
-		self.unitType = ReverseEnumeration("unit", [("worker", 4), ("soldier", 5)])
+		self.unitType = ReverseEnumeration("unit", [("worker", 4)])
 		
 		self.armor = 100
 		
@@ -374,14 +374,10 @@ class Base(Structure):
 	def createUnit(self, unitType):
 		if unitType == self.unitType.worker:
 			taskMgr.doMethodLater(self.unitType.__getattr__("worker"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
-		elif unitType == self.unitType.soldier:
-			taskMgr.doMethodLater(self.unitType.__getattr__("soldier"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
 			
 	def createUnitDelayed(self, unitType, task):
 		if unitType == self.unitType.worker:
 			self.army.addUnit(Worker(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
-		elif unitType == self.unitType.soldier:
-			self.army.addUnit(Soldier(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
 		self.queueBusy = False
 		return task.done
 		
@@ -396,6 +392,64 @@ class Base(Structure):
 			Base.hud.show(self, 0.2, -0.82)
 		else:
 			Base.hud.hide()
+			
+
+#specialized structure class
+class Barrack(Structure):
+
+	hud = BarrackHud()
+
+	def __init__(self, x, y, z, _army):
+		Structure.__init__(self, x, y, z, _army)
+		self.type = "barrack"
+		self.unitType = ReverseEnumeration("unit", [("soldier", 5)])
+		
+		self.armor = 80
+		
+		#load the model
+		self.meshPath = "models/barrack/barrack.egg"
+		self.model = loader.loadModel(self.meshPath)
+		self.model.reparentTo(self.node)
+		
+		#set the material properties
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		
+		#create the healthbar
+		self.healthBar = HealthBar(250, self.model, -0.35)
+		self.healthBar.hide()
+		
+		#create the selector
+		self.selector = Selector(self.model, 0.75)
+		self.selector.hide()
+		
+		#create the gui
+		#self.hud = Hud(self)
+		
+	def attackUnit(self, unit):
+		pass
+			
+	def getUnitType(self):
+		return self.unitType
+		
+	def createUnit(self, unitType):
+		if unitType == self.unitType.soldier:
+			taskMgr.doMethodLater(self.unitType.__getattr__("soldier"), self.createUnitDelayed, 'createUnit', extraArgs=[unitType], appendTask=True)
+			
+	def createUnitDelayed(self, unitType, task):
+		if unitType == self.unitType.soldier:
+			self.army.addUnit(Soldier(self.spawnPoint[0] + (Base.random.random() - 0.5), self.spawnPoint[1] + (Base.random.random() - 0.5), self.spawnPoint[2], self.army))
+		self.queueBusy = False
+		return task.done
+		
+	def showGui(self, bool = False):
+		if bool:
+			Barrack.hud.show(self, 0.2, -0.82)
+		else:
+			Barrack.hud.hide()
 		
 
 #specialized unit class	
@@ -406,7 +460,7 @@ class Worker(Unit):
 	def __init__(self, x, y, z, _army):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
-		self.structureType = ReverseEnumeration("structure", [("base", 40)])
+		self.structureType = ReverseEnumeration("structure", [("base", 40), ("barrack", 35)])
 		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
 		self.waiting = self.waitingType.idle
 		self.structureToBuild = False
@@ -458,9 +512,13 @@ class Worker(Unit):
 		if self.waiting == self.waitingType.build:
 			mp = Mouse.queryMousePosition()
 			if mp:
-				self.army.addUnit(Base(mp.getX(), mp.getY(), 0.0, self.army))
+				if self.structureToBuild == self.structureType.base:
+					self.army.addUnit(Base(mp.getX(), mp.getY(), 0.0, self.army))
+				elif self.structureToBuild == self.structureType.barrack:
+					self.army.addUnit(Barrack(mp.getX(), mp.getY(), 0.0, self.army))
 				self.wiremodel.hide()
 				self.wiremodel.remove()
+				self.structureToBuild = False
 		self.waiting = self.waitingType.idle
 		
 	def leftButtonNotify(self):
@@ -470,7 +528,10 @@ class Worker(Unit):
 		self.waiting = self.waitingType.idle
 		
 	def manageBuild(self):
-		self.wiremodel = loader.loadModel("models/mainbase/base.egg")
+		if self.structureToBuild == self.structureType.base:
+			self.wiremodel = loader.loadModel("models/mainbase/base.egg")
+		elif self.structureToBuild == self.structureType.barrack:
+			self.wiremodel = loader.loadModel("models/barrack/barrack.egg")
 		self.wiremodel.reparentTo(render)
 		self.wiremodel.setRenderModeWireframe()
 		mp = Mouse.queryMousePosition()
