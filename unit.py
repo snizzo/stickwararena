@@ -665,11 +665,11 @@ class Turret(Structure):
 		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
-		self.healthBar = HealthBar(310, self.model, -0.4)
+		self.healthBar = HealthBar(100, self.model, 0.5)
 		self.healthBar.hide()
 		
 		#create the selector
-		self.selector = Selector(self.model, 0.9)
+		self.selector = Selector(self.model, 0.23)
 		self.selector.hide()
 		
 	def getAttack(self):
@@ -677,7 +677,7 @@ class Turret(Structure):
 		
 	def showGui(self, bool = False):
 		if bool:
-			Turret.hud.show(self, 0.2, -0.82)
+			Turret.hud.show(self, 0.26, -0.88)
 		else:
 			Turret.hud.hide()
 		
