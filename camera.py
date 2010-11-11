@@ -18,13 +18,16 @@ class Mouse:
 	
 	@staticmethod
 	def queryMousePosition():
-		#if not Mouse.mc:
-		#	Mouse.mc = MouseCollider()
-		#if not Mouse.gc:
-		#	Mouse.gc = GroundCollider()
 		mcc = Mouse.mc.collide()
 		if Mouse.mc.hasMouse() and mcc != None:
 			return Mouse.gc.collide(mcc + Vec3(0.0, 0.0, 0.5))
+		else:
+			return False
+		
+	@staticmethod
+	def queryScreenMousePosition():
+		if base.mouseWatcherNode.hasMouse():
+			return base.mouseWatcherNode.getMouse()
 		else:
 			return False
 
@@ -126,38 +129,7 @@ class Camera():
 		
 		base.camera.setX(x)
 		base.camera.setY(y-6)
-
-'''
-class clKeyBoardModifiers(): 
-	def __init__(self): 
-		self.booAlt = False 
-		self.booControl = False 
-		self.booShift = False 
-		base.accept("alt", self.OnAltDown) 
-		base.accept("alt-up", self.OnAltUp) 
-		base.accept("control", self.OnControlDown) 
-		base.accept("control-up", self.OnControlUp) 
-		base.accept("shift", self.OnShiftDown) 
-		base.accept("shift-up", self.OnShiftUp) 
-	 
-	def OnAltDown(self): 
-		self.booAlt = True 
-		 
-	def OnAltUp(self): 
-		self.booAlt = False 
-		 
-	def OnControlDown(self): 
-		self.booControl = True 
-	 
-	def OnControlUp(self): 
-		self.booControl = False 
-		 
-	def OnShiftDown(self): 
-		self.booShift = True 
-		 
-	def OnShiftUp(self): 
-		self.booShift = False 
-'''
+		
  
 class clSelectionTool(): 
 	#def __init__(self, listConsideration=[]):

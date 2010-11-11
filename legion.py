@@ -166,11 +166,6 @@ class Group(DirectObject):
 		
 	def go(self):
 		for unit in self.multipleObject:
-			''' Temporarly disabled until I check for internal coherence
-			if mySelection.underMouse:
-				path = self.finder.pathFindToNode(mySelection.underMouse)
-			else:
-			'''
 			self.finder.addPathFindTask(unit, self)
 			
 	def onPathComplete(self, unit, path):
