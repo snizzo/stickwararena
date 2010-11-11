@@ -250,6 +250,23 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['base'] = bt
 		
+		btg2 = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt2 = DirectButton(geom = (
+		btg2.find('**/worker'),
+		btg2.find('**/worker'),
+		btg2.find('**/worker'),
+		btg2.find('**/worker')))
+		bt2.resetFrameSize()
+		bt2.setScale(0.1)
+		bt2.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt2.setPos(pos)
+		bt2['relief'] = None
+		bt2['command'] = None
+		bt2['extraArgs'] =  None
+		self.buttonList['barrack'] = bt2
+		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
 			y = button.getZ()
@@ -275,6 +292,8 @@ class WorkerHud(Hud):
 	def setButton(self, parent):
 		self.buttonList['base']['command'] = parent.buildStructure
 		self.buttonList['base']['extraArgs'] = ([parent.getStructureType().base])
+		self.buttonList['barrack']['command'] = parent.buildStructure
+		self.buttonList['barrack']['extraArgs'] = ([parent.getStructureType().barrack])
 		
 class SoldierHud(Hud):
 	def __init__(self):
@@ -359,4 +378,52 @@ class BaseHud(Hud):
 	def setButton(self, parent):
 		self.buttonList['worker']['command'] = parent.addUnitToCreationQueue
 		self.buttonList['worker']['extraArgs'] = ([parent.getUnitType().worker])
+		
+		
+class BarrackHud(Hud):
+	def __init__(self):
+		Hud.__init__(self)
+		
+		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
+		
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['soldier'] = bt
+		
+		for key, button in self.buttonList.iteritems():
+			x = button.getX()
+			y = button.getZ()
+			button.setX(x+self.xOffset)
+			button.setZ(y+self.yOffset)
+		
+	def setTextLine(self, parent):
+		Hud.setTextLine(self, parent)
+		s = "armor: " + str(parent.getArmor())
+		self.itemList['armorString'].getNode(0).setText(s)
+		
+	def show(self, parent, scale, z):
+		if parent.isOwner():
+			self.buttons.show()
+			self.setButton(parent)
+		else:
+			self.buttons.hide()
+		self.setTextLine(parent)
+		Hud.show(self, parent, scale, z)
+		
+	def setButton(self, parent):
+		self.buttonList['soldier']['command'] = parent.addUnitToCreationQueue
+		self.buttonList['soldier']['extraArgs'] = ([parent.getUnitType().soldier])
 		

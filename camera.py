@@ -214,7 +214,7 @@ class clSelectionTool():
 		self._notifyRightClick = bool
 		
 	def notifyLeftClick(self, bool):
-		print "left click " + str(bool)
+		#print "left click " + str(bool)
 		self._notifyLeftClick = bool
 	
 	def clear(self):
