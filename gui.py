@@ -152,7 +152,7 @@ class Hud():
 		
 		self.hide()
 		
-	def setGrid(self, columns = 3, cellsize = 0.1, padding = 2, xoff = 0.70, yoff = -0.57):
+	def setGrid(self, columns = 4, cellsize = 0.05, padding = 0.0, xoff = 0.70, yoff = -0.57):
 		self.gridX = columns
 		self.cellSize = cellsize
 		self.gridPadding = padding
@@ -250,22 +250,22 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['base'] = bt
 		
-		btg2 = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt2 = DirectButton(geom = (
-		btg2.find('**/worker'),
-		btg2.find('**/worker'),
-		btg2.find('**/worker'),
-		btg2.find('**/worker')))
-		bt2.resetFrameSize()
-		bt2.setScale(0.1)
-		bt2.reparentTo(self.buttons)
+		btg = loader.loadModel("images/stick_commander/worker_button.egg")
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(0.1)
+		bt.reparentTo(self.buttons)
 		#getting next cell position from directives
 		pos = self.getNextCell()
-		bt2.setPos(pos)
-		bt2['relief'] = None
-		bt2['command'] = None
-		bt2['extraArgs'] =  None
-		self.buttonList['barrack'] = bt2
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = None
+		bt['extraArgs'] =  None
+		self.buttonList['barrack'] = bt
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
