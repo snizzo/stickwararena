@@ -127,10 +127,10 @@ class Group(DirectObject):
 	def notifyLeftClick(self):
 		mySelection.notifyLeftClick(True)
 		
-	def abortLeftClickNotify(self):
+	def releaseLeftClickNotify(self):
 		mySelection.notifyLeftClick(False)
 	
-	def abortRightClickNotify(self):
+	def releaseRightClickNotify(self):
 		mySelection.notifyRightClick(False)
 		
 	def leftButtonPressed(self):

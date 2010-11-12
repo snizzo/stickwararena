@@ -2,6 +2,7 @@
 
 from panda3d.core import *
 from pandac.PandaModules import *
+from direct.showbase.DirectObject import DirectObject
 import sys,os
 import __builtin__
 #from direct.showbase import DirectObject
@@ -214,7 +215,7 @@ class clSelectionTool():
 		self.npSelRect.setScale(1e-3, 1, 1e-3) 
 		self.npSelRect.show() 
 		self.taskUpdateSelRect = taskMgr.add(self.UpdateSelRect, "UpdateSelRect") 
-		self.taskUpdateSelRect.lastMpos = None 
+		#self.taskUpdateSelRect.lastMpos = None 
 		
 	def OnStopSelect(self):
 		if not self.active:
@@ -369,3 +370,108 @@ class clSelectionTool():
 							myGroup.addUnit(i)
 		return Task.cont
 	
+
+class SelectionTool(DirectObject):
+
+	updateTime = 0.015
+	NO_SELECTION = 0
+	CLICK_SELECTION = 1
+	SELECTION = 2
+
+	def __init__(self):
+		self.selectionType = SelectionTool.NO_SELECTION
+		self._notifySelection = False
+		self.selectableUnit = []
+		self.selectionUpdateTask = False
+		
+		cm = CardMaker('')
+		cm.setFrame(0, 1, 0, 1)
+		self.selectionRect = render2d.attachNewNode(cm.generate())
+		self.selectionRect.setColor(0.5, 1, 0, 0.3) 
+		self.selectionRect.setTransparency(1)
+		self.selectionRect.hide()
+		
+		ls = LineSegs() 
+		ls.setColor(0.5,1,0,1)
+		ls.moveTo(0,0,0) 
+		ls.drawTo(1,0,0) 
+		ls.drawTo(1,0,1) 
+		ls.drawTo(0,0,1) 
+		ls.drawTo(0,0,0) 
+		self.selectionRect.attachNewNode(ls.create())
+		
+		self.mousePos = False
+		self.oldMousePos = False
+		
+		self.accept("mouse1", self.startSelection)
+		self.accept("mouse1-up", self.stopSelection)
+		self.accept("mouse3-up", self.rightSelection)
+		
+	def notifySelection(self, bool = False):
+		self._notifySelection = bool
+		
+	def addSelectableUnit(self, unit):
+		if isinstance(unit, GameObject):
+			self.selectableUnit.append(unit)
+			
+	def removeSelectableUnit(self, unit):
+		if unit in self.selectableUnit:
+			self.selectableUnit.remove(unit)
+			
+	def clear(self):
+		self.selectableUnit = []
+		
+	def hasMouse(self):
+		return base.mouseWatcherNode.hasMouse()
+		
+	def startSelection(self):
+		self.mousePos = Mouse.queryMousePosition()
+		if not self.hasMouse() or self.selectionType != SelectionTool.NO_SELECTION or not self.mousePos:
+			return
+		self.selectionType = SelectionTool.CLICK_SELECTION
+		self.oldMousePos = self.mousePos
+		if not self._notifySelection:
+			self.selectionType = SelectionTool.SELECTION
+			self.selectionUpdateTask = taskMgr.add(self.updateSelection, "updateSel")
+		
+	def updateSelection(self, task):
+		self.mousePos = Mouse.queryMousePosition()
+		if not self.hasMouse() or not self.mousePos:
+			return task.cont
+		myGroup.clear()
+		#update the rect
+		#add unit to the group
+		self.oldMousePos = self.mousePos
+		return task.cont
+		
+	def stopSelection(self):
+		if self.selectionUpdateTask:
+			self.selectionUpdateTask.remove()
+			self.selectionUpdateTask = False
+		self.mousePos = Mouse.queryMousePosition()
+		if not self.hasMouse() or not self.mousePos:
+			return
+		if self.selectionType == SelectionTool.SELECTION:
+			return
+		elif self.selectionType == SelectionTool.CLICK_SELECTION:
+			self.selectionType = SelectionTool.NO_SELECTION
+			if self._notifySelection:
+				myGroup.rightButtonPressed()
+				return
+			selectedUnit = False
+			for unit in self.selectableUnit:
+				unitBBRadius = unit.getNode().getBounds().getRadius()
+				unitPos = unit.getPos()
+				x, y, z = unitPos - self.mousePos
+				distance = abs(sqrt(x**2 + y**2 + z**2))
+				if distance - unitBBRadius < 0:
+					myGroup.clear()
+					myGroup.addUnit(unit)
+					return
+			return
+		
+	def rightSelection(self):
+		if self._notifySelection:
+			myGroup.rightButtonPressed()
+			return
+		myGroup.go()
