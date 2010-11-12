@@ -6,37 +6,108 @@ from direct.interval.IntervalGlobal import *
 from camera import Mouse
 import sys, __builtin__
 
-class Messages():
-	def __init__(self):
-		#creating baloon info root node
-		self.bInfo = render2d.attachNewNode("baloonInfo")
+class Message():
+	def __init__(self, title, message = "", duration = 5.0):
+		self.title = title
+		self.message = message
+		self.duration = duration
 		
-		#loading fonts
-		self.font = loader.loadFont("fonts/freesans.ttf")
+	def getTitle(self):
+		return self.title
 		
-		#creating baloon text node
-		self.tl = TextNode("tPop")
-		self.tl.setFont(self.font)
-		self.tl.setAlign(TextNode.ARight)
-		self.tlnp = self.bInfo.attachNewNode(self.tl)
-		self.tlnp.setScale(0.05)
-		self.tlnp.setPos(0.95,0,0.85)
-		
-		self.tl.setFrameAsMargin(0.2,0.3,0.3,0)
-		self.tl.setFrameColor(0, 0, 0, 0.5)
-		self.tl.setCardColor(0, 0, 0, 0.5)
-		self.tl.setCardAsMargin(0.2,0.3,0.3,0)
-		self.tl.setCardDecal(True)
-		
-		self.tlnp.hide()
-		self.tlnp.setY(-1)
+	def getMessage(self):
+		return self.message
 	
-	def showBaloon(self,message,time):
-		self.tl.setText(message)
-		showFunc = Func(self.tlnp.show)
-		hideFunc = Func(self.tlnp.hide)
-		Sequence(showFunc,Wait(time),hideFunc).start()		
+	def getDuration(self):
+		return self.duration
 
+class Messages():
+	
+	defaultXPos = 0.95
+	defaultYPos = 0.85
+	maxYPos = 10
+	defaultXInc = -0.2
+	defaultYInc = -0.13
+	fadeInTime = 1
+	fadeOutTime = 1
+	
+	def __init__(self):
+		self.node = render2d.attachNewNode("messagesNode")
+		self.font = loader.loadFont("fonts/freesans.ttf")
+		self.XPosition = 0
+		self.YPosition = 0
+		self.messages = []
+		
+	def addMessage(self, _message):
+		node = self.node.attachNewNode("message")
+		node.hide()
+		node.setScale(0.05)
+		
+		title = TextNode("title")
+		title.setFont(self.font)
+		title.setAlign(TextNode.ARight)
+		titlePath = node.attachNewNode(title)
+		title.setText(_message.getTitle())
+		titlePath.setScale(0.9)
+		
+		message = TextNode("message")
+		message.setFont(self.font)
+		message.setAlign(TextNode.ARight)
+		messagePath = node.attachNewNode(message)
+		message.setText(_message.getMessage())
+		messagePath.setZ(messagePath.getZ() - 1)
+		messagePath.setScale(0.8)
+		
+		if title.getWidth() >= message.getWidth():
+			title.setFrameAsMargin(0.2,0.3,1.2,-0.3)
+			title.setFrameColor(0, 0, 0, 0.5)
+			title.setCardColor(0, 0, 0, 0.5)
+			title.setCardAsMargin(0.2,0.3,1.2,-0.3)
+			title.setCardDecal(True)
+			messagePath.setY(-1)
+		else:
+			message.setFrameAsMargin(0.2,0.3,0.2,1)
+			message.setFrameColor(0, 0, 0, 0.5)
+			message.setCardColor(0, 0, 0, 0.5)
+			message.setCardAsMargin(0.2,0.3,0.2,1)
+			message.setCardDecal(True)
+			titlePath.setY(-1)
+
+		self.messages.append(node)
+		node.show()
+		taskMgr.add(self.showMessage, "sequence", extraArgs = [_message, node], appendTask = True)
+		self.update()
+		
+	def update(self):
+		self.XPosition = 0
+		self.YPosition = 0
+		for message in self.messages:
+			message.setPos(self.getNextPosition())
+			
+	def showMessage(self, message, node, task):
+		if task.time < Messages.fadeInTime:
+			node.setAlphaScale(task.time / Messages.fadeInTime)
+		elif task.time < Messages.fadeInTime + message.getDuration():
+			node.setAlphaScale(1.0)
+		elif task.time < Messages.fadeInTime + message.getDuration() + Messages.fadeOutTime:
+			node.setAlphaScale(1 - (task.time - message.getDuration() - Messages.fadeInTime) / Messages.fadeOutTime)
+		else:
+			self.removeMessage(node)
+			return task.done
+		return task.cont
+
+	def removeMessage(self, message):
+		message.hide()
+		self.messages.remove(message)
+		self.update()
+		message.remove()
+		
+	def getNextPosition(self):
+		xPos = Messages.defaultXPos + self.XPosition * Messages.defaultXInc
+		yPos = Messages.defaultYPos + self.YPosition * Messages.defaultYInc
+		self.YPosition = (self.YPosition + 1) % Messages.maxYPos
+		return Vec3(xPos, 0, yPos)
+			
 
 class Popup():
 
@@ -290,6 +361,7 @@ class WorkerHud(Hud):
 		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
+		#Base button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -307,6 +379,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['base'] = bt
 		
+		#Barrack button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -324,6 +397,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['barrack'] = bt
 		
+		#Armory button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -341,6 +415,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['armory'] = bt
 		
+		#Laboratory button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -358,6 +433,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['lab'] = bt
 		
+		#Factory button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -375,6 +451,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['factory'] = bt
 		
+		#Airbase button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -392,6 +469,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['airbase'] = bt
 		
+		#Bunker button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -409,6 +487,7 @@ class WorkerHud(Hud):
 		bt['extraArgs'] =  None
 		self.buttonList['bunker'] = bt
 		
+		#Turret button
 		btg = loader.loadModel("images/stick_commander/worker_button.egg")
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),

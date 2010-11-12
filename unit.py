@@ -223,7 +223,7 @@ class Structure(GameObject):
 				self.unitCreationTask = taskMgr.add(self.update, "creationQueue")
 			return True
 		else:
-			myMessages.showBaloon("Creation Queue Full", 5)
+			myMessages.addMessage(Message(self.type + " message:", "Creation Queue Full", 5))
 			return False
 		
 	def update(self, task):
