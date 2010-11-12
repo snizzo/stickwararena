@@ -757,6 +757,7 @@ class Worker(Unit):
 					self.army.addUnit(Turret(mp.getX(), mp.getY(), 0.0, self.army))
 				self.wiremodel.hide()
 				self.wiremodel.remove()
+				self.wiremodel = False
 				self.structureToBuild = False
 		self.waiting = self.waitingType.idle
 		
@@ -764,9 +765,14 @@ class Worker(Unit):
 		if self.waiting == self.waitingType.build and self.wiremodel:
 			self.wiremodel.hide()
 			self.wiremodel.remove()
+			self.wiremodel = False
 		self.waiting = self.waitingType.idle
 		
 	def manageBuild(self):
+		if self.wiremodel:
+			self.wiremodel.hide()
+			self.wiremodel.remove()
+		self.wiremodel = False
 		if self.structureToBuild == self.structureType.base:
 			self.wiremodel = loader.loadModel("models/mainbase/base.egg")
 		elif self.structureToBuild == self.structureType.barrack:
@@ -783,6 +789,8 @@ class Worker(Unit):
 			self.wiremodel = loader.loadModel("models/bunker/bunker.egg")
 		elif self.structureToBuild == self.structureType.turret:
 			self.wiremodel = loader.loadModel("models/turret/turret.egg")
+		else:
+			return
 		self.wiremodel.reparentTo(render)
 		self.wiremodel.setRenderModeWireframe()
 		mp = Mouse.queryMousePosition()
@@ -798,6 +806,7 @@ class Worker(Unit):
 		mp = Mouse.queryMousePosition()
 		if mp and self.wiremodel:
 			self.wiremodel.setPos(mp)
+			self.wiremodel.setColorScale(0.0, 1.0, 0.0, 1.0)
 		return task.cont
 		
 	def getStructureType(self):

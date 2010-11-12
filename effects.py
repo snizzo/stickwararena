@@ -40,7 +40,7 @@ class Audio():
 	def playSoundtrack(self):
 		self.sound = loader.loadSfx(self.audioList[0])
 		self.sound.play()
-		myMessages.addMessage(Message("Now Playing:", self.getBName(self.audioList[0]), 5))
+		myMessages.addMessage(Message("Now Playing", self.getBName(self.audioList[0]), 5))
 		taskMgr.add(self.playMusic,"soundtrack")
 	
 	def stopSoundtrack(self):
@@ -56,7 +56,6 @@ class Audio():
 		self.sound.stop()
 		self.sound = loader.loadSfx(self.audioList[self.currentTrack])
 		self.sound.play()
-		#myMessages.showBaloon(self.getBName(self.audioList[self.currentTrack]), 5)
 		myMessages.addMessage(Message("Now Playing:", self.getBName(self.audioList[self.currentTrack]), 5))
 		
 		return Task.cont
