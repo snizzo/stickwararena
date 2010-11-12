@@ -757,8 +757,8 @@ class Worker(Unit):
 					self.army.addUnit(Turret(mp.getX(), mp.getY(), 0.0, self.army))
 				self.wiremodel.hide()
 				self.wiremodel.remove()
-				self.wiremodel = False
-				self.structureToBuild = False
+			self.wiremodel = False
+			self.structureToBuild = False
 		self.waiting = self.waitingType.idle
 		
 	def leftButtonNotify(self):

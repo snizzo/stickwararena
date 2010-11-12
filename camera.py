@@ -34,7 +34,6 @@ class Mouse:
 
 class Camera():
 	def __init__(self):
-		
 		self.scrollingSpeed = 18
 		self.cameraMovementBorder = 0.92
 		base.disableMouse()
@@ -132,7 +131,6 @@ class Camera():
 		
  
 class clSelectionTool(): 
-	#def __init__(self, listConsideration=[]):
 	def __init__(self):
 		#used to define an active behaviour or less
 		self.active = True

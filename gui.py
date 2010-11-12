@@ -302,6 +302,24 @@ class Hud():
 		y = -(self.cellSize + self.gridPadding) * cellRelYNumber
 		return Vec3(x,0,y)
 		
+	def addButton(self, name, image, scale, action = None, param = None):
+		btg = loader.loadModel(image)
+		bt = DirectButton(geom = (
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker'),
+		btg.find('**/worker')))
+		bt.resetFrameSize()
+		bt.setScale(scale)
+		bt.reparentTo(self.buttons)
+		#getting next cell position from directives
+		pos = self.getNextCell()
+		bt.setPos(pos)
+		bt['relief'] = None
+		bt['command'] = action
+		bt['extraArgs'] =  param
+		self.buttonList[name] = bt
+		
 	def addTextLine(self, name, text, pos, scale, align = TextNode.ALeft):
 		tl = TextNode(name)
 		tl.setText(text)
@@ -361,149 +379,14 @@ class WorkerHud(Hud):
 		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		#Base button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['base'] = bt
-		
-		#Barrack button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['barrack'] = bt
-		
-		#Armory button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['armory'] = bt
-		
-		#Laboratory button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['lab'] = bt
-		
-		#Factory button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['factory'] = bt
-		
-		#Airbase button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['airbase'] = bt
-		
-		#Bunker button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['bunker'] = bt
-		
-		#Turret button
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['turret'] = bt
+		self.addButton("base", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("barrack", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("armory", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("lab", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("factory", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("airbase", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("bunker", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("turret", "images/stick_commander/worker_button.egg", 0.1)
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
@@ -588,22 +471,7 @@ class BaseHud(Hud):
 		
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['worker'] = bt
+		self.addButton("worker", "images/stick_commander/worker_button.egg", 0.1)
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
@@ -636,22 +504,7 @@ class BarrackHud(Hud):
 		
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		btg = loader.loadModel("images/stick_commander/worker_button.egg")
-		bt = DirectButton(geom = (
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker'),
-		btg.find('**/worker')))
-		bt.resetFrameSize()
-		bt.setScale(0.1)
-		bt.reparentTo(self.buttons)
-		#getting next cell position from directives
-		pos = self.getNextCell()
-		bt.setPos(pos)
-		bt['relief'] = None
-		bt['command'] = None
-		bt['extraArgs'] =  None
-		self.buttonList['soldier'] = bt
+		self.addButton("soldier", "images/stick_commander/worker_button.egg", 0.1)
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
