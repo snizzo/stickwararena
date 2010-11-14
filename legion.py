@@ -40,30 +40,36 @@ class Army():
 		
 	def addUnit(self, unit):
 		self.unitList.append(unit)
-		mySelection.listConsideration.append(unit)
+		#mySelection.listConsideration.append(unit)
+		mySelection.addSelectableUnit(unit)
 		
 	def removeUnitAt(self, i):
 		unit = self.unitList.pop(i)
-		mySelection.listConsideration.remove(unit)
+		#mySelection.listConsideration.remove(unit)
+		mySelection.removeSelectableUnit(unit)
 		unit.destroy()
 		
 	def removeUnit(self, unit):
 		self.unitList.remove(unit)
-		mySelection.listConsideration.remove(unit)
+		#mySelection.listConsideration.remove(unit)
+		mySelection.removeSelectableUnit(unit)
 		unit.destroy()
 		
 	def addStructure(self, structure):
 		self.structureList.append(structure)
-		mySelection.listConsideration.append(structure)
+		#mySelection.listConsideration.append(structure)
+		mySelection.addSelectableUnit(structure)
 		
 	def removeStructureAt(self, i):
 		structure = self.structureList.pop(i)
-		mySelection.listConsideration.remove(structure)
+		#mySelection.listConsideration.remove(structure)
+		mySelection.removeSelectableUnit(structure)
 		structure.destroy()
 		
 	def removeStructure(self, structure):
 		self.structureList.remove(structure)
-		mySelection.listConsideration.remove(structure)
+		#mySelection.listConsideration.remove(structure)
+		mySelection.removeSelectableUnit(structure)
 		structure.destroy()
 		
 	def alterBlackMatter(self, amount):
@@ -127,11 +133,17 @@ class Group(DirectObject):
 	def notifyLeftClick(self):
 		mySelection.notifyLeftClick(True)
 		
+	def notifyClick(self):
+		mySelection.notifySelection(True)
+		
 	def releaseLeftClickNotify(self):
 		mySelection.notifyLeftClick(False)
 	
 	def releaseRightClickNotify(self):
 		mySelection.notifyRightClick(False)
+		
+	def releaseClickNotify(self):
+		mySelection.notifySelection()
 		
 	def leftButtonPressed(self):
 		#print "left button pressed"
@@ -189,6 +201,7 @@ class Group(DirectObject):
 			unit.showHUD()
 		self.multipleObject = []
 		GameObject.multipleHud.hide()
-		mySelection.notifyLeftClick(False)
-		mySelection.notifyRightClick(False)
+		#mySelection.notifyLeftClick(False)
+		#mySelection.notifyRightClick(False)
+		mySelection.notifySelection()
 		
