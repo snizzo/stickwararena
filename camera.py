@@ -3,7 +3,7 @@
 from panda3d.core import *
 from pandac.PandaModules import *
 from direct.showbase.DirectObject import DirectObject
-import sys,os
+import sys,os, math
 import __builtin__
 #from direct.showbase import DirectObject
 from direct.task import Task
@@ -100,7 +100,8 @@ class Camera():
 			camera.setY(camera, -1)
 			
 	def cameraMovements(self, task):
-		if base.mouseWatcherNode.hasMouse() and not mySelection.booSelecting:
+		#if base.mouseWatcherNode.hasMouse() and not mySelection.booSelecting:
+		if base.mouseWatcherNode.hasMouse():
 			x = base.mouseWatcherNode.getMouseX()
 			y = base.mouseWatcherNode.getMouseY()
 			
@@ -411,8 +412,8 @@ class SelectionTool(DirectObject):
 		self._notifySelection = bool
 		
 	def addSelectableUnit(self, unit):
-		if isinstance(unit, GameObject):
-			self.selectableUnit.append(unit)
+		#if isinstance(unit, GameObject):
+		self.selectableUnit.append(unit)
 			
 	def removeSelectableUnit(self, unit):
 		if unit in self.selectableUnit:
@@ -425,49 +426,65 @@ class SelectionTool(DirectObject):
 		return base.mouseWatcherNode.hasMouse()
 		
 	def startSelection(self):
-		self.mousePos = Mouse.queryMousePosition()
+		self.mousePos = Mouse.queryScreenMousePosition()
 		if not self.hasMouse() or self.selectionType != SelectionTool.NO_SELECTION or not self.mousePos:
 			return
 		self.selectionType = SelectionTool.CLICK_SELECTION
-		self.oldMousePos = self.mousePos
+		self.oldMousePos = Point2(self.mousePos)
 		if not self._notifySelection:
+			self.selectionRect.setPos(self.mousePos[0], 1, self.mousePos[1])
+			self.selectionRect.setScale(1e-3, 1, 1e-3)
 			self.selectionType = SelectionTool.SELECTION
+			self.selectionRect.show()
 			self.selectionUpdateTask = taskMgr.add(self.updateSelection, "updateSel")
 		
 	def updateSelection(self, task):
-		self.mousePos = Mouse.queryMousePosition()
+		self.mousePos = Mouse.queryScreenMousePosition()
 		if not self.hasMouse() or not self.mousePos:
 			return task.cont
-		myGroup.clear()
-		#update the rect
-		#add unit to the group
-		self.oldMousePos = self.mousePos
+		mouseDiff = self.mousePos - self.oldMousePos
+		self.selectionRect.setScale(mouseDiff[0] if mouseDiff[0] else 1e-3, 1, mouseDiff[1] if mouseDiff[1] else 1e-3)
+		if abs(mouseDiff[0]) > 0.1 and abs(mouseDiff[1]) > 0.1:
+			myGroup.clear()
+			fMouse_Lx = min(self.oldMousePos[0], self.mousePos[0]) 
+			fMouse_Ly = max(self.oldMousePos[1], self.mousePos[1]) 
+			fMouse_Rx = max(self.oldMousePos[0], self.mousePos[0]) 
+			fMouse_Ry = min(self.oldMousePos[1], self.mousePos[1])
+			for unit in self.selectableUnit:
+				camProj = base.cam.getRelativePoint(unit.getNode().getParent(), unit.getNode().getBounds().getCenter())
+				screenProj = Point2()
+				if base.camLens.project(camProj, screenProj):
+					if screenProj[0] >= fMouse_Lx and screenProj[0] <= fMouse_Rx and screenProj[1] >= fMouse_Ry and screenProj[1] <= fMouse_Ly:
+						myGroup.addUnit(unit)
 		return task.cont
 		
 	def stopSelection(self):
 		if self.selectionUpdateTask:
 			self.selectionUpdateTask.remove()
 			self.selectionUpdateTask = False
-		self.mousePos = Mouse.queryMousePosition()
+			self.selectionRect.hide()
+		self.mousePos = Mouse.queryScreenMousePosition()
 		if not self.hasMouse() or not self.mousePos:
+			self.selectionType = SelectionTool.NO_SELECTION
 			return
-		if self.selectionType == SelectionTool.SELECTION:
-			return
-		elif self.selectionType == SelectionTool.CLICK_SELECTION:
+		if self.selectionType == SelectionTool.CLICK_SELECTION or self.selectionType == SelectionTool.SELECTION:
 			self.selectionType = SelectionTool.NO_SELECTION
 			if self._notifySelection:
-				myGroup.rightButtonPressed()
+				myGroup.leftButtonPressed()
 				return
-			selectedUnit = False
-			for unit in self.selectableUnit:
-				unitBBRadius = unit.getNode().getBounds().getRadius()
-				unitPos = unit.getPos()
-				x, y, z = unitPos - self.mousePos
-				distance = abs(sqrt(x**2 + y**2 + z**2))
-				if distance - unitBBRadius < 0:
-					myGroup.clear()
-					myGroup.addUnit(unit)
-					return
+			mouseDiff = self.mousePos - self.oldMousePos
+			if abs(mouseDiff[0]) < 0.1 and abs(mouseDiff[1]) < 0.1:
+				for unit in self.selectableUnit:
+					unitBBRadius = unit.getNode().getBounds().getRadius()
+					x, y, z = base.cam.getRelativePoint(unit.getNode().getParent(), unit.getNode().getBounds().getCenter())
+					distance = math.sqrt(x**2 + y**2 + z**2)
+					print str(distance)
+					print str(unitBBRadius)
+					if distance - unitBBRadius < 0:
+						myGroup.clear()
+						myGroup.addUnit(unit)
+						return
+				myGroup.clear()
 			return
 		
 	def rightSelection(self):

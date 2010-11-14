@@ -42,7 +42,8 @@ class Navigator(ShowBase):
 		__builtin__.myLegion = []
 		__builtin__.myGroup = Group()
 		__builtin__.myCamera = Camera()
-		__builtin__.mySelection = clSelectionTool()
+		#__builtin__.mySelection = clSelectionTool()
+		__builtin__.mySelection = SelectionTool()
 		__builtin__.myMessages = Messages()
 		__builtin__.myAudio = Audio()
 		
@@ -75,7 +76,7 @@ class Navigator(ShowBase):
 		#show game hud
 		Hud.showGuiBackground(True)
 		#make mouse selection tool active
-		mySelection.setActive()
+		#mySelection.setActive()
 		
 		#phase specific event handling
 		#used to show a popup if you want to exit
@@ -85,7 +86,7 @@ class Navigator(ShowBase):
 	# args: f = from where are you returning (eg. game, just started..)
 	def mainMenu(self,f):
 		#set mouse selection tool inactive
-		mySelection.setIdle()
+		#mySelection.setIdle()
 		#avoid showing the popup to return to main menu
 		base.ignore("escape")
 		#if you're seeing main menu once closed a game unload map and remove everything from scene

@@ -15,7 +15,8 @@ class Resources():
 	
 	def addResource(self, node):
 		bm = BlackMatter(node.getX(), node.getY(), node.getZ(), self)
-		mySelection.listConsideration.append(bm)
+		#mySelection.listConsideration.append(bm)
+		mySelection.addSelectableUnit(bm)
 		self.resourceList.append(bm)
 		
 	def getNode(self):
@@ -25,7 +26,8 @@ class Resources():
 		return False
 	
 	def removeResource(self, resource):
-		mySelection.listConsideration.remove(resource)
+		#mySelection.listConsideration.remove(resource)
+		mySelection.removeSelectableUnit(resource)
 		self.resourceList.remove(resource)
 		resource.destroy()
 	
