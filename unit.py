@@ -409,11 +409,11 @@ class Barrack(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(250, self.model, -0.25)
@@ -458,11 +458,11 @@ class Armory(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(300, self.model, -0.25)
@@ -497,11 +497,11 @@ class Lab(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(310, self.model, -0.25)
@@ -536,11 +536,12 @@ class Factory(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag.setTwoSided(True)
 		
 		#create the healthbar
 		self.healthBar = HealthBar(250, self.model, -0.25)
@@ -575,11 +576,11 @@ class Airbase(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(310, self.model, -0.35)
@@ -615,11 +616,11 @@ class Bunker(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(310, self.model, -0.4)
@@ -658,11 +659,11 @@ class Turret(Structure):
 		self.model.reparentTo(self.node)
 		
 		#set the material properties
-		#self.colorFlag = self.node.find("**/colorFlagObj")
-		#self.materialFlag = Material("materialFlag")
-		#self.materialFlag.setDiffuse(self.army.getColor())
-		#self.colorFlag.setMaterial(self.materialFlag,1)
-		#self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
+		self.colorFlag = self.node.find("**/colorFlagObj")
+		self.materialFlag = Material("materialFlag")
+		self.materialFlag.setDiffuse(self.army.getColor())
+		self.colorFlag.setMaterial(self.materialFlag,1)
+		self.colorFlag.setColor(Vec4(0.5,0.5,0.5,1))
 		
 		#create the healthbar
 		self.healthBar = HealthBar(100, self.model, 0.5)

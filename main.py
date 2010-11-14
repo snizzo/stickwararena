@@ -62,7 +62,7 @@ class Navigator(ShowBase):
 		#shader and effects function
 		#want to run very fast and with intel based gc
 		myShader.setBloomed()
-		myAudio.playSoundtrack()
+		#myAudio.playSoundtrack()
 	
 	#function called when creating a new single player game
 	def startSingle(self):
