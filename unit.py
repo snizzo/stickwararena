@@ -103,6 +103,9 @@ class Selector():
 			
 		def hide(self):
 			self.node.hide()
+			
+		def getRadius(self):
+			return self.radius
 	
 		
 #basic game entity class, not for Instantiation
@@ -114,6 +117,10 @@ class GameObject(DirectObject):
 		self.army = _army
 		self.node = self.army.getNode().attachNewNode("gameobject")
 		self.node.setPos(x, y, z)
+		#self.node.showBounds()
+		
+	def getSelector(self):
+		return self.selector
 		
 	def isOwner(self):
 		return self.army.getIsPlayer()
@@ -758,6 +765,7 @@ class Worker(Unit):
 					self.army.addUnit(Turret(mp.getX(), mp.getY(), 0.0, self.army))
 				self.wiremodel.hide()
 				self.wiremodel.remove()
+				myGroup.releaseClickNotify()
 			self.wiremodel = False
 			self.structureToBuild = False
 		self.waiting = self.waitingType.idle
@@ -767,6 +775,7 @@ class Worker(Unit):
 			self.wiremodel.hide()
 			self.wiremodel.remove()
 			self.wiremodel = False
+			myGroup.releaseClickNotify()
 		self.waiting = self.waitingType.idle
 		
 	def manageBuild(self):
@@ -800,8 +809,7 @@ class Worker(Unit):
 		if self.wiremodel:
 			self.wiremodel.setPos(mp)
 		taskMgr.add(self.updateBuild, "updateBuild")
-		taskMgr.doMethodLater(0.1, myGroup.notifyRightClick, "rightNotify", extraArgs=[])
-		taskMgr.doMethodLater(0.1, myGroup.notifyLeftClick, "leftNotify", extraArgs=[])
+		taskMgr.doMethodLater(0.1, myGroup.notifyClick, "clickNotify", extraArgs=[])
 		
 	def updateBuild(self, task):
 		mp = Mouse.queryMousePosition()

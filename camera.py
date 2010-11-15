@@ -412,7 +412,6 @@ class SelectionTool(DirectObject):
 		self._notifySelection = bool
 		
 	def addSelectableUnit(self, unit):
-		#if isinstance(unit, GameObject):
 		self.selectableUnit.append(unit)
 			
 	def removeSelectableUnit(self, unit):
@@ -427,64 +426,79 @@ class SelectionTool(DirectObject):
 		
 	def startSelection(self):
 		self.mousePos = Mouse.queryScreenMousePosition()
+		# Coherence control
 		if not self.hasMouse() or self.selectionType != SelectionTool.NO_SELECTION or not self.mousePos:
 			return
+		#Until now is a click selection
 		self.selectionType = SelectionTool.CLICK_SELECTION
+		#Making a copy of the initial mouse position for future control
 		self.oldMousePos = Point2(self.mousePos)
+		#Don't need the selection rectangle if the notify is requested
 		if not self._notifySelection:
 			self.selectionRect.setPos(self.mousePos[0], 1, self.mousePos[1])
 			self.selectionRect.setScale(1e-3, 1, 1e-3)
-			self.selectionType = SelectionTool.SELECTION
 			self.selectionRect.show()
 			self.selectionUpdateTask = taskMgr.add(self.updateSelection, "updateSel")
 		
 	def updateSelection(self, task):
+		#Saving the new mouse position
 		self.mousePos = Mouse.queryScreenMousePosition()
+		#Coherence control
 		if not self.hasMouse() or not self.mousePos:
 			return task.cont
+		#Calculating mouse position from the initial position
 		mouseDiff = self.mousePos - self.oldMousePos
+		#Scaling the selection rect
 		self.selectionRect.setScale(mouseDiff[0] if mouseDiff[0] else 1e-3, 1, mouseDiff[1] if mouseDiff[1] else 1e-3)
+		#If the mouse has moved
 		if abs(mouseDiff[0]) > 0.1 and abs(mouseDiff[1]) > 0.1:
+			self.selectionType = SelectionTool.SELECTION
 			myGroup.clear()
+			#Calculating the selection rectangle vertices
 			fMouse_Lx = min(self.oldMousePos[0], self.mousePos[0]) 
 			fMouse_Ly = max(self.oldMousePos[1], self.mousePos[1]) 
 			fMouse_Rx = max(self.oldMousePos[0], self.mousePos[0]) 
 			fMouse_Ry = min(self.oldMousePos[1], self.mousePos[1])
 			for unit in self.selectableUnit:
+				#Projecting the unit in screen space
 				camProj = base.cam.getRelativePoint(unit.getNode().getParent(), unit.getNode().getBounds().getCenter())
 				screenProj = Point2()
 				if base.camLens.project(camProj, screenProj):
+					#if it's inside the rect add it to the group
 					if screenProj[0] >= fMouse_Lx and screenProj[0] <= fMouse_Rx and screenProj[1] >= fMouse_Ry and screenProj[1] <= fMouse_Ly:
 						myGroup.addUnit(unit)
 		return task.cont
 		
 	def stopSelection(self):
+		#If an update task is present we remove it
 		if self.selectionUpdateTask:
 			self.selectionUpdateTask.remove()
 			self.selectionUpdateTask = False
 			self.selectionRect.hide()
+		#Coherence control
 		self.mousePos = Mouse.queryScreenMousePosition()
 		if not self.hasMouse() or not self.mousePos:
 			self.selectionType = SelectionTool.NO_SELECTION
 			return
-		if self.selectionType == SelectionTool.CLICK_SELECTION or self.selectionType == SelectionTool.SELECTION:
+		#If a valid selection is done
+		if self.selectionType == SelectionTool.SELECTION:
+			self.selectionType = SelectionTool.NO_SELECTION
+			return
+		elif self.selectionType == SelectionTool.CLICK_SELECTION:
 			self.selectionType = SelectionTool.NO_SELECTION
 			if self._notifySelection:
 				myGroup.leftButtonPressed()
 				return
-			mouseDiff = self.mousePos - self.oldMousePos
-			if abs(mouseDiff[0]) < 0.1 and abs(mouseDiff[1]) < 0.1:
-				for unit in self.selectableUnit:
-					unitBBRadius = unit.getNode().getBounds().getRadius()
-					x, y, z = base.cam.getRelativePoint(unit.getNode().getParent(), unit.getNode().getBounds().getCenter())
-					distance = math.sqrt(x**2 + y**2 + z**2)
-					print str(distance)
-					print str(unitBBRadius)
-					if distance - unitBBRadius < 0:
-						myGroup.clear()
-						myGroup.addUnit(unit)
-						return
-				myGroup.clear()
+			for unit in self.selectableUnit:
+				#Need a check on distance control
+				unitBBRadius = unit.getSelector().getRadius()
+				x, y, z = unit.getPos() - Mouse.queryMousePosition()
+				distance = math.sqrt(x**2 + y**2 + z**2)
+				if distance - unitBBRadius < 0:
+					myGroup.clear()
+					myGroup.addUnit(unit)
+					return
+			myGroup.clear()
 			return
 		
 	def rightSelection(self):

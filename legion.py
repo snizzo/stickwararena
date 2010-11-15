@@ -40,35 +40,29 @@ class Army():
 		
 	def addUnit(self, unit):
 		self.unitList.append(unit)
-		#mySelection.listConsideration.append(unit)
 		mySelection.addSelectableUnit(unit)
 		
 	def removeUnitAt(self, i):
 		unit = self.unitList.pop(i)
-		#mySelection.listConsideration.remove(unit)
 		mySelection.removeSelectableUnit(unit)
 		unit.destroy()
 		
 	def removeUnit(self, unit):
 		self.unitList.remove(unit)
-		#mySelection.listConsideration.remove(unit)
 		mySelection.removeSelectableUnit(unit)
 		unit.destroy()
 		
 	def addStructure(self, structure):
 		self.structureList.append(structure)
-		#mySelection.listConsideration.append(structure)
 		mySelection.addSelectableUnit(structure)
 		
 	def removeStructureAt(self, i):
 		structure = self.structureList.pop(i)
-		#mySelection.listConsideration.remove(structure)
 		mySelection.removeSelectableUnit(structure)
 		structure.destroy()
 		
 	def removeStructure(self, structure):
 		self.structureList.remove(structure)
-		#mySelection.listConsideration.remove(structure)
 		mySelection.removeSelectableUnit(structure)
 		structure.destroy()
 		
@@ -127,26 +121,13 @@ class Group(DirectObject):
 		else:
 			self.multipleObject.remove(unit)
 		
-	def notifyRightClick(self):
-		mySelection.notifyRightClick(True)
-		
-	def notifyLeftClick(self):
-		mySelection.notifyLeftClick(True)
-		
 	def notifyClick(self):
 		mySelection.notifySelection(True)
-		
-	def releaseLeftClickNotify(self):
-		mySelection.notifyLeftClick(False)
-	
-	def releaseRightClickNotify(self):
-		mySelection.notifyRightClick(False)
 		
 	def releaseClickNotify(self):
 		mySelection.notifySelection()
 		
 	def leftButtonPressed(self):
-		#print "left button pressed"
 		if self.singleObject:
 			self.singleObject.leftButtonNotify()
 		else:
@@ -154,7 +135,6 @@ class Group(DirectObject):
 				unit.leftButtonNotify()
 		
 	def rightButtonPressed(self):
-		#print "right button pressed"
 		if self.singleObject:
 			self.singleObject.rightButtonNotify()
 		else:
