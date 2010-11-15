@@ -634,7 +634,7 @@ class Bunker(Structure):
 		self.healthBar.hide()
 		
 		#create the selector
-		self.selector = Selector(self.model, 0.9)
+		self.selector = Selector(self.model, 0.55)
 		self.selector.hide()
 		
 	def getAttack(self):
