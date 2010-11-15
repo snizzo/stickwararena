@@ -131,7 +131,9 @@ class Camera():
 		base.camera.setX(x)
 		base.camera.setY(y-6)
 		
- 
+
+'''
+PLZ DO NOT REMOVE OLOLOLOL!!111!1!!!!
 class clSelectionTool(): 
 	def __init__(self):
 		#used to define an active behaviour or less
@@ -370,11 +372,11 @@ class clSelectionTool():
 						if (p2[0] >= fMouse_Lx) & (p2[0] <= fMouse_Rx) & (p2[1] >= fMouse_Ry) & (p2[1] <= fMouse_Ly):
 							myGroup.addUnit(i)
 		return Task.cont
-	
+'''	
 
 class SelectionTool(DirectObject):
 
-	updateTime = 0.015
+	updateTime = 0.020
 	NO_SELECTION = 0
 	CLICK_SELECTION = 1
 	SELECTION = 2
@@ -384,6 +386,7 @@ class SelectionTool(DirectObject):
 		self._notifySelection = False
 		self.selectableUnit = []
 		self.selectionUpdateTask = False
+		self.lastTaskTime = 0.0
 		
 		cm = CardMaker('')
 		cm.setFrame(0, 1, 0, 1)
@@ -425,6 +428,7 @@ class SelectionTool(DirectObject):
 		return base.mouseWatcherNode.hasMouse()
 		
 	def startSelection(self):
+		self.lastTaskTime = 0.0
 		self.mousePos = Mouse.queryScreenMousePosition()
 		# Coherence control
 		if not self.hasMouse() or self.selectionType != SelectionTool.NO_SELECTION or not self.mousePos:
@@ -441,6 +445,9 @@ class SelectionTool(DirectObject):
 			self.selectionUpdateTask = taskMgr.add(self.updateSelection, "updateSel")
 		
 	def updateSelection(self, task):
+		if not task.time - self.lastTaskTime > SelectionTool.updateTime:
+			return task.cont
+		self.lastTaskTime = task.time
 		#Saving the new mouse position
 		self.mousePos = Mouse.queryScreenMousePosition()
 		#Coherence control

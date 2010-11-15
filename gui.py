@@ -117,8 +117,8 @@ class Popup():
 	BOTTOMRIGHT = 3
 	font = loader.loadFont("fonts/freesans.ttf")
 	
-	def __init__(self, message, position = 1, xOffset = 0.01, yOffset = 0.01):
-		self.node = render2d.attachNewNode("popup")
+	def __init__(self, parent, message, position = 1, xOffset = 0.01, yOffset = 0.01):
+		self.node = parent.attachNewNode("popup")
 		if isinstance(message, str):
 			text = TextNode("popup")
 			text.setFont(Popup.font)
@@ -126,8 +126,8 @@ class Popup():
 			textPath = self.node.attachNewNode(text)
 			text.setText(message)
 			text.setFrameAsMargin(0.2,0.3,0.3,0)
-			text.setFrameColor(0, 0, 0, 0.5)
-			text.setCardColor(0, 0, 0, 0.5)
+			text.setFrameColor(1, 1, 1, 1)
+			text.setCardColor(0, 0, 0, 1)
 			text.setCardAsMargin(0.2,0.3,0.3,0)
 			text.setCardDecal(True)
 		else:
@@ -136,34 +136,34 @@ class Popup():
 				text = TextNode("popup")
 				if y == 0.0:
 					text.setFrameAsMargin(0.2,0.3,0.2 + 1 * (len(message) - 1),-0.3)
-					text.setFrameColor(0, 0, 0, 0.5)
-					text.setCardColor(0, 0, 0, 0.5)
+					text.setFrameColor(1, 1, 1, 1)
+					text.setCardColor(0, 0, 0, 1)
 					text.setCardAsMargin(0.2,0.3,0.2 + 1 * (len(message) - 1),-0.3)
 					text.setCardDecal(True)
 				text.setFont(Popup.font)
 				text.setAlign(TextNode.ALeft)
 				textPath = self.node.attachNewNode(text)
 				text.setText(line)
-				textPath.setZ(textPath.getZ() - y)
+				textPath.setZ(aspect2d, textPath.getZ() - y)
 				y += 1
 				yOffset += 0.04
 			yOffset -= 0.04
-		self.node.setScale(0.040)
+		self.node.setScale(aspect2d, 0.040)
 		
 		mp = Mouse.queryScreenMousePosition()
 		if mp:
 			if position == Popup.TOPLEFT:
-				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+				self.node.setPos(aspect2d, mp[0] + xOffset, 0, mp[1] + yOffset)
 			elif position == Popup.TOPRIGHT:
-				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+				self.node.setPos(aspect2d, mp[0] + xOffset, 0, mp[1] + yOffset)
 			elif position == Popup.BOTTOMLEFT:
-				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+				self.node.setPos(aspect2d, mp[0] + xOffset, 0, mp[1] + yOffset)
 			elif position == Popup.BOTTOMRIGHT:
-				self.node.setPos(mp[0] + xOffset, 0.0, mp[1] + yOffset)
+				self.node.setPos(aspect2d, mp[0] + xOffset, 0, mp[1] + yOffset)
 			else:
-				self.node.setPos(0.95,0,0.85)
+				self.node.setPos(aspect2d, 0.95, 0, 0.85)
 		else:
-			self.node.setPos(0.95,0,0.85)
+			self.node.setPos(aspect2d, 0.95, 0, 0.85)
 		
 	def remove(self):
 		self.node.remove()
@@ -237,7 +237,6 @@ class MenuBuilder():
 
 					
 #fuckin' oop
-
 class Hud():
 
 	titlePosition = Vec3(0,0,-0.60)
@@ -272,7 +271,6 @@ class Hud():
 		self.actualMeshPath = ""
 		
 		self.hudNode = aspect2d.attachNewNode("unitHudNode")
-		self.bgImage = render2d.attachNewNode("unitBgImage")
 		self.displayInfo = self.hudNode.attachNewNode("displayInfo")
 		self.buttons = self.hudNode.attachNewNode("buttons")
 		
@@ -281,6 +279,8 @@ class Hud():
 		
 		self.addTextLine("titleString", "", Hud.titlePosition, 0.05, TextNode.ACenter)
 		self.addTextLine("healthString", "", Hud.firstRowPosition, 0.04)
+		
+		self.tooltip = False
 		
 		self.hide()
 		
@@ -302,7 +302,7 @@ class Hud():
 		y = -(self.cellSize + self.gridPadding) * cellRelYNumber
 		return Vec3(x,0,y)
 		
-	def addButton(self, name, image, scale, action = None, param = None):
+	def addButton(self, name, image, scale, tooltipMessage = "", action = None, param = None):
 		btg = loader.loadModel(image)
 		bt = DirectButton(geom = (
 		btg.find('**/worker'),
@@ -318,6 +318,8 @@ class Hud():
 		bt['relief'] = None
 		bt['command'] = action
 		bt['extraArgs'] =  param
+		bt.bind(DGG.ENTER, self.showTooltip, extraArgs=[bt, True, tooltipMessage])
+		bt.bind(DGG.EXIT, self.showTooltip, extraArgs=[bt, False, tooltipMessage])
 		self.buttonList[name] = bt
 		
 	def addTextLine(self, name, text, pos, scale, align = TextNode.ALeft):
@@ -357,12 +359,27 @@ class Hud():
 			self.loadImage(parent.getMeshPath(), scale, z)
 			self.setTextLine(parent)
 		self.hudNode.show()
-		self.bgImage.show()
 		
 	def hide(self):
 		self.hudNode.hide()
-		self.bgImage.hide()
 		
+	def showTooltip(self, parent, bool, msg, tooltipPos):
+		if bool and msg != "":
+			self.tooltip = Popup(parent, msg)
+			'''
+			clipPlane = aspect2d.attachNewNode(PlaneNode("clip"))
+			mp = Mouse.queryScreenMousePosition()
+			clipPlane.node().setPlane(Plane(0, 0, -1, 1))
+			clipPlane.setPos(mp[0], 0, mp[1])
+			self.hudNode.setClipPlane(clipPlane)
+			Hud.mainGui.setClipPlane(clipPlane)
+			'''
+		elif self.tooltip:
+			#self.hudNode.clearClipPlane()
+			#Hud.mainGui.clearClipPlane()
+			self.tooltip.remove()
+			self.tooltip = False
+	
 		
 class MultipleHud(Hud):
 	def __init__(self):
@@ -379,14 +396,14 @@ class WorkerHud(Hud):
 		self.addTextLine("attackString", "", Hud.secondRowPosition, 0.04)
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		self.addButton("base", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("barrack", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("armory", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("lab", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("factory", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("airbase", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("bunker", "images/stick_commander/worker_button.egg", 0.1)
-		self.addButton("turret", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("base", "images/stick_commander/worker_button.egg", 0.1, "fuckin base")
+		self.addButton("barrack", "images/stick_commander/worker_button.egg", 0.1, "fuckin barrack")
+		self.addButton("armory", "images/stick_commander/worker_button.egg", 0.1, "fuckin armory")
+		self.addButton("lab", "images/stick_commander/worker_button.egg", 0.1, "fucking lab")
+		self.addButton("factory", "images/stick_commander/worker_button.egg", 0.1, "fuckin factory")
+		self.addButton("airbase", "images/stick_commander/worker_button.egg", 0.1, "fuckin airbase")
+		self.addButton("bunker", "images/stick_commander/worker_button.egg", 0.1, "fuckin bunker")
+		self.addButton("turret", "images/stick_commander/worker_button.egg", 0.1, "fuckin turret")
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
@@ -471,7 +488,7 @@ class BaseHud(Hud):
 		
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		self.addButton("worker", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("worker", "images/stick_commander/worker_button.egg", 0.1, "fuckin worker")
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
@@ -504,7 +521,7 @@ class BarrackHud(Hud):
 		
 		self.addTextLine("armorString", "", Hud.thirdRowPosition, 0.04)
 		
-		self.addButton("soldier", "images/stick_commander/worker_button.egg", 0.1)
+		self.addButton("soldier", "images/stick_commander/worker_button.egg", 0.1, "fuckin soldier")
 		
 		for key, button in self.buttonList.iteritems():
 			x = button.getX()
