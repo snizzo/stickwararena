@@ -3,8 +3,6 @@ from panda3d.core import *
 from pandac.PandaModules import *
 from random import randint
 import sys,os, math
-
-
 from unit import GameObject, Selector
 from gui import BlackMatterHud
 
@@ -15,7 +13,6 @@ class Resources():
 	
 	def addResource(self, node):
 		bm = BlackMatter(node.getX(), node.getY(), node.getZ(), self)
-		#mySelection.listConsideration.append(bm)
 		mySelection.addSelectableUnit(bm)
 		self.resourceList.append(bm)
 		
@@ -26,7 +23,6 @@ class Resources():
 		return False
 	
 	def removeResource(self, resource):
-		#mySelection.listConsideration.remove(resource)
 		mySelection.removeSelectableUnit(resource)
 		self.resourceList.remove(resource)
 		resource.destroy()
