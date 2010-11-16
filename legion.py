@@ -90,6 +90,9 @@ class Group(DirectObject):
 		self.random = Random()
 		self.accept('right-click-on-selection', self.go)
 		
+	def getFinder(self):
+		return self.finder
+		
 	def addUnit(self, unit):
 		if unit.isOwner() and isinstance(unit, Unit):
 			self.multipleObject.append(unit)
@@ -159,6 +162,10 @@ class Group(DirectObject):
 	def go(self):
 		for unit in self.multipleObject:
 			self.finder.addPathFindTask(unit, self)
+			
+	def goTo(self, go):
+		for unit in self.multipleObject:
+			unit.interactWith(go)
 			
 	def onPathComplete(self, unit, path):
 		if len(self.multipleObject) > 1:

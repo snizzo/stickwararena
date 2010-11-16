@@ -253,6 +253,9 @@ class Unit(GameObject):
 		GameObject.__init__(self, x, y, z, _army)
 		self.movementTask = False
 		self.mainType = "unit"
+		
+	def interactWith(self, go):
+		pass
 	
 	#move to object from the actual position to the last waypoint in <waylist> passing through all the waypoint
 	def go(self, wayList):
@@ -699,7 +702,7 @@ class Worker(Unit):
 		Unit.__init__(self, x, y, z, _army)
 		self.type = "worker"
 		self.structureType = ReverseEnumeration("structure", [("base", 50), ("barrack", 30), ("armory", 35), ("lab", 40), ("factory", 45), ("airbase", 38), ("bunker", 33), ("turret", 25)])
-		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1)])
+		self.waitingType = ReverseEnumeration("waiting", [("idle", 0), ("build", 1), ("gather", 2)])
 		self.waiting = self.waitingType.idle
 		self.structureToBuild = False
 		self.wiremodel = False
@@ -733,9 +736,14 @@ class Worker(Unit):
 		#play the basic animation
 		self.model.play('idle')
 		
+	def interactWith(self, go):
+		if isinstance(go, Structure):
+			myGroup.getFinder().addPathFindTask(self, myGroup)
+			return
+		
 	#send the worker to gather the indicated <blackMatter> through the route indicated by <wayList>
-	def gather(self, blackMatter, wayList):
-		pass
+	def gather(self, blackMatter):
+		myGroup.getFinder().addPathFindTask(self, myGroup)
 		
 	def buildStructure(self, structureType):
 		self.structureToBuild = structureType

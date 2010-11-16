@@ -512,4 +512,16 @@ class SelectionTool(DirectObject):
 		if self._notifySelection:
 			myGroup.rightButtonPressed()
 			return
+		self.mousePos = Mouse.queryScreenMousePosition()
+		if not self.hasMouse() or not self.mousePos:
+			return
+		for unit in self.selectableUnit:
+			#Need a check on distance control
+			unitBBRadius = unit.getSelector().getRadius()
+			x, y, z = unit.getPos() - Mouse.queryMousePosition()
+			distance = math.sqrt(x**2 + y**2 + z**2)
+			if distance - unitBBRadius < 0:
+				myGroup.goTo(unit)
+				return
 		myGroup.go()
+		return
